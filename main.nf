@@ -1,0 +1,5 @@
+workflow {
+
+	full_annotation()
+
+}
