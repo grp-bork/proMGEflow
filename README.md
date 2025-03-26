@@ -2,7 +2,7 @@
 
 Blahblah.
 
-![proMGE_workflow](https://raw.githubusercontent.com/grp-bork/proMGEflow/main/docs/img/proMGEflow.svg)
+![proMGE_workflow](doc/img/proMGEflow.svg)
 
 Dependencies
 ------------
@@ -27,8 +27,22 @@ Installation
 
 `proMGEflow` requires the following databases:
 
-1. eggnog-mapper database --
-2. txsscan database --
+1. eggnog-mapper database (48GB)
+	```
+	mkdir -p /path/to/emapper_db && cd /path/to/emapper_db
+	wget http://eggnog6.embl.de/download/emapperdb-5.0.2/eggnog.db.gz
+	wget http://eggnog6.embl.de/download/emapperdb-5.0.2/eggnog_proteins.dmnd.gz
+	wget http://eggnog6.embl.de/download/emapperdb-5.0.2/eggnog.taxa.tar.gz
+	gunzip eggnog.db.gz
+	gunzip eggnog_proteins.dmnd.gz
+	tar xvzf eggnog.taxa.tar.gz
+	```
+
+2. txsscan models (50MB)
+	```
+	mkdir -p /path/to/txsscan_models && cd /path/to/txsscan_models
+	git clone https://github.com/macsy-models/TXSScan.git TXSS
+	```
 3. recombinase HMMs -- from Zenodo
 4. recognise marker set -- from Zenodo
 5. pangenome cluster reference sequences -- from Zenodo
