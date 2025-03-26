@@ -42,6 +42,7 @@ process buffered_prodigal {
 	"""
 	for genome_file in ${genomes}; do
 		genome_id=\$(basename \$genome_file ${file_suffix})
+		echo \$genome_id
 		mkdir -p prodigal/\$genome_id/
 		if [[ \$genome_file == *.gz ]]; then
 			gzip -dc \$genome_file > \$(basename \$genome_file .gz) 			
