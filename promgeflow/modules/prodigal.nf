@@ -31,7 +31,7 @@ process buffered_prodigal {
 	memory {8.GB * task.attempt}
 
 	input:
-	path(genomes)
+	tuple val(batch_id), path(genomes)
 	val(file_suffix)
 
 	output:

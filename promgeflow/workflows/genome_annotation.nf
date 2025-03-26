@@ -15,10 +15,12 @@ workflow genome_annotation {
 
 		if (params.prodigal_buffer_size != null && params.prodigal_buffer_size > 1) {
 
+			def batch_id = 0
 			buffered_prodigal(
 				genomes_ch
 					.map { speci, genome_id, genome_fasta -> genome_fasta }
-					.buffer(size: params.prodigal_buffer_size, remainder: true),
+					.buffer(size: params.prodigal_buffer_size, remainder: true)
+					.map { files -> [ "batch_${batch_id++}", files ] },
 				suffix_pattern
 			)
 			annotations_ch = buffered_prodigal.out.annotations
