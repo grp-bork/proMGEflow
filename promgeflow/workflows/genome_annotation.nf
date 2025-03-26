@@ -15,7 +15,10 @@ workflow genome_annotation {
 
 		if (params.prodigal_buffer_size != null && params.prodigal_buffer_size > 1) {
 
-			buffered_prodigal(genomes_ch.buffer(size: params.prodigal_buffer_size, remainder: true))
+			buffered_prodigal(
+				genomes_ch.buffer(size: params.prodigal_buffer_size, remainder: true),
+				Channel.of(suffix_pattern)
+			)
 			annotations_ch = buffered_prodigal.out.annotations
 				.map { file -> [
 					file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), file
