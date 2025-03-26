@@ -17,8 +17,6 @@ process txsscan {
 
 	"""
 	mkdir -p ${prefix}/
-	gzip -dc ${proteins} > input.faa
-	macsyfinder -vvv -w ${task.cpus} --models TXSS all --models-dir ${txsscan_models} -o ${prefix} --db-type unordered --multi-loci all --sequence-db input.faa
-	rm -f input.faa
+	macsyfinder -vvv -w ${task.cpus} --models TXSS all --models-dir ${txsscan_models} -o ${prefix} --db-type unordered --multi-loci all --sequence-db ${proteins}
 	"""
 }
