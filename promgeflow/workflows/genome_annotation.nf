@@ -26,7 +26,7 @@ workflow genome_annotation {
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
 				.map { file -> [
-					file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), file
+					params.known_speci, file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), file
 				]}
 			pproteins_ch = annotations_ch
 				.filter { it[1].getName().endsWith(".faa") }
