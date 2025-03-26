@@ -29,11 +29,11 @@ workflow genome_annotation {
 					params.known_speci, file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), file
 				]}
 			pproteins_ch = annotations_ch
-				.filter { it[1].getName().endsWith(".faa") }
+				.filter { it[2].getName().endsWith(".faa") }
 			pgenes_ch = annotations_ch
-				.filter { it[1].getName().endsWith(".ffn") }
+				.filter { it[2].getName().endsWith(".ffn") }
 			pgffs_ch = annotations_ch
-				.filter { it[1].getName().endsWith(".gff") }
+				.filter { it[2].getName().endsWith(".gff") }
 
 		} else {
 
