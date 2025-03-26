@@ -2,7 +2,7 @@
 
 Blahblah.
 
-![proMGE_workflow](doc/img/proMGEflow.svg)
+![proMGE_workflow](docs/img/proMGEflow.svg)
 
 Dependencies
 ------------
