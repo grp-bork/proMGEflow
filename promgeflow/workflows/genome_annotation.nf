@@ -17,7 +17,7 @@ workflow genome_annotation {
 
 			buffered_prodigal(
 				genomes_ch.buffer(size: params.prodigal_buffer_size, remainder: true),
-				Channel.of(suffix_pattern)
+				suffix_pattern
 			)
 			annotations_ch = buffered_prodigal.out.annotations
 				.map { file -> [
