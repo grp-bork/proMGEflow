@@ -24,6 +24,7 @@ workflow genome_annotation {
 				suffix_pattern
 			)
 			annotations_ch = buffered_prodigal.out.annotations
+				.flatten()
 				.map { file -> [
 					file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), file
 				]}
