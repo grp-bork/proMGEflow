@@ -1,5 +1,6 @@
 process prodigal {
 	tag "${genome_id}"
+	label "prodigal"
 	container "quay.io/biocontainers/prodigal:2.6.3--h031d066_7"
 	cpus 1
 	time {1.d * task.attempt}
@@ -23,7 +24,11 @@ process prodigal {
 }
 
 process buffered_prodigal {
+	label "prodigal"
 	container "quay.io/biocontainers/prodigal:2.6.3--h031d066_7"
+	cpus 1
+	time {1.d * task.attempt}
+	memory {8.GB * task.attempt}
 
 	input:
 	path(genomes)
