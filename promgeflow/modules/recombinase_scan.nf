@@ -19,14 +19,9 @@ process recombinase_scan {
 	// gzip -dc ${genome_id}.faa.gz > ${genome_id}.faa
 	"""
 	mkdir -p ${genome_id}/
-	if [[ "${proteins}" == *".gz" ]]; then
-		gzip -dc ${proteins} > recomb_analysis_proteins.faa
-	else
-		ln -s ${proteins} recomb_analysis_proteins.faa
-	fi
-	hmmsearch -o /dev/null --cpu $task.cpus --tblout ${genome_id}/${genome_id}.recombinase_hmmsearch.out --cut_ga ${recombinase_hmm_db} recomb_analysis_proteins.faa
+	
+	hmmsearch -o /dev/null --cpu $task.cpus --tblout ${genome_id}/${genome_id}.recombinase_hmmsearch.out --cut_ga ${recombinase_hmm_db} ${proteins}
 	parse_hmmsearch.py --mge_rules ${mge_rules} --prefix ${genome_id}/${genome_id} ${genome_id}/${genome_id}.recombinase_hmmsearch.out 
 	if [[ ! -s ${genome_id}/${genome_id}.recombinase_hmmsearch.besthits.out ]]; then rm -rf ${genome_id}/${genome_id}.recombinase_hmmsearch.besthits.out; rm -rf ${genome_id}/${genome_id}.recombinase_based_MGE_predictions.tsv; fi
-	rm -f recomb_analysis_proteins.faa
 	"""
 }

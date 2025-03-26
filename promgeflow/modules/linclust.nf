@@ -21,8 +21,9 @@ process linclust {
 	set -e -o pipefail
 	mkdir -p tmp/ ${genome_id}/
 
-	cat ${genes} ${speci_seqs} >> all_genes.fa.gz
-	
+	gzip -c ${genes} > all_genes.fa.gz
+	cat ${speci_seqs} >> all_genes.fa.gz
+		
 	mmseqs createdb all_genes.fa.gz mmseqsdb
 	mmseqs linclust --threads ${task.cpus} --split-memory-limit 150G --min-seq-id 0.95 -c 0.90 --cov-mode 0 mmseqsdb mmseqcluster ./tmp
 	mmseqs createsubdb mmseqcluster mmseqsdb mmseqcluster_representatives
@@ -30,7 +31,7 @@ process linclust {
 	mv mmseqcluster.tsv ${genome_id}/${genome_id}_mmseqcluster.tsv
 	gzip ${genome_id}/${genome_id}_mmseqcluster.tsv
 
-	rm -rf all_genes.fa.gz tmp/
+	rm -rvf all_genes.fa.gz tmp/
 	touch ${genome_id}/${genome_id}.DONE
 	"""
 	// gzip -dc ${genes} | grep "^>" | cut -f 1 -d " " | sed "s/^>//" | gzip -c - > ${genome_id}/${genome_id}_gene_headers.gz

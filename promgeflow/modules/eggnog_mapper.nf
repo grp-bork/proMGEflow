@@ -16,15 +16,14 @@ process eggnog_mapper {
 	script:
 	"""
 	mkdir -p ${speci}/${genome_id}/
-	gzip -dc ${proteins} > ${genome_id}.faa
-
+	
 	mkdir eggnog_db_copy
 	ln -sf \$(readlink eggnog_db)/eggnog_proteins.dmnd eggnog_db_copy/
 	ln -sf \$(readlink eggnog_db)/eggnog.taxa.db eggnog_db_copy/
 	ln -sf \$(readlink eggnog_db)/eggnog.taxa.db.traverse.pkl eggnog_db_copy/
 	cp -v eggnog_db/eggnog.db eggnog_db_copy/
 
-	emapper.py -i ${genome_id}.faa --data_dir eggnog_db_copy --output ${speci}/${genome_id}/${genome_id} -m diamond --cpu $task.cpus --dmnd_algo 0
-	rm -rvf ${genome_id}.faa eggnog_db_copy
+	emapper.py -i ${proteins} --data_dir eggnog_db_copy --output ${speci}/${genome_id}/${genome_id} -m diamond --cpu $task.cpus --dmnd_algo 0
+	rm -rvf eggnog_db_copy
 	"""
 }
