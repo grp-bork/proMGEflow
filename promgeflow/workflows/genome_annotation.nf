@@ -20,7 +20,7 @@ workflow genome_annotation {
 				genomes_ch
 					.map { speci, genome_id, genome_fasta -> genome_fasta }
 					.buffer(size: params.prodigal_buffer_size, remainder: true)
-					.map { files -> [ "batch_${batch_id++}", files ] },
+					.map { files -> [ batch_id++, files ] },
 				suffix_pattern
 			)
 			annotations_ch = buffered_prodigal.out.annotations
