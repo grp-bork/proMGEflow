@@ -16,7 +16,9 @@ workflow genome_annotation {
 		if (params.prodigal_buffer_size != null && params.prodigal_buffer_size > 1) {
 
 			buffered_prodigal(
-				genomes_ch.buffer(size: params.prodigal_buffer_size, remainder: true),
+				genomes_ch
+					.map { speci, genome_id, genome_fasta -> genome_fasta }
+					.buffer(size: params.prodigal_buffer_size, remainder: true),
 				suffix_pattern
 			)
 			annotations_ch = buffered_prodigal.out.annotations
