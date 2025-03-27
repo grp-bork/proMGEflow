@@ -56,6 +56,31 @@ process buffered_prodigal {
 
 }
 
+process pyrodigal {
+	tag "${genome_id}"
+	label "prodigal"
+	// container "quay.io/biocontainers/prodigal:2.6.3--h031d066_7"
+	cpus 1
+	time {1.d * task.attempt}
+	memory {8.GB * task.attempt}
+
+	input:
+	tuple val(speci), val(genome_id), path(genome_fna)
+
+	output:
+	tuple val(speci), val(genome_id), path("${genome_id}/${genome_id}.faa"), emit: proteins
+	tuple val(speci), val(genome_id), path("${genome_id}/${genome_id}.ffn"), emit: genes
+	tuple val(speci), val(genome_id), path("${genome_id}/${genome_id}.gff"), emit: genome_annotation
+
+	script:
+	def gunzip_cmd = (genome_fna.name.endsWith(".gz")) ? "gzip -dc ${genome_fna} > \$(basename ${genome_fna} .gz)" : ""
+	"""
+	mkdir -p ${genome_id}
+	${gunzip_cmd}
+	pyrodigal -i \$(basename ${genome_fna} .gz) -f gff -o ${genome_id}/${genome_id}.gff -a ${genome_id}/${genome_id}.faa -d ${genome_id}/${genome_id}.ffn
+	"""
+}
+
 process buffered_pyrodigal {
 	tag "batch_${batch_id}"
 	label "prodigal"

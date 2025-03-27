@@ -1,4 +1,4 @@
-include { prodigal; buffered_prodigal; buffered_pyrodigal } from "../modules/prodigal"
+include { prodigal; buffered_prodigal; pyrodigal; buffered_pyrodigal } from "../modules/prodigal"
 
 params.prodigal_buffer_size = -1
 
@@ -37,10 +37,10 @@ workflow genome_annotation {
 
 		} else {
 
-			prodigal(genomes_ch)
-			pproteins_ch = prodigal.out.proteins
-			pgenes_ch = prodigal.out.genes
-			pgffs_ch = prodigal.out.genome_annotation
+			pyrodigal(genomes_ch)
+			pproteins_ch = pyrodigal.out.proteins
+			pgenes_ch = pyrodigal.out.genes
+			pgffs_ch = pyrodigal.out.genome_annotation
 
 		}
 
