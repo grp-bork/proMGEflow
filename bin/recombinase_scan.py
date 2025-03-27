@@ -77,6 +77,7 @@ def main():
             write_header = i == 0
             hits.write(raw_table_out, header=write_header)
             for hit in hits:
+                print(hit)
                 hit_name = hit.name.decode()
                 for domain in hit.domains:
                     best_score = seen.setdefault(hit_name, 0.0)
