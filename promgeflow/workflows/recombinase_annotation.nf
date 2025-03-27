@@ -13,7 +13,7 @@ workflow recombinase_annotation {
 			params.recombinase_scan.db,
 			"${projectDir}/assets/mge_rules_ms.txt"
 		)
-		annotated_recombinases_ch = recombinase_scan.out.recombinases
+		annotated_recombinases_ch = recombinase_scan_pyhmmer.out.recombinases
 
 	emit:
 		recombinases = annotated_recombinases_ch
