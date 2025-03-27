@@ -1,5 +1,6 @@
 process recombinase_scan_pyhmmer {
 	tag "${genome_id}"
+	label "recombinase_scan"
 	cpus 4
 	time {1.d * task.attempt}
 	memory {8.GB * task.attempt}
@@ -23,6 +24,7 @@ process recombinase_scan_pyhmmer {
 
 process recombinase_scan {
 	container "oras://ghcr.io/cschu/profile_me_ci:latest"
+	label "recombinase_scan"
 	tag "${genome_id}"
 	cpus 4
 	time {1.d * task.attempt}
