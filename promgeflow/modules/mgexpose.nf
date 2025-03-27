@@ -35,7 +35,8 @@ process mgexpose {
 			--add_functional_annotation \
 			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
-			--output_suffix mge_islands
+			--output_suffix mge_islands \
+			--pyhmmer_input
 	mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
 			--speci ${speci} \
 			--txs_macsy_rules ${txsscan_rules} \
@@ -49,7 +50,8 @@ process mgexpose {
 			--add_functional_annotation \
 			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
-			--output_suffix mge_islands
+			--output_suffix mge_islands \
+			--pyhmmer_input
 
 	islands_gff=${outdir}/${genome_id}.mge_islands.gff3
 	(grep mobile_genetic_element \${islands_gff} | grep -v mge= > ${genome_id}.NO_MGE) || true
