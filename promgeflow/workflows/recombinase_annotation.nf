@@ -1,4 +1,4 @@
-include { recombinase_scan } from "../modules/recombinase_scan"
+include { recombinase_scan; recombinase_scan_pyhmmer } from "../modules/recombinase_scan"
 
 
 workflow recombinase_annotation {
@@ -8,7 +8,7 @@ workflow recombinase_annotation {
 		genome2speci_map_ch
 
 	main:		
-		recombinase_scan(
+		recombinase_scan_pyhmmer(
 			pproteins_ch,
 			params.recombinase_scan.db,
 			"${projectDir}/assets/mge_rules_ms.txt"

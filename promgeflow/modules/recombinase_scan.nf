@@ -1,3 +1,26 @@
+process recombinase_scan_pyhmmer {
+	tag "${genome_id}"
+	cpus 4
+	time {1.d * task.attempt}
+	memory {8.GB * task.attempt}
+
+	input:
+		tuple val(speci), val(genome_id), path(proteins)
+		path(recombinase_hmm_db)
+		path(mge_rules)
+	output:
+		tuple val(speci), val(genome_id), path("${speci}/${genome_id}/${genome_id}.recombinase_scan.tsv"), emit: recombinases, optional: true
+	script:
+		"""
+		mkdir -p ${speci}/${genome_id}/
+
+		recombinase_scan.py -t ${task.cpus} --prefix ${speci}/${genome_id}/${genome_id} --mge_rules ${mge_rules} ${proteins} ${recombinase_hmm_db}
+
+		if [[ ! -s ${speci}/${genome_id}/${genome_id}.recombinase_scan.tsv ]]; then rm -rf ${speci}/${genome_id}/${genome_id}.recombinase_scan.tsv; fi
+		"""
+
+}
+
 process recombinase_scan {
 	container "oras://ghcr.io/cschu/profile_me_ci:latest"
 	tag "${genome_id}"
