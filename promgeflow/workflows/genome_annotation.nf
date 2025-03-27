@@ -1,4 +1,4 @@
-include { prodigal; buffered_prodigal } from "../modules/prodigal"
+include { prodigal; buffered_prodigal; buffered_pyrodigal } from "../modules/prodigal"
 
 params.prodigal_buffer_size = -1
 
@@ -16,14 +16,14 @@ workflow genome_annotation {
 		if (params.prodigal_buffer_size != null && params.prodigal_buffer_size > 1) {
 
 			def batch_id = 0
-			buffered_prodigal(
+			buffered_pyrodigal(
 				genomes_ch
 					.map { speci, genome_id, genome_fasta -> genome_fasta }
 					.buffer(size: params.prodigal_buffer_size, remainder: true)
 					.map { files -> [ batch_id++, files ] },
 				suffix_pattern
 			)
-			annotations_ch = buffered_prodigal.out.annotations
+			annotations_ch = buffered_pyrodigal.out.annotations
 				.flatten()
 				.map { file -> [
 					params.known_speci, file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), file

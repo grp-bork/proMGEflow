@@ -55,3 +55,35 @@ process buffered_prodigal {
 	"""
 
 }
+
+process buffered_pyrodigal {
+	tag "batch_${batch_id}"
+	label "prodigal"
+	cpus 1
+	time {1.d * task.attempt}
+	memory {8.GB * task.attempt}
+
+	input:
+	tuple val(batch_id), path(genomes)
+	val(file_suffix)
+
+	output:
+	path("pyrodigal/**.*"), emit: annotations
+
+	script:
+	"""
+	for genome_file in ${genomes}; do
+		genome_id=\$(basename \$genome_file ${file_suffix})
+		echo \$genome_id
+		mkdir -p pyrodigal/\$genome_id/
+		if [[ \$genome_file == *.gz ]]; then
+			gzip -dc \$genome_file > \$(basename \$genome_file .gz) 			
+		fi
+		pyrodigal -i \$(basename \$genome_file .gz) -f gff -o pyrodigal/\$genome_id/\$genome_id.gff -a pyrodigal/\$genome_id/\$genome_id.faa -d pyrodigal/\$genome_id/\$genome_id.ffn
+		if [[ \$genome_file == *.gz ]]; then
+			rm -fv \$(basename \$genome_file .gz) 			
+		fi
+	done
+	"""
+
+}
