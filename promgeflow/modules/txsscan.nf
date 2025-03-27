@@ -10,7 +10,7 @@ process txsscan {
 	path(txsscan_models)
 
 	output:
-	tuple val(speci), val(genome_id), path("**/${genome.id}.all_systems.tsv"), emit: txsscan_report
+	tuple val(speci), val(genome_id), path("**/${genome_id}.all_systems.tsv"), emit: txsscan_report
 
 	script:
 	def prefix = (speci != null) ? "${speci}/${genome_id}" : "${genome_id}"
