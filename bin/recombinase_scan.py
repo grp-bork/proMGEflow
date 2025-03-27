@@ -77,10 +77,9 @@ def main():
             write_header = i == 0
             hits.write(raw_table_out, header=write_header)
             for hit in hits:
-                print(hit)
                 hit_name = hit.name.decode()
                 for domain in hit.domains:
-                    best_score = seen.setdefault(hit_name, 0.0)
+                    best_score, _, _ = seen.setdefault(hit_name, (0.0, None, None,))
                     if hit.score > best_score:
                         seen[hit_name] = hit.score, domain, hit
             hits.write(filtered_table_out, header=write_header)
