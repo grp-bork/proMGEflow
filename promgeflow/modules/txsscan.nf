@@ -16,7 +16,9 @@ process txsscan {
 	def prefix = (speci != null) ? "${speci}/${genome_id}" : "${genome_id}"
 
 	"""
+	set -e -o pipefail
 	mkdir -p ${prefix}/
 	macsyfinder -vvv -w ${task.cpus} --models TXSS all --models-dir ${txsscan_models} -o ${prefix} --db-type unordered --multi-loci all --sequence-db ${proteins}
+	cp -v ${prefix}/all_systems.tsv ${prefix}/${genome_id}.all_systems.tsv || touch ${prefix}/${genome_id}.all_systems.tsv
 	"""
 }
