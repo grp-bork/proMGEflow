@@ -15,7 +15,7 @@ Dependencies
 - prodigal
 - mmseqs2
 - eggnog-mapper
-- hmmer
+- pyhmmer (hmmscan)
 - MACsyfinder/txsscan
 - MGExpose
 - reCOGnise
@@ -25,7 +25,11 @@ Installation
 
 ### Databases
 
-`proMGEflow` requires the following databases:
+`proMGEflow` requires the following databases. These can be installed with
+
+`nextflow run grp-bork/promgeflow --install_dbs --db_dir /path/to/db/location -resume`. 
+
+For manual installation instructions s. below.
 
 1. eggnog-mapper database (48GB)
 	```
