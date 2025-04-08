@@ -12,16 +12,19 @@ include { pangenome_analysis } from "./pangenome_analysis"
 include { secretion_annotation } from "./secretion_annotation"
 include { functional_annotation } from "./functional_annotation"
 
+include { handle_input_genomes } from "./input"
+
+
 params.file_pattern = "**.fna"
 params.genome_buffer_size = 100
 print "PARAMS:\n" + params
 
 
-def suffix_pattern = params.file_pattern.replaceAll(/\*/, "")
+// def suffix_pattern = params.file_pattern.replaceAll(/\*/, "")
 
-// If the specI classification is known beforehand, it can be passed via the `known_speci` parameter.
-// Otherwise, specI will be treated as unknown until it is detected by reCOGnise downstream.
-def speci_tag = params.known_speci ?: "unknown_speci"
+// // If the specI classification is known beforehand, it can be passed via the `known_speci` parameter.
+// // Otherwise, specI will be treated as unknown until it is detected by reCOGnise downstream.
+// def speci_tag = params.known_speci ?: "unknown_speci"
 
 workflow full_annotation {
 
@@ -30,46 +33,68 @@ workflow full_annotation {
 	speci_source_ch = Channel.empty()
 
 	// prodigal output channels
-	pproteins_ch = Channel.empty()
-	pgenes_ch = Channel.empty()
-	pgffs_ch = Channel.empty()
+	// pproteins_ch = Channel.empty()
+	// pgenes_ch = Channel.empty()
+	// pgffs_ch = Channel.empty()
 
-	// Input genomes are genomic fasta files (default ".fna", but can be specified via `file_pattern` parameters) in a directory or directory tree
-	// genomes_ch emits tuples (specI, genome_id, genome_fasta)	
-	genomes_ch = Channel
-		.fromPath(params.input_dir + "/" + params.file_pattern)
-		.map { fasta ->
-			def genome_id = fasta.name.replaceAll(suffix_pattern, "")
-			return tuple(speci_tag, genome_id, fasta)
-		}
+	handle_input_genomes()
 
+	// // Input genomes are genomic fasta files (default ".fna", but can be specified via `file_pattern` parameters) in a directory or directory tree
+	// // genomes_ch emits tuples (specI, genome_id, genome_fasta)	
+	// genomes_ch = Channel
+	// 	.fromPath(params.input_dir + "/" + params.file_pattern)
+	// 	.map { fasta ->
+	// 		def genome_id = fasta.name.replaceAll(suffix_pattern, "")
+	// 		return tuple(speci_tag, genome_id, fasta)
+	// 	}
+
+	/* STEP 1A: genome annotation via prodigal if speci is known */
+	genome_annotation(handle_input_genomes.genomes_with_speci)
+	/* STEP 1B: specI assignment via reCOGnise */
+	species_recognition(handle_input_genomes.genomes_without_speci)
+
+	genomes_ch = handle_input_genomes.genomes_with_speci
+		.mix(species_recognition.out.genomes)
 	genomes_ch.dump(pretty: true, tag: "genomes_ch")
 
-	if (params.known_speci) {
+	// we don't need this, we derive it from filtered genomes below
+	// speci_ch = handle_input_genomes.speci
+	// 	.mix(species_recognition.speci)
+	// 	.unique()
 
-		/* STEP 1A: genome annotation via prodigal if speci is known */
-		genome_annotation(genomes_ch)
+	// prodigal output channels
+	pproteins_ch = genome_annotation.out.proteins
+		.mix(species_recognition.out.proteins)
+	pgenes_ch = genome_annotation.out.genes
+		.mix(species_recognition.out.genes)
+	pgffs_ch = genome_annotation.out.gffs
+		.mix(species_recognition.out.gffs)	
 
-		pproteins_ch = genome_annotation.out.proteins
-		pgenes_ch = genome_annotation.out.genes
-		pgffs_ch = genome_annotation.out.gffs
+	// if (params.known_speci) {
 
-	} else {
+	// 	/* STEP 1A: genome annotation via prodigal if speci is known */
+	// 	genome_annotation(genomes_ch)
 
-		/* STEP 1B: specI assignment via reCOGnise */
+	// 	pproteins_ch = genome_annotation.out.proteins
+	// 	pgenes_ch = genome_annotation.out.genes
+	// 	pgffs_ch = genome_annotation.out.gffs
 
-		// run reCOGnise to assign input genome to a specI cluster
-		// reCOGnise then automatically collects the specI gene cluster sequences
-		// reCOGnise also runs prodigal internally
-		species_recognition(genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, genome_fasta] })
+	// } else {
 
-		pproteins_ch = species_recognition.out.proteins
-		pgenes_ch = species_recognition.out.genes
-		pgffs_ch = species_recognition.out.gffs
-		genomes_ch = species_recognition.out.genomes
+	// 	/* STEP 1B: specI assignment via reCOGnise */
 
-	}
-	pproteins_ch.dump(pretty: true, tag: "pproteins_ch")
+	// 	// run reCOGnise to assign input genome to a specI cluster
+	// 	// reCOGnise then automatically collects the specI gene cluster sequences
+	// 	// reCOGnise also runs prodigal internally
+	// 	species_recognition(genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, genome_fasta] })
+
+	// 	pproteins_ch = species_recognition.out.proteins
+	// 	pgenes_ch = species_recognition.out.genes
+	// 	pgffs_ch = species_recognition.out.gffs
+	// 	genomes_ch = species_recognition.out.genomes
+
+	// }
+	// pproteins_ch.dump(pretty: true, tag: "pproteins_ch")
 	
 	genome2speci_map_ch = pgenes_ch
 		.map { speci, genome_id, genes -> return tuple(genome_id, speci) }
@@ -95,7 +120,7 @@ workflow full_annotation {
 
 	speci_seqs_ch = filtered_genes_ch
 	 	.map { speci, genome_id, genes -> return speci }
-		.filter { it != "unknown_speci" }  // should not happen, but let's be defensive.
+		.filter { it != "unknown" }  // should not happen, but let's be defensive.
 		.unique()
 
 	speci_seqs_ch.dump(pretty: true, tag: "speci_seqs_ch")

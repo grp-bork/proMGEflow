@@ -3,6 +3,10 @@ include { recognise_genome } from "../modules/recognise"
 
 workflow species_recognition {
 
+	// run reCOGnise to assign input genome to a specI cluster
+	// reCOGnise then automatically collects the specI gene cluster sequences
+	// reCOGnise also runs prodigal internally
+
 	take:
 		genomes_ch
 
@@ -42,5 +46,8 @@ workflow species_recognition {
 		genes = pgenes_ch
 		gffs = pgffs_ch
 		genomes = pgenomes_ch
+		speci = pgenomes_ch
+			.map { speci, genome_id, genome_fasta -> speci }
+			.unique()
 
 }
