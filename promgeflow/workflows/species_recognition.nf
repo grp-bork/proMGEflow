@@ -27,7 +27,7 @@ workflow species_recognition {
 		annotations_ch = recognise_genome.out.proteins
 			.mix(recognise_genome.out.genes)
 			.mix(recognise_genome.out.gff)
-			.groupTuple(by: [0, 1], sort: true)
+			.groupTuple(by: 0, sort: true)
 			.join(genome_speci_ch, by: 0)
 			.map { genome_id, annotations, speci -> [speci, genome_id, annotations] }
 
