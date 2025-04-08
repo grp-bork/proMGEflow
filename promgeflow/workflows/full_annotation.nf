@@ -104,6 +104,7 @@ workflow full_annotation {
 
 	/* STEP 2: Run recombinase annotation */
 	recombinase_annotation(pproteins_ch, genome2speci_map_ch)
+	recombinase_annotation.out.recombinases.dump(pretty: true, tag: "recombinases")
 	
 	filtered_genes_ch = pgenes_ch
 		.join(recombinase_annotation.out.recombinases, by: [0, 1])
