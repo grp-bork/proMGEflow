@@ -41,10 +41,10 @@ workflow species_recognition {
 			.join( genomes_ch, by: 0 )
 			.map { genome_id, speci, genome_fasta -> [speci, genome_id, genome_fasta] }
 	
-	mixed = pproteins_ch
-			.mix(pgenes_ch)
-			.mix(pgffs_ch)
-			.groupTuple(by: [0, 1], sort: true)
+		mixed_ch = pproteins_ch
+				.mix(pgenes_ch)
+				.mix(pgffs_ch)
+				.groupTuple(by: [0, 1], sort: true)
 
 
 	emit:
