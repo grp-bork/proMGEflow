@@ -24,7 +24,7 @@ workflow genome_annotation {
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
 				.map { genome_fasta -> 
-					[ file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), genome_fasta ]
+					[ genome_fasta.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), genome_fasta ]
 				}
 				.join(
 					genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
