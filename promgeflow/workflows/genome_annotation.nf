@@ -34,6 +34,7 @@ workflow genome_annotation {
 
 
 			annotations_ch.dump(pretty: true, tag: "annotations_ch")
+
 				// .map { file -> [
 				// 	params.known_speci, file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), file
 				// ]}
@@ -45,6 +46,7 @@ workflow genome_annotation {
 				.filter { it[2].getName().endsWith(".gff") }
 			mixed_ch = annotations_ch
 				.groupTuple(by: [0, 1], sort: true)
+			mixed_ch.dump(pretty: true, tag: "grouped_annotations_ch")
 
 		} else {
 
