@@ -49,5 +49,9 @@ workflow species_recognition {
 		speci = pgenomes_ch
 			.map { speci, genome_id, genome_fasta -> speci }
 			.unique()
+		mixed = pproteins_ch
+			.mix(pgenes_ch)
+			.mix(pgffs_ch)
+			.groupTuple(by: [0, 1], sort: true)
 
 }

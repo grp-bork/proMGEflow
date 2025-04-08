@@ -70,6 +70,10 @@ workflow full_annotation {
 	pgffs_ch = genome_annotation.out.gffs
 		.mix(species_recognition.out.gffs)	
 
+	mixed_ch = genome_annotation.out.mixed
+		.mix(species_recognition.out.mixed)
+
+	mixed_ch.dump(pretty: true, tag: "mixed_ch")
 	
 	// if (params.known_speci) {
 
@@ -95,65 +99,82 @@ workflow full_annotation {
 	// 	genomes_ch = species_recognition.out.genomes
 
 	// }
-	pproteins_ch.dump(pretty: true, tag: "pproteins_ch")
+	// pproteins_ch.dump(pretty: true, tag: "pproteins_ch")
 	
-	genome2speci_map_ch = pgenes_ch
-		.map { speci, genome_id, genes -> return tuple(genome_id, speci) }
+	// genome2speci_map_ch = pgenes_ch
+	// 	.map { speci, genome_id, genes -> return tuple(genome_id, speci) }
 
-	genome2speci_map_ch.dump(pretty: true, tag: "genome2speci_map_ch")
+	// genome2speci_map_ch.dump(pretty: true, tag: "genome2speci_map_ch")
 
 	/* STEP 2: Run recombinase annotation */
-	recombinase_annotation(pproteins_ch, genome2speci_map_ch)
-	recombinase_annotation.out.recombinases.dump(pretty: true, tag: "recombinases")
-	
-	filtered_genes_ch = pgenes_ch
-		.join(recombinase_annotation.out.recombinases, by: [0, 1])
-			.map { speci, genome_id, genes, recombinases ->
-				return tuple(speci, genome_id, genes) 
-			}
-	filtered_proteins_ch = pproteins_ch
-		.join(recombinase_annotation.out.recombinases, by: [0, 1])
-			.map { speci, genome_id, proteins, recombinases ->
-				return tuple(speci, genome_id, proteins) 
-			}
-	filtered_gff_ch = pgffs_ch
-		.join(recombinase_annotation.out.recombinases, by: [0, 1])
-			.map { speci, genome_id, gff, recombinases -> [speci, genome_id, gff] }
-
-	filtered_genes_ch.dump(pretty: true, tag: "filtered_genes_ch")
-
-	speci_seqs_ch = filtered_genes_ch
-	 	.map { speci, genome_id, genes -> return speci }
-		.filter { it != "unknown" }  // should not happen, but let's be defensive.
-		.unique()
-
-	speci_seqs_ch.dump(pretty: true, tag: "speci_seqs_ch")
-	// get_db_seqs(speci_seqs_ch, "progenomes3_db", params.genedata.db, params.genedata.db_credentials, params.genedata.cache)
-	// params.gene_cluster_seqdb = "/g/bork6/schudoma/experiments/mge_refseqindex/sp095_refdb/sp095_refdb.tar"
-	get_db_seqs(speci_seqs_ch, params.gene_cluster_seqdb)
-
-	/* STEP 3 Perform gene clustering */
-	pangenome_analysis(filtered_genes_ch, get_db_seqs.out.sequences)
-
-	/* STEP 4 Protein annotation - phage signals and secretion systems */
-	secretion_annotation(filtered_proteins_ch, genome2speci_map_ch)
-	functional_annotation(filtered_proteins_ch, genome2speci_map_ch)
-	
-	/* STEP 5 Annotate the genomes with island data and assign mges */
-	
-	// [speci, bin_id, gene_coords, txsscan, emapper, clusters, recombinases, genome_fa]
-	annotation_data_ch = filtered_gff_ch
-		.join( secretion_annotation.out.txsscan, by: [0, 1] )
-		.join( functional_annotation.out.annotation, by: [0, 1] )
-		.join( pangenome_analysis.out.clusters, by: [0, 1] )
-		.join( recombinase_annotation.out.recombinases, by: [0, 1] )
-		.join( genomes_ch, by: [0, 1] )
-
-	mgexpose(
-		annotation_data_ch,
-		"${projectDir}/assets/mge_rules_ms.txt",
-		"${projectDir}/assets/txsscan_rules.txt",
-		"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt"
+	recombinase_annotation(
+		mixed_ch
+			.map { it -> [it[0], it[1], it[2][0]] }
 	)
+	// recombinase_annotation(pproteins_ch) //, genome2speci_map_ch)
+	recombinase_annotation.out.recombinases.dump(pretty: true, tag: "recombinases")
+
+	filtered_ch = mixed_ch
+		.join(recombinase_annotation.out.recombinases, by: [0, 1])
+		.map { speci, genome_id, annotations, recombinases -> [speci, genome_id, annotations] }
+	
+	filtered_ch.dump(pretty: true, tag: "filtered_ch")
+
+	speci_seqs_ch = filtered_ch
+		.map { speci, genome_id, annotations -> speci }
+		.filter { it != "unknown" }
+		.unique()
+	speci_seqs_ch.dump(pretty: true, tag: "speci_seqs_ch")
+	
+	// filtered_genes_ch = pgenes_ch
+	// 	.join(recombinase_annotation.out.recombinases, by: [0, 1])
+	// 		.map { speci, genome_id, genes, recombinases ->
+	// 			return tuple(speci, genome_id, genes) 
+	// 		}
+	// filtered_proteins_ch = pproteins_ch
+	// 	.join(recombinase_annotation.out.recombinases, by: [0, 1])
+	// 		.map { speci, genome_id, proteins, recombinases ->
+	// 			return tuple(speci, genome_id, proteins) 
+	// 		}
+	// filtered_gff_ch = pgffs_ch
+	// 	.join(recombinase_annotation.out.recombinases, by: [0, 1])
+	// 		.map { speci, genome_id, gff, recombinases -> [speci, genome_id, gff] }
+
+	// filtered_genes_ch.dump(pretty: true, tag: "filtered_genes_ch")
+
+	// speci_seqs_ch = filtered_genes_ch
+	//  	.map { speci, genome_id, genes -> return speci }
+	// 	.filter { it != "unknown" }  // should not happen, but let's be defensive.
+	// 	.unique()
+
+	// speci_seqs_ch.dump(pretty: true, tag: "speci_seqs_ch")
+	
+	// // get_db_seqs(speci_seqs_ch, "progenomes3_db", params.genedata.db, params.genedata.db_credentials, params.genedata.cache)
+	// // params.gene_cluster_seqdb = "/g/bork6/schudoma/experiments/mge_refseqindex/sp095_refdb/sp095_refdb.tar"
+	// get_db_seqs(speci_seqs_ch, params.gene_cluster_seqdb)
+
+	// /* STEP 3 Perform gene clustering */
+	// pangenome_analysis(filtered_genes_ch, get_db_seqs.out.sequences)
+
+	// /* STEP 4 Protein annotation - phage signals and secretion systems */
+	// secretion_annotation(filtered_proteins_ch) //, genome2speci_map_ch)
+	// functional_annotation(filtered_proteins_ch) //, genome2speci_map_ch)
+	
+	// /* STEP 5 Annotate the genomes with island data and assign mges */
+	
+	// // [speci, bin_id, gene_coords, txsscan, emapper, clusters, recombinases, genome_fa]
+	// annotation_data_ch = filtered_gff_ch
+	// 	.join( secretion_annotation.out.txsscan, by: [0, 1] )
+	// 	.join( functional_annotation.out.annotation, by: [0, 1] )
+	// 	.join( pangenome_analysis.out.clusters, by: [0, 1] )
+	// 	.join( recombinase_annotation.out.recombinases, by: [0, 1] )
+	// 	.join( genomes_ch, by: [0, 1] )
+
+	// mgexpose(
+	// 	annotation_data_ch,
+	// 	"${projectDir}/assets/mge_rules_ms.txt",
+	// 	"${projectDir}/assets/txsscan_rules.txt",
+	// 	"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt"
+	// )
 
 }
