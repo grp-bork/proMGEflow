@@ -42,8 +42,8 @@ workflow species_recognition {
 			.map { genome_id, speci, genome_fasta -> [speci, genome_id, genome_fasta] }
 	
 		annotations_ch = pproteins_ch
-			.mix(pgenes_ch, by: [0, 1])
-			.mix(pgffs_ch, by: [0, 1])
+			.mix(pgenes_ch)
+			.mix(pgffs_ch)
 			.groupTuple(by: [0, 1], sort: true)
 
 
