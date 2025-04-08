@@ -71,7 +71,7 @@ workflow full_annotation {
 		.mix(species_recognition.out.gffs)	
 
 	annotations_ch = genome_annotation.out.annotations
-		.mix(species_recognition.out.mixed)
+		.mix(species_recognition.out.annotations)
 
 	annotations_ch.dump(pretty: true, tag: "annotations_ch")
 	
