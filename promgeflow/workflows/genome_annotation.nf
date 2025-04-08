@@ -34,6 +34,7 @@ workflow genome_annotation {
 					genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
 					by: 0
 				)
+				.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }
 			annotationsx_ch.dump(pretty: true, tag: "annotationsx_ch")
 
 
