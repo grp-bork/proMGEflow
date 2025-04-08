@@ -63,12 +63,12 @@ workflow full_annotation {
 	// 	.unique()
 
 	// prodigal output channels
-	pproteins_ch = genome_annotation.out.proteins
-		.mix(species_recognition.out.proteins)
-	pgenes_ch = genome_annotation.out.genes
-		.mix(species_recognition.out.genes)
-	pgffs_ch = genome_annotation.out.gffs
-		.mix(species_recognition.out.gffs)	
+	// pproteins_ch = genome_annotation.out.proteins
+	// 	.mix(species_recognition.out.proteins)
+	// pgenes_ch = genome_annotation.out.genes
+	// 	.mix(species_recognition.out.genes)
+	// pgffs_ch = genome_annotation.out.gffs
+	// 	.mix(species_recognition.out.gffs)	
 
 	annotations_ch = genome_annotation.out.annotations
 		.mix(species_recognition.out.annotations)
@@ -149,9 +149,9 @@ workflow full_annotation {
 
 	// speci_seqs_ch.dump(pretty: true, tag: "speci_seqs_ch")
 	
-	// // get_db_seqs(speci_seqs_ch, "progenomes3_db", params.genedata.db, params.genedata.db_credentials, params.genedata.cache)
-	// // params.gene_cluster_seqdb = "/g/bork6/schudoma/experiments/mge_refseqindex/sp095_refdb/sp095_refdb.tar"
-	// get_db_seqs(speci_seqs_ch, params.gene_cluster_seqdb)
+	// get_db_seqs(speci_seqs_ch, "progenomes3_db", params.genedata.db, params.genedata.db_credentials, params.genedata.cache)
+	// params.gene_cluster_seqdb = "/g/bork6/schudoma/experiments/mge_refseqindex/sp095_refdb/sp095_refdb.tar"
+	get_db_seqs(speci_seqs_ch, params.gene_cluster_seqdb)
 
 	// /* STEP 3 Perform gene clustering */
 	// pangenome_analysis(filtered_genes_ch, get_db_seqs.out.sequences)
