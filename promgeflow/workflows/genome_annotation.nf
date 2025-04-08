@@ -30,10 +30,10 @@ workflow genome_annotation {
 					[ annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), annotation_file ]
 				}
 				.groupTuple(by: 0, sort: true)
-				// .combine(
-				// 	genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
-				// 	by: 0
-				// )
+				.join(
+					genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
+					by: 0
+				)
 			annotationsx_ch.dump(pretty: true, tag: "annotationsx_ch")
 
 
