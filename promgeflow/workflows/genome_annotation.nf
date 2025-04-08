@@ -27,7 +27,7 @@ workflow genome_annotation {
 				.map { annotation_file -> 
 					[ annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), annotation_file ]
 				}
-				.groupTuple(by: 0, sort: true)
+				.groupTuple(by: 0, sort: true, size: 3)
 				.join(
 					genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
 					by: 0
@@ -40,7 +40,7 @@ workflow genome_annotation {
 			annotations_ch = prodigal.out.proteins
 				.mix(prodigal.out.genes)
 				.mix(prodigal.out.genome_annotation)
-				.groupTuple(by: [0, 1], sort: true)
+				.groupTuple(by: [0, 1], sort: true, size: 3)
 		}
 
 	emit:
