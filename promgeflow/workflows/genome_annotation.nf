@@ -32,23 +32,11 @@ workflow genome_annotation {
 					genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
 					by: 0
 				)
-				.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }
-			
-			// annotations_ch.dump(pretty: true, tag: "annotations_ch")
-
-			pproteins_ch = annotations_ch
-				.map { speci, genome_id, annotations -> [speci, genome_id, annotations[0]] }
-			pgenes_ch = annotations_ch
-				.map { speci, genome_id, annotations -> [speci, genome_id, annotations[1]] }
-			pgffs_ch = annotations_ch
-				.map { speci, genome_id, annotations -> [speci, genome_id, annotations[2]] }			
+				.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }			
 
 		} else {
 
 			prodigal(genomes_ch)
-			pproteins_ch = prodigal.out.proteins
-			pgenes_ch = prodigal.out.genes
-			pgffs_ch = prodigal.out.genome_annotation
 			annotations_ch = prodigal.out.proteins
 				.mix(prodigal.out.genes)
 				.mix(prodigal.out.genome_annotation)
@@ -56,9 +44,6 @@ workflow genome_annotation {
 		}
 
 	emit:
-		proteins = pproteins_ch
-		genes = pgenes_ch
-		gffs = pgffs_ch
 		annotations = annotations_ch
 
 
