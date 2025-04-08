@@ -32,6 +32,8 @@ workflow genome_annotation {
 				)
 				.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }
 
+
+			annotations_ch.dump(pretty: true, tag: "annotations_ch")
 				// .map { file -> [
 				// 	params.known_speci, file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), file
 				// ]}
