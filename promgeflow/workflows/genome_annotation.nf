@@ -21,6 +21,7 @@ workflow genome_annotation {
 					.map { files -> [ batch_id++, files ] },
 				suffix_pattern
 			)
+			buffered_prodigal.out.annotations.dump(pretty: true, tag: "buffered_prodigal")
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
 				.map { annotation_file -> 
