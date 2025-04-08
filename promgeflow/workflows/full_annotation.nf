@@ -153,28 +153,35 @@ workflow full_annotation {
 	// params.gene_cluster_seqdb = "/g/bork6/schudoma/experiments/mge_refseqindex/sp095_refdb/sp095_refdb.tar"
 	get_db_seqs(speci_seqs_ch, params.gene_cluster_seqdb)
 
-	// /* STEP 3 Perform gene clustering */
-	// pangenome_analysis(filtered_genes_ch, get_db_seqs.out.sequences)
+	filtered_proteins_ch = filtered_ch
+		.map { speci, genome_id, annotations -> [speci, genome_id, annotations[0]] }
+	filtered_genes_ch = filtered_ch
+		.map { speci, genome_id, annotations -> [speci, genome_id, annotations[1]] }
+	filtered_gff_ch = filtered_ch
+		.map { speci, genome_id, annotations -> [speci, genome_id, annotations[2]] }
 
-	// /* STEP 4 Protein annotation - phage signals and secretion systems */
-	// secretion_annotation(filtered_proteins_ch) //, genome2speci_map_ch)
-	// functional_annotation(filtered_proteins_ch) //, genome2speci_map_ch)
-	
-	// /* STEP 5 Annotate the genomes with island data and assign mges */
-	
-	// // [speci, bin_id, gene_coords, txsscan, emapper, clusters, recombinases, genome_fa]
-	// annotation_data_ch = filtered_gff_ch
-	// 	.join( secretion_annotation.out.txsscan, by: [0, 1] )
-	// 	.join( functional_annotation.out.annotation, by: [0, 1] )
-	// 	.join( pangenome_analysis.out.clusters, by: [0, 1] )
-	// 	.join( recombinase_annotation.out.recombinases, by: [0, 1] )
-	// 	.join( genomes_ch, by: [0, 1] )
+	/* STEP 3 Perform gene clustering */
+	pangenome_analysis(filtered_genes_ch, get_db_seqs.out.sequences)
 
-	// mgexpose(
-	// 	annotation_data_ch,
-	// 	"${projectDir}/assets/mge_rules_ms.txt",
-	// 	"${projectDir}/assets/txsscan_rules.txt",
-	// 	"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt"
-	// )
+	/* STEP 4 Protein annotation - phage signals and secretion systems */
+	secretion_annotation(filtered_proteins_ch) //, genome2speci_map_ch)
+	functional_annotation(filtered_proteins_ch) //, genome2speci_map_ch)
+	
+	/* STEP 5 Annotate the genomes with island data and assign mges */
+	
+	// [speci, bin_id, gene_coords, txsscan, emapper, clusters, recombinases, genome_fa]
+	annotation_data_ch = filtered_gff_ch
+		.join( secretion_annotation.out.txsscan, by: [0, 1] )
+		.join( functional_annotation.out.annotation, by: [0, 1] )
+		.join( pangenome_analysis.out.clusters, by: [0, 1] )
+		.join( recombinase_annotation.out.recombinases, by: [0, 1] )
+		.join( genomes_ch, by: [0, 1] )
+
+	mgexpose(
+		annotation_data_ch,
+		"${projectDir}/assets/mge_rules_ms.txt",
+		"${projectDir}/assets/txsscan_rules.txt",
+		"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt"
+	)
 
 }
