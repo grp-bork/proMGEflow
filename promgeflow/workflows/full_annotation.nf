@@ -49,17 +49,17 @@ workflow full_annotation {
 	// 	}
 
 	/* STEP 1A: genome annotation via prodigal if speci is known */
-	genome_annotation(handle_input_genomes.genomes_with_speci)
+	genome_annotation(handle_input_genomes.out.genomes_with_speci)
 	/* STEP 1B: specI assignment via reCOGnise */
-	species_recognition(handle_input_genomes.genomes_without_speci)
+	species_recognition(handle_input_genomes.out.genomes_without_speci)
 
-	genomes_ch = handle_input_genomes.genomes_with_speci
+	genomes_ch = handle_input_genomes.out.genomes_with_speci
 		.mix(species_recognition.out.genomes)
 	genomes_ch.dump(pretty: true, tag: "genomes_ch")
 
 	// we don't need this, we derive it from filtered genomes below
-	// speci_ch = handle_input_genomes.speci
-	// 	.mix(species_recognition.speci)
+	// speci_ch = handle_input_genomes.out.speci
+	// 	.mix(species_recognition.out.speci)
 	// 	.unique()
 
 	// prodigal output channels
