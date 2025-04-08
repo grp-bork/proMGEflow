@@ -120,6 +120,8 @@ workflow full_annotation {
 		.join(recombinase_annotation.out.recombinases, by: [0, 1])
 			.map { speci, genome_id, gff, recombinases -> [speci, genome_id, gff] }
 
+	filtered_genes_ch.dump(pretty: true, tag: "filtered_genes_ch")
+
 	speci_seqs_ch = filtered_genes_ch
 	 	.map { speci, genome_id, genes -> return speci }
 		.filter { it != "unknown" }  // should not happen, but let's be defensive.
