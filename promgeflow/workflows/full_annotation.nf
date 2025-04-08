@@ -70,6 +70,7 @@ workflow full_annotation {
 	pgffs_ch = genome_annotation.out.gffs
 		.mix(species_recognition.out.gffs)	
 
+	
 	// if (params.known_speci) {
 
 	// 	/* STEP 1A: genome annotation via prodigal if speci is known */
@@ -94,7 +95,7 @@ workflow full_annotation {
 	// 	genomes_ch = species_recognition.out.genomes
 
 	// }
-	// pproteins_ch.dump(pretty: true, tag: "pproteins_ch")
+	pproteins_ch.dump(pretty: true, tag: "pproteins_ch")
 	
 	genome2speci_map_ch = pgenes_ch
 		.map { speci, genome_id, genes -> return tuple(genome_id, speci) }
