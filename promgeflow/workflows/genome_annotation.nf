@@ -21,8 +21,17 @@ workflow genome_annotation {
 					.map { files -> [ batch_id++, files ] },
 				suffix_pattern
 			)
-			buffered_prodigal.out.annotations.dump(pretty: true, tag: "buffered_prodigal")
-			buffered_prodigal.out.annotations.flatten().dump(pretty: true, tag: "flattened_prodigal")
+			// buffered_prodigal.out.annotations.dump(pretty: true, tag: "buffered_prodigal")
+			// buffered_prodigal.out.annotations.flatten().dump(pretty: true, tag: "flattened_prodigal")
+
+			annotationsx_ch = buffered_prodigal.out.annotations
+				.flatten()
+				.map { annotation_file -> 
+					[ annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), annotation_file ]
+				}
+			annotationsx_ch.dump(pretty: true, tag: "annotationsx_ch")
+
+
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
 				.map { annotation_file -> 
