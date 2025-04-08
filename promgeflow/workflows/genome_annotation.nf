@@ -9,10 +9,8 @@ workflow genome_annotation {
 		genomes_ch
 	
 	main:
-	    // suffix_pattern and speci_tag are defined in main.nf but not recognized otherwise
 	    def suffix_pattern = params.file_pattern.replaceAll(/\*/, "")
-	    def speci_tag = params.known_speci ?: "unknown_speci"
-
+	    
 		if (params.prodigal_buffer_size != null && params.prodigal_buffer_size > 1) {
 
 			def batch_id = 0
@@ -25,9 +23,18 @@ workflow genome_annotation {
 			)
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
-				.map { file -> [
-					params.known_speci, file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), file
-				]}
+				.map { genome_fasta -> 
+					[ file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), genome_fasta ]
+				}
+				.join(
+					genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
+					by: 0
+				)
+				.map { genome_id, genome_fasta, speci -> [speci, genome_id, genome_fasta] }
+
+				// .map { file -> [
+				// 	params.known_speci, file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), file
+				// ]}
 			pproteins_ch = annotations_ch
 				.filter { it[2].getName().endsWith(".faa") }
 			pgenes_ch = annotations_ch
