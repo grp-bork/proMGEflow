@@ -16,10 +16,10 @@ workflow handle_input_genomes {
 			genomes_ch = Channel
 				.fromPath(params.input_sheet)
         		.splitCsv(sep: '\t', header: false)
-        		.map { it -> [it[0], it[1]] }
+        		.map { it -> [it[0], it[1], it[2]] }
         
 			speci_ch = genomes_ch
-				.map {speci, file -> speci}
+				.map {speci, genome, file -> speci}
 				.unique()
 				.view()
 						
