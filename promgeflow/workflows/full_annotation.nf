@@ -70,7 +70,7 @@ workflow full_annotation {
 	pgffs_ch = genome_annotation.out.gffs
 		.mix(species_recognition.out.gffs)	
 
-	annotations_ch = genome_annotation.out.mixed
+	annotations_ch = genome_annotation.out.annotations
 		.mix(species_recognition.out.mixed)
 
 	annotations_ch.dump(pretty: true, tag: "annotations_ch")
