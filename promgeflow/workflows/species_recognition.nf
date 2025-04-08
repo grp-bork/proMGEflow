@@ -41,6 +41,12 @@ workflow species_recognition {
 			.join( genomes_ch, by: 0 )
 			.map { genome_id, speci, genome_fasta -> [speci, genome_id, genome_fasta] }
 	
+	mixed = pproteins_ch
+			.mix(pgenes_ch)
+			.mix(pgffs_ch)
+			.groupTuple(by: [0, 1], sort: true)
+
+
 	emit:
 		proteins = pproteins_ch
 		genes = pgenes_ch
@@ -49,9 +55,6 @@ workflow species_recognition {
 		speci = pgenomes_ch
 			.map { speci, genome_id, genome_fasta -> speci }
 			.unique()
-		mixed = pproteins_ch
-			.mix(pgenes_ch)
-			.mix(pgffs_ch)
-			.groupTuple(by: [0, 1], sort: true)
+		mixed = mixed_ch
 
 }
