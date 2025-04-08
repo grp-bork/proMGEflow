@@ -21,10 +21,8 @@ workflow genome_annotation {
 					.map { files -> [ batch_id++, files ] },
 				suffix_pattern
 			)
-			// buffered_prodigal.out.annotations.dump(pretty: true, tag: "buffered_prodigal")
-			// buffered_prodigal.out.annotations.flatten().dump(pretty: true, tag: "flattened_prodigal")
-
-			annotationsx_ch = buffered_prodigal.out.annotations
+			
+			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
 				.map { annotation_file -> 
 					[ annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), annotation_file ]
@@ -35,36 +33,15 @@ workflow genome_annotation {
 					by: 0
 				)
 				.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }
-			annotationsx_ch.dump(pretty: true, tag: "annotationsx_ch")
+			
+			// annotations_ch.dump(pretty: true, tag: "annotations_ch")
 
-
-
-			annotations_ch = buffered_prodigal.out.annotations
-				.flatten()
-				.map { annotation_file -> 
-					[ annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), annotation_file ]
-				}
-				.join(
-					genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
-					by: 0
-				)
-				.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }
-
-
-			annotations_ch.dump(pretty: true, tag: "annotations_ch")
-
-				// .map { file -> [
-				// 	params.known_speci, file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), file
-				// ]}
 			pproteins_ch = annotations_ch
-				.filter { it[2].getName().endsWith(".faa") }
+				.map { speci, genome_id, annotations -> [speci, genome_id, annotations[0]] }
 			pgenes_ch = annotations_ch
-				.filter { it[2].getName().endsWith(".ffn") }
+				.map { speci, genome_id, annotations -> [speci, genome_id, annotations[1]] }
 			pgffs_ch = annotations_ch
-				.filter { it[2].getName().endsWith(".gff") }
-			mixed_ch = annotations_ch
-				.groupTuple(by: [0, 1], sort: true)
-			mixed_ch.dump(pretty: true, tag: "grouped_annotations_ch")
+				.map { speci, genome_id, annotations -> [speci, genome_id, annotations[2]] }			
 
 		} else {
 
@@ -72,20 +49,17 @@ workflow genome_annotation {
 			pproteins_ch = prodigal.out.proteins
 			pgenes_ch = prodigal.out.genes
 			pgffs_ch = prodigal.out.genome_annotation
-			mixed_ch = Channel.empty() //TODO
-
+			annotations_ch = prodigal.out.proteins
+				.mix(prodigal.out.genes)
+				.mix(prodigal.out.genome_annotation)
+				.groupTuple(by: [0, 1], sort: true)
 		}
-
-		// mixed_ch = pproteins_ch
-		// 		.join(pgenes_ch, by: [0, 1])
-		// 		.join(pgffs_ch, by: [0, 1])
-		// 		// .groupTuple(by: [0, 1], sort: true)
 
 	emit:
 		proteins = pproteins_ch
 		genes = pgenes_ch
 		gffs = pgffs_ch
-		mixed = mixed_ch
+		annotations = annotations_ch
 
 
 }

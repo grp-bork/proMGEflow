@@ -70,10 +70,10 @@ workflow full_annotation {
 	pgffs_ch = genome_annotation.out.gffs
 		.mix(species_recognition.out.gffs)	
 
-	mixed_ch = genome_annotation.out.mixed
+	annotations_ch = genome_annotation.out.mixed
 		.mix(species_recognition.out.mixed)
 
-	mixed_ch.dump(pretty: true, tag: "mixed_ch")
+	annotations_ch.dump(pretty: true, tag: "annotations_ch")
 	
 	// if (params.known_speci) {
 
@@ -108,13 +108,13 @@ workflow full_annotation {
 
 	/* STEP 2: Run recombinase annotation */
 	recombinase_annotation(
-		mixed_ch
+		annotations_ch
 			.map { it -> [it[0], it[1], it[2][0]] }
 	)
 	// recombinase_annotation(pproteins_ch) //, genome2speci_map_ch)
 	recombinase_annotation.out.recombinases.dump(pretty: true, tag: "recombinases")
 
-	filtered_ch = mixed_ch
+	filtered_ch = annotations_ch
 		.join(recombinase_annotation.out.recombinases, by: [0, 1])
 		.map { speci, genome_id, annotations, recombinases -> [speci, genome_id, annotations] }
 	
