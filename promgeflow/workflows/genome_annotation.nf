@@ -9,10 +9,8 @@ workflow genome_annotation {
 		genomes_ch
 	
 	main:
-	    // suffix_pattern and speci_tag are defined in main.nf but not recognized otherwise
 	    def suffix_pattern = params.file_pattern.replaceAll(/\*/, "")
-	    def speci_tag = params.known_speci ?: "unknown_speci"
-
+	    
 		if (params.prodigal_buffer_size != null && params.prodigal_buffer_size > 1) {
 
 			def batch_id = 0
@@ -23,30 +21,30 @@ workflow genome_annotation {
 					.map { files -> [ batch_id++, files ] },
 				suffix_pattern
 			)
+			
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
-				.map { file -> [
-					params.known_speci, file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), file
-				]}
-			pproteins_ch = annotations_ch
-				.filter { it[2].getName().endsWith(".faa") }
-			pgenes_ch = annotations_ch
-				.filter { it[2].getName().endsWith(".ffn") }
-			pgffs_ch = annotations_ch
-				.filter { it[2].getName().endsWith(".gff") }
+				.map { annotation_file -> 
+					[ annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), annotation_file ]
+				}
+				.groupTuple(by: 0, sort: true, size: 3)
+				.join(
+					genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
+					by: 0
+				)
+				.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }			
 
 		} else {
 
 			prodigal(genomes_ch)
-			pproteins_ch = prodigal.out.proteins
-			pgenes_ch = prodigal.out.genes
-			pgffs_ch = prodigal.out.genome_annotation
-
+			annotations_ch = prodigal.out.proteins
+				.mix(prodigal.out.genes)
+				.mix(prodigal.out.genome_annotation)
+				.groupTuple(by: [0, 1], sort: true, size: 3)
 		}
 
 	emit:
-		proteins = pproteins_ch
-		genes = pgenes_ch
-		gffs = pgffs_ch
+		annotations = annotations_ch
+
 
 }

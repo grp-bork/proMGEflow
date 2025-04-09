@@ -45,9 +45,9 @@ process recognise_genome {
 	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.cogs.txt"), emit: cog_table
 	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.txt"), emit: genome_speci
 	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.status"), emit: speci_status
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.faa.gz"), emit: proteins
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.ffn.gz"), emit: genes
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.gff.gz"), emit: gff
+	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.faa"), emit: proteins
+	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.ffn"), emit: genes
+	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.gff"), emit: gff
 	// tuple val(speci), val(genome_id), path("")			mv -v recognise/\$genome_id/\$genome_id.{faa,ffn,gff}  prodigal/\$genome_id/
 
 
@@ -61,8 +61,7 @@ process recognise_genome {
 
 
 	recognise --marker_set ${params.recognise.marker_set} --genome genome_file --cpus ${task.cpus} --with_gff -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
-	gzip -v recognise/${genome_id}/*.{faa,ffn,gff}
-
+	
 	rm -fv genome_file
 	"""
 	// recognise --marker_set ${params.recognise.marker_set} --genome ${genome} --cpus ${task.cpus} --with_gff -o recognise/\$genome_id \$genome_id \$(readlink ${marker_genes_db})

@@ -5,7 +5,7 @@ workflow recombinase_annotation {
 
 	take:
 		pproteins_ch
-		genome2speci_map_ch
+		// genome2speci_map_ch
 
 	main:		
 		recombinase_scan(

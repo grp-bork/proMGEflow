@@ -3,6 +3,10 @@ include { recognise_genome } from "../modules/recognise"
 
 workflow species_recognition {
 
+	// run reCOGnise to assign input genome to a specI cluster
+	// reCOGnise then automatically collects the specI gene cluster sequences
+	// reCOGnise also runs prodigal internally
+
 	take:
 		genomes_ch
 
@@ -20,27 +24,19 @@ workflow species_recognition {
 			)
 			.map { genome_id, file, speci -> return tuple(genome_id, speci) }
 
-		pproteins_ch = recognise_genome.out.proteins
-			.join( genome_speci_ch, by: 0)
-			.map { genome_id, proteins, speci -> return tuple(speci, genome_id, proteins) }
-		pproteins_ch.dump(pretty: true, tag: "pproteins_ch")
+		annotations_ch = recognise_genome.out.proteins
+			.mix(recognise_genome.out.genes)
+			.mix(recognise_genome.out.gff)
+			.groupTuple(by: 0, sort: true, size: 3)
+			.join(genome_speci_ch, by: 0)
+			.map { genome_id, annotations, speci -> [speci, genome_id, annotations] }
 
-		pgenes_ch = recognise_genome.out.genes
-			.join( genome_speci_ch, by: 0)
-			.map { genome_id, genes, speci -> return tuple(speci, genome_id, genes) }
-		
-		pgffs_ch = recognise_genome.out.gff
-			.join( genome_speci_ch, by: 0)
-			.map { genome_id, gff, speci -> return tuple(speci, genome_id, gff) }
-
-		pgenomes_ch = genomes_ch
-			.join( genomes_ch, by: 0 )
+		pgenomes_ch = genome_speci_ch
+			.join(genomes_ch, by: 0)
 			.map { genome_id, speci, genome_fasta -> [speci, genome_id, genome_fasta] }
-	
+
 	emit:
-		proteins = pproteins_ch
-		genes = pgenes_ch
-		gffs = pgffs_ch
+		annotations = annotations_ch
 		genomes = pgenomes_ch
 
 }
