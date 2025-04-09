@@ -11,17 +11,20 @@ process recombinase_scan {
 	path(mge_rules)
 
 	output:
-	tuple val(speci), val(genome_id), path("${genome_id}/${genome_id}.recombinase_hmmsearch.out"), emit: recombinases_raw
-	tuple val(speci), val(genome_id), path("${genome_id}/${genome_id}.recombinase_hmmsearch.besthits.out"), emit: recombinases, optional: true
-	tuple val(speci), val(genome_id), path("${genome_id}/${genome_id}.recombinase_based_MGE_predictions.tsv"), emit: recomb_table, optional: true
+	tuple val(speci), val(genome_id), path("${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.out"), emit: recombinases_raw
+	tuple val(speci), val(genome_id), path("${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.besthits.out"), emit: recombinases, optional: true
+	tuple val(speci), val(genome_id), path("${speci}/${genome_id}/${genome_id}.recombinase_based_MGE_predictions.tsv"), emit: recomb_table, optional: true
 
 	script:
 	// gzip -dc ${genome_id}.faa.gz > ${genome_id}.faa
 	"""
-	mkdir -p ${genome_id}/
+	mkdir -p ${speci}/${genome_id}/
 	
-	hmmsearch -o /dev/null --cpu $task.cpus --tblout ${genome_id}/${genome_id}.recombinase_hmmsearch.out --cut_ga ${recombinase_hmm_db} ${proteins}
-	parse_hmmsearch.py --mge_rules ${mge_rules} --prefix ${genome_id}/${genome_id} ${genome_id}/${genome_id}.recombinase_hmmsearch.out 
-	if [[ ! -s ${genome_id}/${genome_id}.recombinase_hmmsearch.besthits.out ]]; then rm -rf ${genome_id}/${genome_id}.recombinase_hmmsearch.besthits.out; rm -rf ${genome_id}/${genome_id}.recombinase_based_MGE_predictions.tsv; fi
+	hmmsearch -o /dev/null --cpu $task.cpus --tblout ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.out --cut_ga ${recombinase_hmm_db} ${proteins}
+	parse_hmmsearch.py --mge_rules ${mge_rules} --prefix ${speci}/${genome_id}/${genome_id} ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.out
+	if [[ ! -s ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.besthits.out ]]; then 
+		rm -rvf ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.besthits.out;
+		rm -rvf ${speci}/${genome_id}/${genome_id}.recombinase_based_MGE_predictions.tsv;
+	fi
 	"""
 }
