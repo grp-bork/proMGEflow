@@ -55,3 +55,24 @@ process buffered_prodigal {
 	"""
 
 }
+
+process publish_annotations {
+	publishDir "${params.output_dir}", mode: "copy"
+	executor "local"
+	tag "${genome_id}"
+
+	input:
+	tuple val(speci), val(genome_id), path(annotations)
+
+	output:
+	path("${speci}/${genome_id}/**")
+
+	script:
+	"""
+	mkdir -p ${speci}/${genome_id}/
+
+	ln -s ../${genome_id}.faa ${speci}/${genome_id}/
+	ln -s ../${genome_id}.ffn ${speci}/${genome_id}/
+	ln -s ../${genome_id}.gff ${speci}/${genome_id}/
+	"""
+}
