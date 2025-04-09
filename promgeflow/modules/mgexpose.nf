@@ -15,6 +15,7 @@ process mgexpose {
 	path("**/*.unannotated_islands.gff3"), emit: genomic_islands, optional: true
 	path("**/*.NO_MGE"), emit: no_mge, optional: true
 	path("**/*.mge_islands.ffn.gz"), emit: fasta, optional: true
+	path("**/*.gene_info.txt"), emit: gene_info, optional: true
 	
 	script:
 	def y_cluster_option = (params.use_y_clusters) ? " --use_y_clusters" : ""
