@@ -10,29 +10,30 @@ process linclust {
 	tuple val(speci), val(genome_id), path(genes), path(speci_seqs)
 	
 	output:
-	tuple val(speci), val(genome_id), path("${genome_id}/${genome_id}_mmseqcluster.tsv.gz"), emit: mmseq_cluster
+	tuple val(speci), val(genome_id), path("${speci}/${genome_id}/${genome_id}_mmseqcluster.tsv.gz"), emit: mmseq_cluster
 	// tuple val(speci), val(genome_id), path("${genome_id}/${genome_id}_speci_headers.gz"), emit: speci_headers
 	// tuple val(speci), val(genome_id), path("${genome_id}/${genome_id}_gene_headers.gz"), emit: gene_headers
-	tuple val(speci), val(genome_id), path("${genome_id}/${genome_id}.DONE"), emit: done_sentinel
+	tuple val(speci), val(genome_id), path("${speci}/${genome_id}/${genome_id}.LINCLUST_DONE"), emit: done_sentinel
 
 	script:
 	// gzip -dc ${speci_seqs} | sed "s/^>/>proMGE__/" | gzip -c - > all_genes.fa.gz  // potentially unnecessary
+	// --split-memory-limit 150G
 	"""
 	set -e -o pipefail
-	mkdir -p tmp/ ${genome_id}/
+	mkdir -p tmp/ ${speci}/${genome_id}/
 
 	gzip -c ${genes} > all_genes.fa.gz
 	cat ${speci_seqs} >> all_genes.fa.gz
 		
 	mmseqs createdb all_genes.fa.gz mmseqsdb
-	mmseqs linclust --threads ${task.cpus} --split-memory-limit 150G --min-seq-id 0.95 -c 0.90 --cov-mode 0 mmseqsdb mmseqcluster ./tmp
+	mmseqs linclust --threads ${task.cpus} --split-memory-limit ${task.memory.toGiga()}G --min-seq-id 0.95 -c 0.90 --cov-mode 0 mmseqsdb mmseqcluster ./tmp
 	mmseqs createsubdb mmseqcluster mmseqsdb mmseqcluster_representatives
 	mmseqs createtsv mmseqsdb mmseqsdb mmseqcluster mmseqcluster.tsv
-	mv mmseqcluster.tsv ${genome_id}/${genome_id}_mmseqcluster.tsv
-	gzip ${genome_id}/${genome_id}_mmseqcluster.tsv
+	mv mmseqcluster.tsv ${speci}/${genome_id}/${genome_id}_mmseqcluster.tsv
+	gzip -v ${speci}/${genome_id}/${genome_id}_mmseqcluster.tsv
 
 	rm -rvf all_genes.fa.gz tmp/
-	touch ${genome_id}/${genome_id}.DONE
+	touch ${speci}/${genome_id}/${genome_id}.LINCLUST_DONE
 	"""
 	// gzip -dc ${genes} | grep "^>" | cut -f 1 -d " " | sed "s/^>//" | gzip -c - > ${genome_id}/${genome_id}_gene_headers.gz
 
