@@ -4,6 +4,7 @@ nextflow.enable.dsl=2
 
 include { mgexpose } from "../modules/mgexpose"
 include { get_db_seqs } from "../modules/get_db_seqs"
+include { publish_annotations } from "../modules/prodigal"
 
 include { genome_annotation } from "./genome_annotation"
 include { species_recognition } from "./species_recognition"
@@ -36,6 +37,8 @@ workflow full_annotation {
 	// prodigal output channels
 	annotations_ch = genome_annotation.out.annotations
 		.mix(species_recognition.out.annotations)
+
+	publish_annotations(annotations_ch)
 
 	annotations_ch.dump(pretty: true, tag: "annotations_ch")
 
