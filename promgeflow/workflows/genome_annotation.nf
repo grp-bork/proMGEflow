@@ -24,7 +24,7 @@ workflow genome_annotation {
 			genome_map = genomes_ch
 				.map { speci, genome_id, genome_fasta ->
 					def fn = genome_fasta.replaceAll(/.+\//, "")
-					[ "${fn}": genome_id ]
+					[ "${fn}", genome_id ]
 				}
 				.collect()
 				.map { it.collectEntries() }
