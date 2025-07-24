@@ -24,7 +24,7 @@ workflow genome_annotation {
 				.buffer(size: params.prodigal_buffer_size, remainder: true)
 				.map { files -> [ batch_id++, files ] }
 			
-			print genome_map
+			genome_map.each { entry -> println "$entry.key: $entry.value"}
 			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
 
 			buffered_prodigal(
