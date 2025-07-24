@@ -31,7 +31,7 @@ workflow genome_annotation {
 				// .toList()
 				// .map { [it].collectEntries() }
 				//.map { it.toSpreadMap() }
-				.map { it.collectEntries { [ (it): it + 1 ] } }
+				.map { it.collectEntries { [ (it[0]): it[1] ] } }
 
 
 			// genome_map = genome_map_list.collectEntries { [ (it): it + 1 ] }
