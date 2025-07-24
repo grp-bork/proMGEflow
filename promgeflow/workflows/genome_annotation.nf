@@ -66,6 +66,7 @@ workflow genome_annotation {
 				}
 				.groupTuple(by: 0, sort: true, size: 3)
 				.combine(genome_map)
+				.map { fn, files, gmap -> [ gmap[fn], files ] }
 
 			annotations_ch.dump(pretty: true, tag: "annotations_post_ch")
 			// annotations_ch = annotations_ch
