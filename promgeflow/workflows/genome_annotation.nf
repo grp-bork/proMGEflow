@@ -31,9 +31,9 @@ workflow genome_annotation {
 				.toList()
 				// .map { [it].collectEntries() }
 				//.map { it.toSpreadMap() }
-			genome_map = genome_map_list.toSpreadMap()
+			// genome_map = genome_map_list.toSpreadMap()
 
-			genome_map.dump(pretty: true, tag: "genome_map")
+			genome_map_list.dump(pretty: true, tag: "genome_map")
 			
 			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
 
@@ -58,7 +58,7 @@ workflow genome_annotation {
 				.map { annotation_file -> 
 					def fn = annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, "")
 					// [ annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), annotation_file ]
-					[ fn, genome_map[fn], annotation_file ]
+					[ fn, annotation_file ]
 				}
 				.groupTuple(by: 0, sort: true, size: 3)
 
