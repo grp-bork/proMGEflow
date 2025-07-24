@@ -45,6 +45,9 @@ workflow genome_annotation {
 
 			buffered_prodigal.out.annotations.dump(pretty: true, tag: "bp_annotations_ch")
 
+			genome_map_x = genome_map.first()
+			print genome_map_x
+
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
 				.map { annotation_file -> 
