@@ -37,7 +37,7 @@ workflow genome_annotation {
 			// genome_map = genome_map_list.collectEntries { [ (it): it + 1 ] }
 
 			genome_map.dump(pretty: true, tag: "genome_map")
-			genome_map_x = genome_map.first()
+			// genome_map_x = genome_map.first()
 			
 			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
 
@@ -55,7 +55,7 @@ workflow genome_annotation {
 
 			// genome_map_x = genome_map.collect()
 			// genome_map_x.each { entry -> println "$entry.key: $entry.value" }
-			print "GENOME_MAP " + genome_map_x //["PV_39ACCB5824ARE_NT5146.fa"]
+			// print "GENOME_MAP " + genome_map_x //["PV_39ACCB5824ARE_NT5146.fa"]
 
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
@@ -65,11 +65,12 @@ workflow genome_annotation {
 					[ fn, annotation_file ]
 				}
 				.groupTuple(by: 0, sort: true, size: 3)
+				.combine(genome_map)
 
 			annotations_ch.dump(pretty: true, tag: "annotations_post_ch")
 			annotations_ch = annotations_ch
 				.join(
-					genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
+					genomes_ch.map { speci, genome_id, genome_fasta, x -> [genome_id, speci] },
 					by: 0
 				)
 				.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }			
