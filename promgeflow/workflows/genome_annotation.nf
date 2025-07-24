@@ -56,7 +56,7 @@ workflow genome_annotation {
 				.map { annotation_file -> 
 					def fn = annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, "")
 					// [ annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), annotation_file ]
-					[ fn, annotation_file ]
+					[ fn, genome_map[fn], annotation_file ]
 				}
 				.groupTuple(by: 0, sort: true, size: 3)
 
