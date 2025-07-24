@@ -66,15 +66,15 @@ workflow genome_annotation {
 				}
 				.groupTuple(by: 0, sort: true, size: 3)
 				.combine(genome_map)
-				.map { fn, files, gmap -> [ gmap[fn], files ] }
+				// .map { fn, files, gmap -> [ gmap[fn], files ] }
 
 			annotations_ch.dump(pretty: true, tag: "annotations_post_ch")
-			annotations_ch = annotations_ch
-			 	.join(
-			 		genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
-			 		by: 0
-			 	)
-			 	.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }			
+			// annotations_ch = annotations_ch
+			//  	.join(
+			//  		genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
+			//  		by: 0
+			//  	)
+			//  	.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }			
 
 		} else {
 
