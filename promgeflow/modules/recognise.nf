@@ -3,7 +3,7 @@ params.recognise.marker_set = "motus"
 
 
 process recognise {
-	container "oras://registry.git.embl.de/schudoma/recognise-singularity/recognise-singularity:8b158eab"
+	container "ghcr.io/grp-bork/recognise:main"
 	label "recognise"
 	cpus 8
 	memory {16.GB * task.attempt}
@@ -31,7 +31,7 @@ process recognise {
 }
 
 process recognise_genome {
-	container "oras://registry.git.embl.de/schudoma/recognise-singularity/recognise-singularity:8b158eab"
+	container "ghcr.io/grp-bork/recognise:main"
 	tag "${genome_id}"
 	label "recognise"
 
@@ -70,7 +70,7 @@ process recognise_genome {
 
 
 process buffered_recognise {
-	container "oras://registry.git.embl.de/schudoma/recognise-singularity/recognise-singularity:8b158eab"
+	container "ghcr.io/grp-bork/recognise:main"
 	label "recognise"
 	
 	input:
@@ -94,7 +94,7 @@ process buffered_recognise {
 }
 
 process buffered_recognise_genome {
-	container "oras://registry.git.embl.de/schudoma/recognise-singularity/recognise-singularity:8b158eab"
+	container "ghcr.io/grp-bork/recognise:main"
 	label "recognise"
 
 	input:
