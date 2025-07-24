@@ -19,13 +19,15 @@ workflow genome_annotation {
 				.map { speci, genome_id, genome_fasta ->
 					// genome_map[file(genome_fasta).name] = genome_id
 					genome_map[genome_fasta.replaceAll(/.+\//, "")] = genome_id
-					return genome_fasta
+					return genome_fasta.replaceAll(/.+\//, ""), genome_fasta
 				}
+			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
+
+			prodigal_input_ch = prodigal_input_ch
 				.buffer(size: params.prodigal_buffer_size, remainder: true)
 				.map { files -> [ batch_id++, files ] }
 			
 			genome_map.each { entry -> println "$entry.key: $entry.value"}
-			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
 
 			buffered_prodigal(
 				// genomes_ch
