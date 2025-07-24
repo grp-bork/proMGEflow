@@ -45,7 +45,9 @@ workflow genome_annotation {
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
 				.map { annotation_file -> 
-					[ annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), annotation_file ]
+					def fn = annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, "")
+					// [ annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), annotation_file ]
+					[ genome_map[fn], annotation_file ]
 				}
 				.groupTuple(by: 0, sort: true, size: 3)
 				.join(

@@ -41,13 +41,15 @@ process buffered_prodigal {
 	script:
 	"""
 	for genome_file in ${genomes}; do
-		genome_id=\$(basename \$genome_file ${file_suffix})
+		# genome_id=\$(basename \$genome_file ${file_suffix})
+		genome_id=\$(basename \$genome_file)
 		echo \$genome_id
-		mkdir -p prodigal/\$genome_id/
+		# mkdir -p prodigal/\$genome_id/
 		if [[ \$genome_file == *.gz ]]; then
 			gzip -dc \$genome_file > \$(basename \$genome_file .gz) 			
 		fi
-		prodigal -i \$(basename \$genome_file .gz) -f gff -o prodigal/\$genome_id/\$genome_id.gff -a prodigal/\$genome_id/\$genome_id.faa -d prodigal/\$genome_id/\$genome_id.ffn
+		# prodigal -i \$(basename \$genome_file .gz) -f gff -o prodigal/\$genome_id/\$genome_id.gff -a prodigal/\$genome_id/\$genome_id.faa -d prodigal/\$genome_id/\$genome_id.ffn
+		prodigal -i \$(basename \$genome_file .gz) -f gff -o prodigal/\$genome_id.gff -a prodigal/\$genome_id.faa -d prodigal/\$genome_id.ffn
 		if [[ \$genome_file == *.gz ]]; then
 			rm -fv \$(basename \$genome_file .gz) 			
 		fi
