@@ -23,15 +23,15 @@ workflow genome_annotation {
 			// https://stackoverflow.com/questions/78125412/how-to-create-a-dict-from-the-list-using-nextflow-to-map-groupkey	
 			genome_map = genomes_ch
 				.map { speci, genome_id, genome_fasta ->
-					def fn = genome_fasta.replaceAll(/.+\//, "")
-					[ "${fn}", genome_id ]
+					// def fn = genome_fasta.replaceAll(/.+\//, "")
+					[ genome_fasta.replaceAll(/.+\//, ""), genome_id ]
 				}
 				// .flatten()
-				.collect()
-				// .toList()
-				// .map { [it].collectEntries() }
-				//.map { it.toSpreadMap() }
-				.map { it.collate(2).collectEntries() } // { [ (it[0]): it[1] ] } }
+				// .collect()
+				// // .toList()
+				// // .map { [it].collectEntries() }
+				// //.map { it.toSpreadMap() }
+				// .map { it.collate(2).collectEntries() } // { [ (it[0]): it[1] ] } }
 
 
 			// genome_map = genome_map_list.collectEntries { [ (it): it + 1 ] }
@@ -65,16 +65,20 @@ workflow genome_annotation {
 					[ fn, annotation_file ]
 				}
 				.groupTuple(by: 0, sort: true, size: 3)
-				.combine(genome_map)
-				.map { fn, files, gmap -> [ fn, gmap["PV_39ACCB5824ARE_NT5146.fa"], files ] }
+				.join(genome_map, by: 0)
+				.map { fn, files, genome_id -> [ genome_id, files ] }
+
+
+				// .combine(genome_map)
+				// .map { fn, files, gmap -> [ fn, gmap["PV_39ACCB5824ARE_NT5146.fa"], files ] }
 
 			annotations_ch.dump(pretty: true, tag: "annotations_post_ch")
-			// annotations_ch = annotations_ch
-			//  	.join(
-			//  		genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
-			//  		by: 0
-			//  	)
-			//  	.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }			
+			annotations_ch = annotations_ch
+				.join(
+			 		genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
+			 		by: 0
+				)
+			 	.map { genome_id, files, speci -> [speci, genome_id, files] }			
 
 		} else {
 
