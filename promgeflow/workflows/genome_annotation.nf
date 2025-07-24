@@ -26,8 +26,10 @@ workflow genome_annotation {
 					def fn = genome_fasta.replaceAll(/.+\//, "")
 					[ "${fn}", genome_id ]
 				}
+				.flatten()
 				.collect()
-				.map { [it].collectEntries() }
+				// .map { [it].collectEntries() }
+				.map { it.toSpreadMap() }
 
 			genome_map.dump(pretty: true, tag: "genome_map")
 			
