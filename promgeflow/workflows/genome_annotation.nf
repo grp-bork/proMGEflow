@@ -42,6 +42,9 @@ workflow genome_annotation {
 				suffix_pattern
 			)
 			
+
+			buffered_prodigal.out.annotations.dump(pretty: true, tag: "bp_annotations_ch")
+
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
 				.map { annotation_file -> 
