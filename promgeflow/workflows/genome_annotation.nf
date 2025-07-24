@@ -26,7 +26,7 @@ workflow genome_annotation {
 					def fn = genome_fasta.replaceAll(/.+\//, "")
 					[ "${fn}": genome_id ]
 				}
-				.map { it.collectEntries() }
+				// .map { it.collectEntries() }
 
 			genome_map.dump(pretty: true, tag: "genome_map")
 			// genome_map.each { entry -> println "$entry.key: $entry.value" }
