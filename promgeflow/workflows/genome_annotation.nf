@@ -18,7 +18,8 @@ workflow genome_annotation {
 			prodigal_input_ch = genomes_ch
 				.map { speci, genome_id, genome_fasta ->
 					// genome_map[file(genome_fasta).name] = genome_id
-					genome_map[genome_fasta.replaceAll(/.+\//, "")] = genome_id
+					def fn = genome_fasta.replaceAll(/.+\//, "")
+					genome_map.put(fn, genome_id)
 					return genome_fasta
 				}
 				.buffer(size: params.prodigal_buffer_size, remainder: true)
