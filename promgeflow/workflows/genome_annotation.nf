@@ -26,9 +26,9 @@ workflow genome_annotation {
 					def fn = genome_fasta.replaceAll(/.+\//, "")
 					[ "${fn}": genome_id ]
 				}
-				// .map { it.collectEntries() }
+				.map { it.collectEntries() }
 
-			// genome_map.each { entry -> println "$entry.key: $entry.value" }
+			genome_map.each { entry -> println "$entry.key: $entry.value" }
 			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
 
 			buffered_prodigal(
