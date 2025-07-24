@@ -68,12 +68,12 @@ workflow genome_annotation {
 				.combine(genome_map)
 
 			annotations_ch.dump(pretty: true, tag: "annotations_post_ch")
-			annotations_ch = annotations_ch
-				.join(
-					genomes_ch.map { speci, genome_id, genome_fasta, x -> [genome_id, speci] },
-					by: 0
-				)
-				.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }			
+			// annotations_ch = annotations_ch
+			// 	.join(
+			// 		genomes_ch.map { speci, genome_id, genome_fasta, x -> [genome_id, speci] },
+			// 		by: 0
+			// 	)
+			// 	.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }			
 
 		} else {
 
