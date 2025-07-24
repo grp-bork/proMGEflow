@@ -37,7 +37,7 @@ workflow genome_annotation {
 			// genome_map = genome_map_list.collectEntries { [ (it): it + 1 ] }
 
 			genome_map.dump(pretty: true, tag: "genome_map")
-			genome_map_x = genome_map.collect()
+			genome_map_x = genome_map.first()
 			
 			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
 
