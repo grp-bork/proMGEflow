@@ -49,7 +49,7 @@ workflow genome_annotation {
 
 			// genome_map_x = genome_map.collect()
 			// genome_map_x.each { entry -> println "$entry.key: $entry.value" }
-			// print "GENOME_MAP" + genome_map_x["PV_39ACCB5824ARE_NT5146.fa"]
+			print "GENOME_MAP " + genome_map["PV_39ACCB5824ARE_NT5146.fa"]
 
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
