@@ -11,13 +11,9 @@ process linclust {
 	
 	output:
 	tuple val(speci), val(genome_id), path("${speci}/${genome_id}/${genome_id}_mmseqcluster.tsv.gz"), emit: mmseq_cluster
-	// tuple val(speci), val(genome_id), path("${genome_id}/${genome_id}_speci_headers.gz"), emit: speci_headers
-	// tuple val(speci), val(genome_id), path("${genome_id}/${genome_id}_gene_headers.gz"), emit: gene_headers
 	tuple val(speci), val(genome_id), path("${speci}/${genome_id}/${genome_id}.LINCLUST_DONE"), emit: done_sentinel
 
 	script:
-	// gzip -dc ${speci_seqs} | sed "s/^>/>proMGE__/" | gzip -c - > all_genes.fa.gz  // potentially unnecessary
-	// --split-memory-limit 150G
 	"""
 	set -e -o pipefail
 	mkdir -p tmp/ ${speci}/${genome_id}/
@@ -35,9 +31,5 @@ process linclust {
 	rm -rvf all_genes.fa.gz tmp/
 	touch ${speci}/${genome_id}/${genome_id}.LINCLUST_DONE
 	"""
-	// gzip -dc ${genes} | grep "^>" | cut -f 1 -d " " | sed "s/^>//" | gzip -c - > ${genome_id}/${genome_id}_gene_headers.gz
 
-	// gzip -dc all_genes.fa.gz | grep "^>" | cut -f 1 -d " " | sed "s/^>//" | gzip -c - > ${genome_id}/${genome_id}_cluster_input.gz
-
-	// gzip -dc ${speci_seqs} | grep "^>" | cut -f 1 -d " " | sed "s/^>//" | gzip -c - > ${genome_id}/${genome_id}_speci_headers.gz
 }

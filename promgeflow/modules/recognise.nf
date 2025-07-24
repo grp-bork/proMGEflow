@@ -48,9 +48,7 @@ process recognise_genome {
 	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.faa"), emit: proteins
 	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.ffn"), emit: genes
 	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.gff"), emit: gff
-	// tuple val(speci), val(genome_id), path("")			mv -v recognise/\$genome_id/\$genome_id.{faa,ffn,gff}  prodigal/\$genome_id/
-
-
+	
 	script:
 	"""
 	if [[ "${genome}" == *".gz" ]]; then
@@ -59,12 +57,10 @@ process recognise_genome {
 		ln -sf ${genome} genome_file
 	fi
 
-
 	recognise --marker_set ${params.recognise.marker_set} --genome genome_file --cpus ${task.cpus} --with_gff -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
 	
 	rm -fv genome_file
 	"""
-	// recognise --marker_set ${params.recognise.marker_set} --genome ${genome} --cpus ${task.cpus} --with_gff -o recognise/\$genome_id \$genome_id \$(readlink ${marker_genes_db})
 
 }
 
