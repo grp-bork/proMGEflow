@@ -74,8 +74,8 @@ process publish_annotations {
 	"""
 	mkdir -p ${speci}/${genome_id}/
 
-	ln -s ../../${genome_id}.faa ${speci}/${genome_id}/
-	ln -s ../../${genome_id}.ffn ${speci}/${genome_id}/
-	ln -s ../../${genome_id}.gff ${speci}/${genome_id}/
+	ln -s ../../*.faa ${speci}/${genome_id}/
+	ln -s ../../*.ffn ${speci}/${genome_id}/
+	ln -s ../../*.gff ${speci}/${genome_id}/
 	"""
 }
