@@ -23,11 +23,11 @@ workflow genome_annotation {
 			// https://stackoverflow.com/questions/78125412/how-to-create-a-dict-from-the-list-using-nextflow-to-map-groupkey	
 			genome_map = genomes_ch
 				.map { speci, genome_id, genome_fasta ->
-					[genome_fasta.replaceAll(/.+\//, ""): genome_fasta]
+					[ genome_fasta.replaceAll(/.+\//, ""): genome_id ]
 				}
-				.map { it.collectEntries() }
+				// .map { it.collectEntries() }
 
-			genome_map.each { entry -> println "$entry.key: $entry.value"}
+			// genome_map.each { entry -> println "$entry.key: $entry.value" }
 			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
 
 			buffered_prodigal(
