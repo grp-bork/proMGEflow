@@ -23,7 +23,8 @@ workflow genome_annotation {
 			// https://stackoverflow.com/questions/78125412/how-to-create-a-dict-from-the-list-using-nextflow-to-map-groupkey	
 			genome_map = genomes_ch
 				.map { speci, genome_id, genome_fasta ->
-					[ genome_fasta.replaceAll(/.+\//, ""): genome_id ]
+					def fn = genome_fasta.replaceAll(/.+\//, "")
+					[ "${fn}": genome_id ]
 				}
 				// .map { it.collectEntries() }
 
