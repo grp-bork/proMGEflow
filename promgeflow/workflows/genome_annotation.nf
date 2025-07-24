@@ -31,9 +31,9 @@ workflow genome_annotation {
 				.toList()
 				// .map { [it].collectEntries() }
 				//.map { it.toSpreadMap() }
-			// genome_map = genome_map_list.toSpreadMap()
+			genome_map = genome_map_list.collectEntries { [ (it): it + 1 ] }
 
-			genome_map_list.dump(pretty: true, tag: "genome_map")
+			genome_map.dump(pretty: true, tag: "genome_map")
 			
 			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
 
