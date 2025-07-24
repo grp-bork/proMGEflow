@@ -14,15 +14,16 @@ workflow genome_annotation {
 		if (params.prodigal_buffer_size != null && params.prodigal_buffer_size > 1) {
 
 			def batch_id = 0
-			def sample_map = [:]
+			def genome_map = [:]
 			prodigal_input_ch = genomes_ch
 				.map { speci, genome_id, genome_fasta ->
-					sample_map[file(genome_fasta).name] = genome_id
+					genome_map[file(genome_fasta).name] = genome_id
 					genome_fasta
 				}
 				.buffer(size: params.prodigal_buffer_size, remainder: true)
 				.map { files -> [ batch_id++, files ] }
 			
+			print genome_map
 			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
 
 			buffered_prodigal(
