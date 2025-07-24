@@ -72,10 +72,13 @@ process publish_annotations {
 
 	script:
 	"""
-	mkdir -p ${speci}/${genome_id}/
+	mkdir -p ${speci}/${genome_id}/ && cd ${speci}/${genome_id}
 
-	ln -s ../../*.faa ${speci}/${genome_id}/
-	ln -s ../../*.ffn ${speci}/${genome_id}/
-	ln -s ../../*.gff ${speci}/${genome_id}/
+	ln -s ../../*.faa ${genome_id}.faa
+	ln -s ../../*.ffn ${genome_id}.ffn
+	ln -s ../../*.gff ${genome_id}.gff
+	#ln -s ../../*.faa ${speci}/${genome_id}/
+	#ln -s ../../*.ffn ${speci}/${genome_id}/
+	#ln -s ../../*.gff ${speci}/${genome_id}/
 	"""
 }
