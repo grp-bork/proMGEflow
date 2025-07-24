@@ -40,6 +40,7 @@ process buffered_prodigal {
 
 	script:
 	"""
+	mkdir -p prodigal/
 	for genome_file in ${genomes}; do
 		# genome_id=\$(basename \$genome_file ${file_suffix})
 		genome_id=\$(basename \$genome_file)
