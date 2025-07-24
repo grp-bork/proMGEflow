@@ -21,15 +21,17 @@ workflow genome_annotation {
 				.map { files -> [ batch_id++, files ] }
 
 			// https://stackoverflow.com/questions/78125412/how-to-create-a-dict-from-the-list-using-nextflow-to-map-groupkey	
-			genome_map = genomes_ch
+			genome_map_list = genomes_ch
 				.map { speci, genome_id, genome_fasta ->
 					def fn = genome_fasta.replaceAll(/.+\//, "")
 					[ "${fn}", genome_id ]
 				}
 				.flatten()
-				.collect()
+				// .collect()
+				.toList()
 				// .map { [it].collectEntries() }
-				.map { it.toSpreadMap() }
+				//.map { it.toSpreadMap() }
+			genome_map = genome_map_list.toSpreadMap()
 
 			genome_map.dump(pretty: true, tag: "genome_map")
 			
