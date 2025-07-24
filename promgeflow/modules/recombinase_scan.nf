@@ -1,5 +1,5 @@
 process recombinase_scan {
-	container "oras://ghcr.io/cschu/profile_me_ci:latest"
+	container "registry.git.embl.org/schudoma/recombinase_scan:v0.1"
 	tag "${genome_id}"
 	cpus 4
 	time {1.d * task.attempt}
