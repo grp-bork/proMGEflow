@@ -27,7 +27,7 @@ workflow genome_annotation {
 					[ "${fn}", genome_id ]
 				}
 				.collect()
-				.map { it.collectEntries() }
+				.map { [it].collectEntries() }
 
 			genome_map.dump(pretty: true, tag: "genome_map")
 			
