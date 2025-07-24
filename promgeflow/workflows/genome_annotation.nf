@@ -14,17 +14,19 @@ workflow genome_annotation {
 		if (params.prodigal_buffer_size != null && params.prodigal_buffer_size > 1) {
 
 			def batch_id = 0
-			def genome_map = [:]
+			// def genome_map = [:]
 			prodigal_input_ch = genomes_ch
-				.map { speci, genome_id, genome_fasta ->
-					// genome_map[file(genome_fasta).name] = genome_id
-					def fn = genome_fasta.replaceAll(/.+\//, "")
-					genome_map.put(fn, genome_id)
-					return genome_fasta
-				}
+				.map { speci, genome_id, genome_fasta -> genome_fasta }					
 				.buffer(size: params.prodigal_buffer_size, remainder: true)
 				.map { files -> [ batch_id++, files ] }
-			
+
+			// https://stackoverflow.com/questions/78125412/how-to-create-a-dict-from-the-list-using-nextflow-to-map-groupkey	
+			genome_map = genomes_ch
+				.map { speci, genome_id, genome_fasta ->
+					[genome_fasta.replaceAll(/.+\//, ""): genome_fasta]
+				}
+				.map { it.collectEntries() }
+
 			genome_map.each { entry -> println "$entry.key: $entry.value"}
 			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
 
