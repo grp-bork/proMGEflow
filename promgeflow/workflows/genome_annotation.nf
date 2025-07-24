@@ -28,7 +28,8 @@ workflow genome_annotation {
 				}
 				.map { it.collectEntries() }
 
-			genome_map.each { entry -> println "$entry.key: $entry.value" }
+			genome_map.dump(pretty: true, tag: "genome_map")
+			// genome_map.each { entry -> println "$entry.key: $entry.value" }
 			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
 
 			buffered_prodigal(
