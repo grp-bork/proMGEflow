@@ -50,6 +50,9 @@ workflow genome_annotation {
 					[ genome_map[fn], annotation_file ]
 				}
 				.groupTuple(by: 0, sort: true, size: 3)
+
+			annotations_ch.dump(pretty: true, tag: "annotations_post_ch")
+			annotations_ch = annotations_ch
 				.join(
 					genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
 					by: 0
