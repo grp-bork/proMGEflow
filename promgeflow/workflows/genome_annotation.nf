@@ -32,9 +32,12 @@ workflow genome_annotation {
 				// .map { [it].collectEntries() }
 				//.map { it.toSpreadMap() }
 				.map { it.collectEntries { [ (it): it + 1 ] } }
+
+
 			// genome_map = genome_map_list.collectEntries { [ (it): it + 1 ] }
 
 			genome_map.dump(pretty: true, tag: "genome_map")
+			genome_map_x = genome_map.toList()[0]
 			
 			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
 
@@ -52,7 +55,7 @@ workflow genome_annotation {
 
 			// genome_map_x = genome_map.collect()
 			// genome_map_x.each { entry -> println "$entry.key: $entry.value" }
-			// print "GENOME_MAP " + genome_map["PV_39ACCB5824ARE_NT5146.fa"]
+			print "GENOME_MAP " + genome_map_x //["PV_39ACCB5824ARE_NT5146.fa"]
 
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
