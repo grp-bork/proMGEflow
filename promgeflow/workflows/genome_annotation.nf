@@ -45,9 +45,9 @@ workflow genome_annotation {
 
 			buffered_prodigal.out.annotations.dump(pretty: true, tag: "bp_annotations_ch")
 
-			genome_map_x = genome_map.collect()
-			genome_map_x.each { entry -> println "$entry.key: $entry.value" }
-			print "GENOME_MAP" + genome_map_x["PV_39ACCB5824ARE_NT5146.fa"]
+			// genome_map_x = genome_map.collect()
+			// genome_map_x.each { entry -> println "$entry.key: $entry.value" }
+			// print "GENOME_MAP" + genome_map_x["PV_39ACCB5824ARE_NT5146.fa"]
 
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
