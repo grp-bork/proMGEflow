@@ -19,7 +19,7 @@ workflow genome_annotation {
 				.map { speci, genome_id, genome_fasta ->
 					// genome_map[file(genome_fasta).name] = genome_id
 					genome_map[genome_fasta.replaceAll(/.+\//, "")] = genome_id
-					return genome_fasta.replaceAll(/.+\//, ""), genome_fasta
+					return tuple(genome_fasta.replaceAll(/.+\//, ""), genome_fasta)
 				}
 			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
 
