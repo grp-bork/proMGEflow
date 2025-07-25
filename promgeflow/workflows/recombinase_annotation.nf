@@ -1,7 +1,7 @@
 include { recombinase_scan } from "../modules/recombinase_scan"
 
 // phasing out nested parameters
-params.recombinase_scan ?: [:]
+params.recombinase_scan = [:]
 params.recombinase_scan.db = null
 params.recombinase_scan_db = params.recombinase_scan.db
 

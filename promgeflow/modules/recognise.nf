@@ -1,5 +1,5 @@
 // phasing out nested parameters
-params.recognise ?: [:]
+params.recognise = [:]
 params.recognise.marker_set = "motus"
 params.recognise_marker_set = params.recognise.marker_set
 

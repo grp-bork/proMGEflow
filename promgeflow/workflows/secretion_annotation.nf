@@ -1,7 +1,7 @@
 include { txsscan } from "../modules/txsscan"
 
 // phasing out nested parameters
-params.txsscan ?: [:]
+params.txsscan = [:]
 params.txsscan.db = null
 params.txsscan_db = params.txsscan.db
 

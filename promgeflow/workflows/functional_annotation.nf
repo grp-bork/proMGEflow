@@ -1,7 +1,7 @@
 include { eggnog_mapper } from "../modules/eggnog_mapper"
 
 // phasing out nested parameters and phage-scan-specific parameters
-params.phage_scan ?: [:]
+params.phage_scan = [:]
 params.phage_scan.db = null
 params.emapper_db = params.phage_scan.db
 
