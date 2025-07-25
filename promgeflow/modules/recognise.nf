@@ -3,7 +3,7 @@ params.recognise.marker_set = "motus"
 
 
 process recognise {
-	container "oras://registry.git.embl.de/schudoma/recognise-singularity/recognise-singularity:8b158eab"
+	container "ghcr.io/grp-bork/recognise:main"
 	label "recognise"
 	cpus 8
 	memory {16.GB * task.attempt}
@@ -31,7 +31,7 @@ process recognise {
 }
 
 process recognise_genome {
-	container "oras://registry.git.embl.de/schudoma/recognise-singularity/recognise-singularity:8b158eab"
+	container "ghcr.io/grp-bork/recognise:main"
 	tag "${genome_id}"
 	label "recognise"
 
@@ -45,12 +45,10 @@ process recognise_genome {
 	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.cogs.txt"), emit: cog_table
 	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.txt"), emit: genome_speci
 	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.status"), emit: speci_status
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.faa.gz"), emit: proteins
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.ffn.gz"), emit: genes
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.gff.gz"), emit: gff
-	// tuple val(speci), val(genome_id), path("")			mv -v recognise/\$genome_id/\$genome_id.{faa,ffn,gff}  prodigal/\$genome_id/
-
-
+	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.faa"), emit: proteins
+	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.ffn"), emit: genes
+	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.gff"), emit: gff
+	
 	script:
 	"""
 	if [[ "${genome}" == *".gz" ]]; then
@@ -59,19 +57,16 @@ process recognise_genome {
 		ln -sf ${genome} genome_file
 	fi
 
-
 	recognise --marker_set ${params.recognise.marker_set} --genome genome_file --cpus ${task.cpus} --with_gff -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
-	gzip -v recognise/${genome_id}/*.{faa,ffn,gff}
-
+	
 	rm -fv genome_file
 	"""
-	// recognise --marker_set ${params.recognise.marker_set} --genome ${genome} --cpus ${task.cpus} --with_gff -o recognise/\$genome_id \$genome_id \$(readlink ${marker_genes_db})
 
 }
 
 
 process buffered_recognise {
-	container "oras://registry.git.embl.de/schudoma/recognise-singularity/recognise-singularity:8b158eab"
+	container "ghcr.io/grp-bork/recognise:main"
 	label "recognise"
 	
 	input:
@@ -95,7 +90,7 @@ process buffered_recognise {
 }
 
 process buffered_recognise_genome {
-	container "oras://registry.git.embl.de/schudoma/recognise-singularity/recognise-singularity:8b158eab"
+	container "ghcr.io/grp-bork/recognise:main"
 	label "recognise"
 
 	input:

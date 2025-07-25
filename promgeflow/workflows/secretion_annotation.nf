@@ -5,7 +5,7 @@ workflow secretion_annotation {
 
 	take:
 		filtered_proteins_ch
-		genome2speci_map_ch
+		// genome2speci_map_ch
 
 	main:
 		txsscan(filtered_proteins_ch, params.txsscan.db)

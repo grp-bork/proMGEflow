@@ -9,44 +9,56 @@ workflow genome_annotation {
 		genomes_ch
 	
 	main:
-	    // suffix_pattern and speci_tag are defined in main.nf but not recognized otherwise
-	    def suffix_pattern = params.file_pattern.replaceAll(/\*/, "")
-	    def speci_tag = params.known_speci ?: "unknown_speci"
 
-		if (params.prodigal_buffer_size != null && params.prodigal_buffer_size > 1) {
+	    if (params.prodigal_buffer_size != null && params.prodigal_buffer_size > 1) {
 
 			def batch_id = 0
-			buffered_pyrodigal(
-				genomes_ch
-					.map { speci, genome_id, genome_fasta -> genome_fasta }
-					.buffer(size: params.prodigal_buffer_size, remainder: true)
-					.map { files -> [ batch_id++, files ] },
-				suffix_pattern
-			)
+			prodigal_input_ch = genomes_ch
+				.map { speci, genome_id, genome_fasta -> genome_fasta }					
+				.buffer(size: params.prodigal_buffer_size, remainder: true)
+				.map { files -> [ batch_id++, files ] }
+
+			genome_map = genomes_ch
+				.map { speci, genome_id, genome_fasta ->
+					[ genome_fasta.replaceAll(/.+\//, ""), genome_id ]
+				}
+
+			genome_map.dump(pretty: true, tag: "genome_map")
+			
+			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
+
+			buffered_pyrodigal(prodigal_input_ch)			
+
+			buffered_pyrodigal.out.annotations.dump(pretty: true, tag: "bp_annotations_ch")
+
 			annotations_ch = buffered_pyrodigal.out.annotations
 				.flatten()
-				.map { file -> [
-					params.known_speci, file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), file
-				]}
-			pproteins_ch = annotations_ch
-				.filter { it[2].getName().endsWith(".faa") }
-			pgenes_ch = annotations_ch
-				.filter { it[2].getName().endsWith(".ffn") }
-			pgffs_ch = annotations_ch
-				.filter { it[2].getName().endsWith(".gff") }
+				.map { annotation_file -> 
+					[ annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), annotation_file ]
+				}
+				.groupTuple(by: 0, sort: true, size: 3)
+				.join(genome_map, by: 0)
+				.map { fn, files, genome_id -> [ genome_id, files ] }
+
+			annotations_ch.dump(pretty: true, tag: "annotations_post_ch")
+			annotations_ch = annotations_ch
+				.join(
+			 		genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
+			 		by: 0
+				)
+			 	.map { genome_id, files, speci -> [speci, genome_id, files] }			
 
 		} else {
 
 			pyrodigal(genomes_ch)
-			pproteins_ch = pyrodigal.out.proteins
-			pgenes_ch = pyrodigal.out.genes
-			pgffs_ch = pyrodigal.out.genome_annotation
-
+			annotations_ch = pyrodigal.out.proteins
+				.mix(pyrodigal.out.genes)
+				.mix(pyrodigal.out.genome_annotation)
+				.groupTuple(by: [0, 1], sort: true, size: 3)
 		}
 
 	emit:
-		proteins = pproteins_ch
-		genes = pgenes_ch
-		gffs = pgffs_ch
+		annotations = annotations_ch
 
-}
+
+}	

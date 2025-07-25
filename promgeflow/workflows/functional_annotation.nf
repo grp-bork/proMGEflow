@@ -5,7 +5,7 @@ workflow functional_annotation {
 
 	take:
 		filtered_proteins_ch
-		genome2speci_map_ch
+		// genome2speci_map_ch
 
 	main:
 		eggnog_mapper(filtered_proteins_ch, params.phage_scan.db)
