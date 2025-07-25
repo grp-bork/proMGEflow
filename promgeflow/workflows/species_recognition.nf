@@ -19,7 +19,7 @@ workflow species_recognition {
 	main:
 		recognise_genome(
 			genomes_ch,
-			params.recognise.db
+			params.recognise_marker_db
 		)
 
 		genome_speci_ch = recognise_genome.out.speci_status_ok
