@@ -9,30 +9,44 @@ workflow genome_annotation {
 		genomes_ch
 	
 	main:
-	    def suffix_pattern = params.file_pattern.replaceAll(/\*/, "")
-	    
-		if (params.prodigal_buffer_size != null && params.prodigal_buffer_size > 1) {
+
+	    if (params.prodigal_buffer_size != null && params.prodigal_buffer_size > 1) {
 
 			def batch_id = 0
-			buffered_prodigal(
-				genomes_ch
-					.map { speci, genome_id, genome_fasta -> genome_fasta }
-					.buffer(size: params.prodigal_buffer_size, remainder: true)
-					.map { files -> [ batch_id++, files ] },
-				suffix_pattern
-			)
+			prodigal_input_ch = genomes_ch
+				.map { speci, genome_id, genome_fasta -> genome_fasta }					
+				.buffer(size: params.prodigal_buffer_size, remainder: true)
+				.map { files -> [ batch_id++, files ] }
+
+			genome_map = genomes_ch
+				.map { speci, genome_id, genome_fasta ->
+					[ genome_fasta.replaceAll(/.+\//, ""), genome_id ]
+				}
+
+			genome_map.dump(pretty: true, tag: "genome_map")
 			
+			prodigal_input_ch.dump(pretty: true, tag: "prodigal_input_ch")
+
+			buffered_prodigal(prodigal_input_ch)			
+
+			buffered_prodigal.out.annotations.dump(pretty: true, tag: "bp_annotations_ch")
+
 			annotations_ch = buffered_prodigal.out.annotations
 				.flatten()
 				.map { annotation_file -> 
 					[ annotation_file.getName().replaceAll(/\.(faa|ffn|gff)$/, ""), annotation_file ]
 				}
 				.groupTuple(by: 0, sort: true, size: 3)
+				.join(genome_map, by: 0)
+				.map { fn, files, genome_id -> [ genome_id, files ] }
+
+			annotations_ch.dump(pretty: true, tag: "annotations_post_ch")
+			annotations_ch = annotations_ch
 				.join(
-					genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
-					by: 0
+			 		genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
+			 		by: 0
 				)
-				.map { genome_id, annotation_file, speci -> [speci, genome_id, annotation_file] }			
+			 	.map { genome_id, files, speci -> [speci, genome_id, files] }			
 
 		} else {
 
@@ -47,4 +61,4 @@ workflow genome_annotation {
 		annotations = annotations_ch
 
 
-}
+}	

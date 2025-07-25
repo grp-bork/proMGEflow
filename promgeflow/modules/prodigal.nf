@@ -33,21 +33,20 @@ process buffered_prodigal {
 
 	input:
 	tuple val(batch_id), path(genomes)
-	val(file_suffix)
 
 	output:
 	path("prodigal/**.*"), emit: annotations
 
 	script:
 	"""
+	mkdir -p prodigal/
 	for genome_file in ${genomes}; do
-		genome_id=\$(basename \$genome_file ${file_suffix})
+		genome_id=\$(basename \$genome_file)
 		echo \$genome_id
-		mkdir -p prodigal/\$genome_id/
 		if [[ \$genome_file == *.gz ]]; then
 			gzip -dc \$genome_file > \$(basename \$genome_file .gz) 			
 		fi
-		prodigal -i \$(basename \$genome_file .gz) -f gff -o prodigal/\$genome_id/\$genome_id.gff -a prodigal/\$genome_id/\$genome_id.faa -d prodigal/\$genome_id/\$genome_id.ffn
+		prodigal -i \$(basename \$genome_file .gz) -f gff -o prodigal/\$genome_id.gff -a prodigal/\$genome_id.faa -d prodigal/\$genome_id.ffn
 		if [[ \$genome_file == *.gz ]]; then
 			rm -fv \$(basename \$genome_file .gz) 			
 		fi
@@ -69,10 +68,10 @@ process publish_annotations {
 
 	script:
 	"""
-	mkdir -p ${speci}/${genome_id}/
+	mkdir -p ${speci}/${genome_id}/ && cd ${speci}/${genome_id}
 
-	ln -s ../../${genome_id}.faa ${speci}/${genome_id}/
-	ln -s ../../${genome_id}.ffn ${speci}/${genome_id}/
-	ln -s ../../${genome_id}.gff ${speci}/${genome_id}/
+	ln -s ../../*.faa ${genome_id}.faa
+	ln -s ../../*.ffn ${genome_id}.ffn
+	ln -s ../../*.gff ${genome_id}.gff
 	"""
 }
