@@ -1,5 +1,11 @@
 include { recognise_genome } from "../modules/recognise"
 
+// phasing out nested parameters
+params.recognise ?: [:]
+params.recognise.db = null
+params.recognise_marker_db = params.recognise.db
+
+
 
 workflow species_recognition {
 

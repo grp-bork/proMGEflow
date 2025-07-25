@@ -1,14 +1,18 @@
 include { eggnog_mapper } from "../modules/eggnog_mapper"
 
+// phasing out nested parameters and phage-scan-specific parameters
+params.phage_scan ?: [:]
+params.phage_scan.db = null
+params.emapper_db = params.phage_scan.db
+
 
 workflow functional_annotation {
 
 	take:
 		filtered_proteins_ch
-		// genome2speci_map_ch
 
 	main:
-		eggnog_mapper(filtered_proteins_ch, params.phage_scan.db)
+		eggnog_mapper(filtered_proteins_ch, params.emapper_db)
 		emapper_annotations_ch = eggnog_mapper.out.eggnog
 
 	emit:

@@ -1,5 +1,7 @@
-params.recognise = [:]
+// phasing out nested parameters
+params.recognise ?: [:]
 params.recognise.marker_set = "motus"
+params.recognise_marker_set = params.recognise.marker_set
 
 
 process recognise {
@@ -25,7 +27,7 @@ process recognise {
 
 	script:
 	"""
-	recognise --marker_set ${params.recognise.marker_set} --genes ${genes} --proteins ${proteins} --cpus ${task.cpus} -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
+	recognise --marker_set ${params.recognise_marker_set} --genes ${genes} --proteins ${proteins} --cpus ${task.cpus} -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
 	"""
 
 }
@@ -57,7 +59,7 @@ process recognise_genome {
 		ln -sf ${genome} genome_file
 	fi
 
-	recognise --marker_set ${params.recognise.marker_set} --genome genome_file --cpus ${task.cpus} --with_gff -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
+	recognise --marker_set ${params.recognise_marker_set} --genome genome_file --cpus ${task.cpus} --with_gff -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
 	
 	rm -fv genome_file
 	"""
@@ -83,7 +85,7 @@ process buffered_recognise {
 	"""
 	for protein_file in *.faa.gz; do
 		genome_id=\$(basename \$protein_file .faa.gz)
-		recognise --marker_set ${params.recognise.marker_set} --genes \$genome_id.ffn.gz --proteins \$protein_file --cpus ${task.cpus} -o recognise/\$genome_id \$genome_id \$(readlink ${marker_genes_db})
+		recognise --marker_set ${params.recognise_marker_set} --genes \$genome_id.ffn.gz --proteins \$protein_file --cpus ${task.cpus} -o recognise/\$genome_id \$genome_id \$(readlink ${marker_genes_db})
 	done
 	"""
 
@@ -115,7 +117,7 @@ process buffered_recognise_genome {
 			gzip -dc \$genome_file > \$(basename \$genome_file .gz)
 		fi
 		
-		recognise --marker_set ${params.recognise.marker_set} --genome \$(basename \$genome_file .gz) --cpus ${task.cpus} --with_gff -o recognise/\$genome_id \$genome_id \$(readlink ${marker_genes_db})
+		recognise --marker_set ${params.recognise_marker_set} --genome \$(basename \$genome_file .gz) --cpus ${task.cpus} --with_gff -o recognise/\$genome_id \$genome_id \$(readlink ${marker_genes_db})
 		mv -v recognise/\$genome_id/\$genome_id.{faa,ffn,gff}  prodigal/\$genome_id/
 
 		if [[ "\$genome_file" == *".gz" ]]; then
