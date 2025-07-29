@@ -22,13 +22,20 @@ workflow species_recognition {
 			params.recognise_marker_db
 		)
 
-		genome_speci_ch = recognise_genome.out.speci_status_ok
+		genome_speci_ch = recognise_genome.out.genome_speci
+			.map { genome_id, file -> return tuple(genome_id, file.text.strip()) }
 			.join(
-				recognise_genome.out.genome_speci
-					.map { genome_id, file -> return tuple(genome_id, file.text.strip()) },
-				by: 0
+				recognise_genome.out.speci_status_ok,
+				by: 0,
+				remainder: true
 			)
-			.map { genome_id, file, speci -> return tuple(genome_id, speci) }
+			.map { 
+				genome_id, speci, status_ok_file -> 
+				if (status_ok_file == null) {
+					speci = "unknown"
+				}
+				return tuple(genome_id, speci)
+			}
 
 		annotations_ch = recognise_genome.out.proteins
 			.mix(recognise_genome.out.genes)
