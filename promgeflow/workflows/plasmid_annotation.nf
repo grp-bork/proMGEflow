@@ -33,7 +33,6 @@ workflow plasmid_annotation {
 
 	// prodigal output channels
 	annotations_ch = genome_annotation.out.annotations
-		.mix(species_recognition.out.annotations)
 
 	publish_annotations(annotations_ch)
 
