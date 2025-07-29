@@ -70,7 +70,7 @@ process recognise_genome {
 	mkdir -p \$speci/${genome_id}/
 	mv -v recognise/${genome_id}/* \$speci/${genome_id}/ 
 	
-	rm -fv genome_file recognise/
+	rm -rfv genome_file recognise/
 	"""
 
 }
