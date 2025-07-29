@@ -43,13 +43,13 @@ process recognise_genome {
 	
 	
 	output:
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.status.OK"), emit: speci_status_ok, optional: true 
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.cogs.txt"), emit: cog_table
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.txt"), emit: genome_speci
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.status"), emit: speci_status
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.faa"), emit: proteins
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.ffn"), emit: genes
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.gff"), emit: gff
+	tuple val(genome_id), path("**/${genome_id}.specI.status.OK"), emit: speci_status_ok, optional: true 
+	tuple val(genome_id), path("**/${genome_id}.cogs.txt"), emit: cog_table
+	tuple val(genome_id), path("**/${genome_id}.specI.txt"), emit: genome_speci
+	tuple val(genome_id), path("**/${genome_id}.specI.status"), emit: speci_status
+	tuple val(genome_id), path("**/${genome_id}.faa"), emit: proteins
+	tuple val(genome_id), path("**/${genome_id}.ffn"), emit: genes
+	tuple val(genome_id), path("**/${genome_id}/${genome_id}.gff"), emit: gff
 	
 	script:
 	"""
@@ -60,8 +60,17 @@ process recognise_genome {
 	fi
 
 	recognise --marker_set ${params.recognise_marker_set} --genome genome_file --cpus ${task.cpus} --with_gff -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
+
+	if [[ -s recognise/${genome_id}/${genome_id}.specI.txt ]]; then 
+		speci=\$(cat recognise/${genome_id}/${genome_id}.specI.txt)
+	else
+		speci="unknown"
+	fi
+
+	mkdir -p \$speci/${genome_id}/
+	mv -v recognise/${genome_id}/* \$speci/${genome_id}/ 
 	
-	rm -fv genome_file
+	rm -fv genome_file recognise/
 	"""
 
 }
