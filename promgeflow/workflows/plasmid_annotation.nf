@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl=2
 
-include { mgexpose } from "../modules/mgexpose"
+include { mgexpose_region } from "../modules/mgexpose"
 include { get_db_seqs } from "../modules/get_db_seqs"
 include { publish_annotations } from "../modules/prodigal"
 
@@ -60,20 +60,22 @@ workflow plasmid_annotation {
 	functional_annotation(filtered_proteins_ch)
 	
 	/* STEP 5 Annotate the genomes with island data and assign mges */
+	// 	tuple val(speci), val(genome_id), path(gff), path(txsscan), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
+
 	annotation_data_ch = filtered_gff_ch
 		.join( secretion_annotation.out.txsscan, by: [0, 1] )
 		.join( functional_annotation.out.annotation, by: [0, 1] )
+		.join( handle_input_plasmids.out.regions, by: [0, 1] )
 		.join( recombinase_annotation.out.recombinases, by: [0, 1] )
 		.join( genomes_ch, by: [0, 1] )
-		.join( handle_input_plasmids.out.regions, by: [0, 1] )
 
 	annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
 
-	// mgexpose(
-	// 	annotation_data_ch,
-	// 	"${projectDir}/assets/mge_rules_ms.txt",
-	// 	"${projectDir}/assets/txsscan_rules.txt",
-	// 	"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt"
-	// )
+	mgexpose_region(
+		annotation_data_ch,
+		"${projectDir}/assets/mge_rules_ms.txt",
+		"${projectDir}/assets/txsscan_rules.txt",
+		"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt"
+	)
 
 }
