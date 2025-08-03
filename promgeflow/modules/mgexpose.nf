@@ -93,7 +93,7 @@ process mgexpose_region {
 	"""
 	mkdir -p ${outdir}
 
-	echo \${region_id} > region.txt
+	echo ${region_id} > region.txt
 
 	echo mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
 			--speci no_speci \
