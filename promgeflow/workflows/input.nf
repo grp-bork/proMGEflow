@@ -34,15 +34,21 @@ workflow handle_input_plasmids {
 			.map { file -> [ file, file.text.replaceAll(/^>.+$/, "").replaceAll(/\n/, "").length() ] }
 			.filter { file, seqlen -> seqlen < params.max_plasmid_length }
 			.map { file, seqlen ->
-				def contig = file.name.replaceAll(/\.[0-9]+\.(fasta|fna|fa|ffn)(\.[2a-z]+)?$/, "")
+				def genome = file.name.replaceAll(/\.[0-9]+\.(fasta|fna|fa|ffn)(\.[2a-z]+)?$/, "")
+				def contig = file.text.split("\n")[0].split(" ")[0].substring(1) //replaceAll(/^>([^ ]+).+/, "\1")
 				def region_id = "${reg_ctr++}_CP_100.${contig}.1-${seqlen}.${contig}"
-				[ contig, region_id, file ]
+				[ genome, contig, region_id, file ]
 			}
+			// .map { file, seqlen ->
+			// 	def contig = file.name.replaceAll(/\.[0-9]+\.(fasta|fna|fa|ffn)(\.[2a-z]+)?$/, "")
+			// 	def region_id = "${reg_ctr++}_CP_100.${contig}.1-${seqlen}.${contig}"
+			// 	[ contig, region_id, file ]
+			// }
 
 		plasmids_ch.dump(pretty: true, tag: "plasmids_ch")
 
-		genomes_ch = plasmids_ch.map { contig_id, region_id, file -> [ "plasmid", contig_id, file ] }
-		regions_ch = plasmids_ch.map { contig_id, region_id, file -> [ "plasmid", contig_id, region_id ] }
+		genomes_ch = plasmids_ch.map { genome_id, contig_id, region_id, file -> [ "plasmid", genome_id, file ] }
+		regions_ch = plasmids_ch.map { genome_id, contig_id, region_id, file -> [ "plasmid", genome_id, region_id ] }
 
 	emit:
 		genomes = genomes_ch
