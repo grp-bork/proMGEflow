@@ -38,6 +38,9 @@ workflow handle_input_plasmids {
 				def region_id = "${reg_ctr++}_CP_100.${contig}.1-${seqlen}.${contig}"
 				[ contig, region_id, file ]
 			}
+
+		plasmids_ch.dump(pretty: true, tag: "plasmids_ch")
+
 		genomes_ch = plasmids_ch.map { contig_id, region_id, file -> [ "plasmid", contig_id, file ] }
 		regions_ch = plasmids_ch.map { contig_id, region_id, file -> [ "plasmid", contig_id, region_id ] }
 
