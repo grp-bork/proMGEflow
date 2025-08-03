@@ -65,6 +65,9 @@ workflow plasmid_annotation {
 		.join( functional_annotation.out.annotation, by: [0, 1] )
 		.join( recombinase_annotation.out.recombinases, by: [0, 1] )
 		.join( genomes_ch, by: [0, 1] )
+		.join( handle_input_plasmids.out.regions, by: [0, 1] )
+
+	annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
 
 	// mgexpose(
 	// 	annotation_data_ch,
