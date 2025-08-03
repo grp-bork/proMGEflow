@@ -36,7 +36,7 @@ workflow handle_input_plasmids {
 			.map { file, seqlen ->
 				def contig = file.name.replaceAll(/\.[0-9]+\.(fasta|fna|fa|ffn)(\.[2a-z]+)?$/, "")
 				def region_id = "${reg_ctr++}_CP_100.${contig}.1-${seqlen}.${contig}"
-				[ contig, region_id, file ]
+				return [ contig, region_id, file ]
 			}
 
 		plasmids_ch.dump(pretty: true, tag: "plasmids_ch")

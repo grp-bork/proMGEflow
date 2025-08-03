@@ -24,12 +24,12 @@ workflow plasmid_annotation {
 
 	handle_input_plasmids()
 
-	/* STEP 1A: genome annotation via prodigal for genomes with known speci */
-	genome_annotation(handle_input_plasmids.out.genomes)
-	
 	genomes_ch = handle_input_plasmids.out.genomes
 
 	genomes_ch.dump(pretty: true, tag: "genomes_ch")
+
+	/* STEP 1A: genome annotation via prodigal for genomes with known speci */
+	genome_annotation(handle_input_plasmids.out.genomes)	
 
 	// prodigal output channels
 	annotations_ch = genome_annotation.out.annotations
