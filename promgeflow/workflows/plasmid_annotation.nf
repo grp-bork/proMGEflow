@@ -78,6 +78,8 @@ workflow plasmid_annotation {
 		"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt"
 	)
 
+	mgexpose_region.out.gff.dump(pretty: true, tag: "mgexpose_region_ch")
+
 	publish_ch = annotations_ch
 			.join(mgexpose_region.out.gff, by: [0, 1])
 			.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] }
