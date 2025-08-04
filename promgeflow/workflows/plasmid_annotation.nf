@@ -34,7 +34,7 @@ workflow plasmid_annotation {
 	// prodigal output channels
 	annotations_ch = genome_annotation.out.annotations
 
-	publish_annotations(annotations_ch)
+	// publish_annotations(annotations_ch)
 
 	annotations_ch.dump(pretty: true, tag: "annotations_ch")
 
@@ -76,6 +76,12 @@ workflow plasmid_annotation {
 		"${projectDir}/assets/mge_rules_ms.txt",
 		"${projectDir}/assets/txsscan_rules.txt",
 		"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt"
+	)
+
+	publish_annotations(
+		annotations_ch
+			.join(mgexpose.out.gff, by: [0, 1])
+			.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] }
 	)
 
 }
