@@ -56,7 +56,6 @@ process buffered_prodigal {
 }
 
 process publish_annotations {
-	publishDir "${params.output_dir}", mode: "copy"
 	executor "local"
 	tag "${genome_id}"
 
