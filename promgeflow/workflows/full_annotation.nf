@@ -38,7 +38,7 @@ workflow full_annotation {
 	annotations_ch = genome_annotation.out.annotations
 		.mix(species_recognition.out.annotations)
 
-	publish_annotations(annotations_ch)
+	// publish_annotations(annotations_ch)
 
 	annotations_ch.dump(pretty: true, tag: "annotations_ch")
 
@@ -90,5 +90,11 @@ workflow full_annotation {
 		"${projectDir}/assets/txsscan_rules.txt",
 		"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt"
 	)
+
+	publish_annotations(
+		annotations_ch
+			.join(mgexpose.out.gff, by: [0, 1])
+			.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] }
+	)	
 
 }
