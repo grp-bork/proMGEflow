@@ -80,7 +80,7 @@ workflow plasmid_annotation {
 
 	publish_annotations(
 		annotations_ch
-			.join(mgexpose.out.gff, by: [0, 1])
+			.join(mgexpose_region.out.gff, by: [0, 1])
 			.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] }
 	)
 
