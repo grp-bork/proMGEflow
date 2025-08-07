@@ -14,6 +14,8 @@ workflow functional_annotation {
 	main:
 		eggnog_mapper(filtered_proteins_ch, params.emapper_db)
 		emapper_annotations_ch = eggnog_mapper.out.eggnog
+			.join(eggnog_mapper.out.done_sentinel, by: [0, 1])
+			.map { speci, genome_id, annotation, sentinel -> [ speci, genome_id, annotation ] }
 
 	emit:
 		annotation = emapper_annotations_ch	
