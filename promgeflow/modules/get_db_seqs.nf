@@ -8,12 +8,14 @@ process get_db_seqs {
     val(seqdb_tar)
 
     output:
-    tuple val(speci), path("${speci}.ffn.gz"), emit: sequences
+    tuple val(speci), path("${speci}.ffn.gz"), emit: sequences, optional: true
 
     script:
     """
-    tar xvf ${seqdb_tar} ${speci}.genes.ffn.gz
-    mv -v ${speci}.genes.ffn.gz ${speci}.ffn.gz
+    tar xvf ${seqdb_tar} ${speci}.genes.ffn.gz || :
+    if [[ -f ${speci}.genes.ffn.gz ]]; then
+        mv -v ${speci}.genes.ffn.gz ${speci}.ffn.gz
+    fi
     """
     
 }
