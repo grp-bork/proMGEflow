@@ -67,11 +67,14 @@ workflow full_annotation {
 	
 	// params.gene_cluster_seqdb = "/g/bork6/schudoma/experiments/mge_refseqindex/sp095_refdb/sp095_refdb.tar"
 	get_db_seqs(speci_seqs_ch, params.gene_cluster_seqdb)
+	speci_refseqs_ch = get_db_seqs.out.sequences
+		.join(get_db_seqs.out.done_sentinel, by: 0)
+		.map { speci, sequences, sentinel -> [ speci, sequences ] }
 
 	/* STEP 3 Perform gene clustering */
 	pangenome_analysis(
 		with_functional_annotation_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotation[1] ] },
-		get_db_seqs.out.sequences
+		speci_refseqs_ch
 	)
 
 	with_cluster_ch = with_functional_annotation_ch
