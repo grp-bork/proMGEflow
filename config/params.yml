@@ -7,13 +7,12 @@
 input_sheet: "/path/to/input/sheet"
 
 # Alternatively, input can be supplied via --input_dir, pointing to a path to an input directory (tree) containing genome fasta files.
-# Parameter --file_pattern can be used to specify, which files from the input directory tree are being taken as input.
-# A common specI for all input files can be specified via --known_speci
+# These files must be named according to the pattern
+# <prefix>.(fna|fa(sta)?)(.gz)?, i.e. .fna, .fasta, .fa endings with or without .gz compression are supported
+# When using the --input_dir option, a common specI for all input files can be specified via --known_speci (if known)
 
 # Path to input directory
 # input_dir: "/path/to/input/directory"
-# Filename pattern for input detection
-# file_pattern: "**.fna"
 # specI of input; specI = "unknown" triggers specI recognition
 # known_speci: "unknown"
 

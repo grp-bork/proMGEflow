@@ -15,7 +15,6 @@ include { functional_annotation } from "./functional_annotation"
 include { handle_input_plasmids } from "./input"
 
 
-params.file_pattern = "**.fna"
 params.genome_buffer_size = 100
 print "PARAMS:\n" + params
 
