@@ -58,7 +58,7 @@ workflow handle_input_genomes {
 			// genomes_ch emits tuples (specI, genome_id, genome_fasta)	
 			genomes_ch = Channel.fromPath("${params.input_dir}/**")
 				.filter( ~/.+\.(fna|fa(sta)?)(\.gz)?$/ )
-				.map { fasta -> [ speci_tag, file.name.replaceAll(/\.(fna|fa(sta)?)(\.gz)?$/, ""), fasta ] }
+				.map { fasta -> [ speci_tag, fasta.name.replaceAll(/\.(fna|fa(sta)?)(\.gz)?$/, ""), fasta ] }
 
 			speci_ch = Channel.of(speci_tag)
 		}
