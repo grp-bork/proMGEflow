@@ -29,3 +29,21 @@ process recombinase_scan {
 	fi
 	"""
 }
+
+process publish_recombinase_scan {
+	executor "local"
+	tag "${genome_id}"
+
+	input:
+	tuple val(speci), val(genome_id), path(annotations)
+
+	output:
+	path("${speci}/${genome_id}/**")
+
+	script:
+	"""
+	mkdir -p ${speci}/${genome_id}/ && cd ${speci}/${genome_id}
+
+	ln -s ../../*.tsv
+	"""
+}

@@ -18,8 +18,10 @@ workflow recombinase_annotation {
 			"${projectDir}/assets/mge_rules_ms.txt"
 		)
 		annotated_recombinases_ch = recombinase_scan.out.recombinases
+		mge_predictions_ch = recombinase_scan.out.recomb_table
 
 	emit:
 		recombinases = annotated_recombinases_ch
+		mge_predictions = mge_predictions_ch
 
 }
