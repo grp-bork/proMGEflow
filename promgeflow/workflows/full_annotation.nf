@@ -73,7 +73,7 @@ workflow full_annotation {
 
 	/* STEP 3 Perform gene clustering */
 	pangenome_analysis(
-		with_functional_annotation_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotation[1] ] },
+		with_functional_annotation_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotations[1] ] },
 		speci_refseqs_ch
 	)
 
