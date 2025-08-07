@@ -102,7 +102,7 @@ workflow full_annotation {
 	annotations_ch
 		.join(mgexpose.out.gff, by: [0, 1], remainder: true)
 		.branch { it ->
-			with_mge: it[3] == null
+			with_mge: it[3] != null
 			without_mge: true
 		}
 		.set { publish_ch }
