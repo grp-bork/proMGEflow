@@ -5,6 +5,7 @@ nextflow.enable.dsl=2
 include { mgexpose } from "../modules/mgexpose"
 include { get_db_seqs } from "../modules/get_db_seqs"
 include { publish_annotations } from "../modules/prodigal"
+include { publish_recombinase_scan } from "../modules/recombinase_scan"
 
 include { genome_annotation } from "./genome_annotation"
 include { species_recognition } from "./species_recognition"
@@ -16,7 +17,6 @@ include { functional_annotation } from "./functional_annotation"
 include { handle_input_genomes } from "./input"
 
 
-params.file_pattern = "**.fna"
 params.genome_buffer_size = 100
 print "PARAMS:\n" + params
 
@@ -38,8 +38,6 @@ workflow full_annotation {
 	annotations_ch = genome_annotation.out.annotations
 		.mix(species_recognition.out.annotations)
 
-	// publish_annotations(annotations_ch)
-
 	annotations_ch.dump(pretty: true, tag: "annotations_ch")
 
 	/* STEP 2: Run recombinase annotation */
@@ -49,19 +47,20 @@ workflow full_annotation {
 	)
 
 	/* STEP 2b: Filter by recombinase presence */
-	filtered_ch = annotations_ch
+	with_recombinase_ch = annotations_ch
 		.join(recombinase_annotation.out.recombinases, by: [0, 1])
 		.map { speci, genome_id, annotations, recombinases -> [speci, genome_id, annotations] }
 
-	filtered_proteins_ch = filtered_ch
-		.map { speci, genome_id, annotations -> [speci, genome_id, annotations[0]] }
-	filtered_genes_ch = filtered_ch
-		.map { speci, genome_id, annotations -> [speci, genome_id, annotations[1]] }
-	filtered_gff_ch = filtered_ch
-		.map { speci, genome_id, annotations -> [speci, genome_id, annotations[2]] }
+	functional_annotation(
+		with_recombinase_ch.map { speci, genome_id, annotations -> [speci, genome_id, annotations[0]] }
+	)
+
+	with_functional_annotation_ch = with_recombinase_ch
+		.join(functional_annotation.out.annotation, by: [0, 1])
+		.map { speci, genome_id, annotations, functional_annotation -> [ speci, genome_id, annotations ] }
 
 	/* STEP 2c: Obtain speci reference gene sequences */
-	speci_seqs_ch = filtered_ch
+	speci_seqs_ch = with_functional_annotation_ch
 		.map { speci, genome_id, annotations -> speci }
 		.filter { it != "unknown" }
 		.unique()
@@ -70,14 +69,20 @@ workflow full_annotation {
 	get_db_seqs(speci_seqs_ch, params.gene_cluster_seqdb)
 
 	/* STEP 3 Perform gene clustering */
-	pangenome_analysis(filtered_genes_ch, get_db_seqs.out.sequences)
+	pangenome_analysis(
+		with_functional_annotation_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotation[1] ] }
+		get_db_seqs.out.sequences
+	)
+
+	with_cluster_ch = with_functional_annotation_ch
+		.join(pangenome_analysis.out.clusters, by: [0, 1])
+		.map { speci, genome_id, annotations, clusters -> [ speci, genome_id, annotations ] }
 
 	/* STEP 4 Protein annotation - phage signals and secretion systems */
-	secretion_annotation(filtered_proteins_ch)
-	functional_annotation(filtered_proteins_ch)
+	secretion_annotation(with_cluster_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotations[0] ] })
 	
 	/* STEP 5 Annotate the genomes with island data and assign mges */
-	annotation_data_ch = filtered_gff_ch
+	annotation_data_ch = with_cluster_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotations[2] ] }
 		.join( secretion_annotation.out.txsscan, by: [0, 1] )
 		.join( functional_annotation.out.annotation, by: [0, 1] )
 		.join( pangenome_analysis.out.clusters, by: [0, 1] )
@@ -92,15 +97,28 @@ workflow full_annotation {
 	)
 
 	annotations_ch
-			.join(mgexpose.out.gff, by: [0, 1])
-			.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] }
-			.dump(pretty: true, tag: "final_annotations_ch")
+		.join(mgexpose.out.gff, by: [0, 1], remainder: true)
+		.branch { it ->
+			with_mge: it[3] == null
+			without_mge: true
+		}
+		.set { publish_ch }
 
+	// publish_ch
+	// 	.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] }
+	// 	.dump(pretty: true, tag: "final_annotations_ch")
 
 	publish_annotations(
-		annotations_ch
-			.join(mgexpose.out.gff, by: [0, 1])
+		publish_ch.with_mge
+		// annotations_ch
+		// 	.join(mgexpose.out.gff, by: [0, 1])
 			.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] }
+	)
+
+	publish_recombinase_scan(
+		publish_ch.without_mge
+			.join(recombinase_annotation.out.mge_predictions, by: [0, 1])
+			.map { speci, genome_id, annotations, null_mge, mge_predictions -> [ speci, genome_id, mge_predictions ] }
 	)	
 
 }
