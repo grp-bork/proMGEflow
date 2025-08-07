@@ -56,7 +56,7 @@ nextflow run grp-bork/promgeflow --input_dir /path/to/input/genome/fasta/files -
 
 ### Input
 
-`proMGEflow` takes as input a set of input genome fasta files. The input files must be stored / linked into a directory, which can be supplied to the workflow via the `--input_dir` parameter. Input genome files can be gzipped and should have a common file ending (default `.fna`). The file ending can be supplied to the workflow via the `--file_pattern` parameter (e.g. `--file_pattern '*.fasta'`).
+`proMGEflow` takes as input a set of input genome fasta files. The input files must be stored / linked into a directory, which can be supplied to the workflow via the `--input_dir` parameter. Input genome files can be gzipped and should have a common file ending (supported are `.fa`, `.fasta`, and `.fna`, with or without `.gz` suffix).
 
 ### Output
 
