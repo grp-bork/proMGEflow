@@ -100,6 +100,19 @@ workflow full_annotation {
 		"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt"
 	)
 
+	publish_annotations(
+		annotations_ch
+			.join(mgexpose.out.gff, by: [0, 1])
+			.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] }
+	)
+
+	publish_recombinase_scan(
+		recombinase_annotation.out.mge_predictions
+			.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
+			.filter { it[0] == "unknown" }
+	)
+
+	/*
 	annotations_ch
 		.join(mgexpose.out.gff, by: [0, 1], remainder: true)
 		.branch { it ->
@@ -125,5 +138,5 @@ workflow full_annotation {
 			.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
 			.map { speci, genome_id, annotations, null_mge, mge_predictions, mge_pred_gff -> [ speci, genome_id, mge_predictions, mge_pred_gff ] }
 	)	
-
+	*/
 }
