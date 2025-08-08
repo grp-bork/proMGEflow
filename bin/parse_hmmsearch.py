@@ -138,7 +138,7 @@ def main():
                     print(*line, sep="\t", file=mge_pred_out)
                     protein = proteins.get(line[0])
                     if protein is not None:
-                        attribs=";".join(f"{k}={v}" for k, v in zip(("recombinase", "PFAM", "predicted_mge", "evalue", "score", "confidence",), line[1:]))
+                        attribs=";".join(f"{k}={v.replace(';', ',')}" for k, v in zip(("recombinase", "PFAM", "predicted_mge", "evalue", "score", "confidence",), line[1:]))
                         
                         rline = (
                             line[0][:line[0].rfind("_")],
