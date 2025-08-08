@@ -49,6 +49,7 @@ workflow full_annotation {
 	/* STEP 2b: Filter by recombinase presence */
 	with_recombinase_ch = annotations_ch
 		.join(recombinase_annotation.out.recombinases, by: [0, 1])
+		.filter { it[0] != "unknown" }
 		.map { speci, genome_id, annotations, recombinases -> [speci, genome_id, annotations] }
 
 	functional_annotation(
