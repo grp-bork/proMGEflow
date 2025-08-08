@@ -19,9 +19,10 @@ workflow recombinase_annotation {
 		)
 		annotated_recombinases_ch = recombinase_scan.out.recombinases
 		mge_predictions_ch = recombinase_scan.out.recomb_table
+		mge_predictions_gff_ch = recombinase_scan.out.mge_pred_gff
 
 	emit:
 		recombinases = annotated_recombinases_ch
 		mge_predictions = mge_predictions_ch
-
+		mge_predictions_gff = mge_predictions_gff_ch
 }

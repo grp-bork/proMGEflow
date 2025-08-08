@@ -121,7 +121,8 @@ workflow full_annotation {
 	publish_recombinase_scan(
 		publish_ch.without_mge
 			.join(recombinase_annotation.out.mge_predictions, by: [0, 1])
-			.map { speci, genome_id, annotations, null_mge, mge_predictions -> [ speci, genome_id, mge_predictions ] }
+			.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
+			.map { speci, genome_id, annotations, null_mge, mge_predictions, mge_pred_gff -> [ speci, genome_id, mge_predictions, mge_pred_gff ] }
 	)	
 
 }

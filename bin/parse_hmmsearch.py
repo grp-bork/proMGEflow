@@ -78,7 +78,22 @@ def main():
     ap.add_argument("hmmsearch_table", type=str)
     ap.add_argument("--mge_rules", type=str, default=None)
     ap.add_argument("--prefix", type=str, default="sample")
+    ap.add_argument("--proteins", type=str)
     args = ap.parse_args()
+
+    proteins = {}
+    if args.proteins:
+        with open(args.proteins, "rt") as _in:
+            for line in _in:
+                if line[0] == ">":
+                    #  >gnl|AGSH|NT12270_11_4 # 2457 # 3029 # 1 # ID=11_4;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.483
+                    line = line.strip().split(" ")
+                    proteins[line[0][1:]] = {
+                        "start": line[2],
+                        "end": line[4],
+                        "strand": "+" if line[6] == "1" else "-",
+                        "attribs": line[8],
+                    }
 
     best_hits = []
     with open(args.hmmsearch_table, "rt", encoding="UTF-8") as table_stream:
@@ -95,11 +110,19 @@ def main():
         if args.mge_rules:
             mge_rules = read_mge_rules(args.mge_rules, recombinase_scan=True)
 
-            with open(
+            mge_pred_out = open(
                 f"{args.prefix}.recombinase_based_MGE_predictions.tsv",
                 "wt",
                 encoding="UTF-8",
-            ) as mge_pred_out:
+            )
+
+            mge_pred_gff = open(
+                f"{args.prefix}.predicted_recombinase_mges.gff3",
+                "wt",
+                encoding="UTF-8",
+            )
+
+            with mge_pred_out, mge_pred_gff:
 
                 header = (
                     "#unigene", "recombinase_SMART_hmm_name", "PFAM_accession",
@@ -108,9 +131,32 @@ def main():
                 )
 
                 print(*header, sep="\t", file=mge_pred_out)
+                print("##gff-version 3", file=mge_pred_gff)
 
+                recombinases = []
                 for line in generate_output_table(best_hits, mge_rules):
                     print(*line, sep="\t", file=mge_pred_out)
+                    protein = proteins.get(line[0])
+                    if protein is not None:
+                        attribs=";".join(f"{k}={v}" for k, v in zip(("recombinase", "PFAM", "predicted_mge", "evalue", "score", "confidence",), line[1:]))
+                        
+                        rline = (
+                            line[0][:line[0].rfind("_")],
+                            "proMGE",
+                            "gene",
+                            protein["start"],
+                            protein["end"],
+                            protein["strand"],
+                            ".",
+                            ";".join((attribs, protein["attribs"],))
+                        )
+                        recombinases.append(rline)
+
+                for line in sorted(recombinases, key=lambda x:(x[0], int(x[3]), int(x[4]))):
+                    # gnl|AGSH|NT12270_27_3   dde_tnp_is1     PF03400.12      is_tn   3.1e-74 245.6   high
+                    print(*line, sep="\t", file=mge_pred_gff,)
+
+                        
 
 
 if __name__ == "__main__":
