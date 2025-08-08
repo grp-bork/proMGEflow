@@ -3,7 +3,7 @@ process mgexpose {
 	label "annotate_genome"
 	container "ghcr.io/cschu/mgexpose:v3.7.6"
 	executor "local"
-	tag "${genome_id}"
+	tag "${speci}/${genome_id}"
 
 	input:
 	tuple val(speci), val(genome_id), path(gff), path(txsscan), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
@@ -71,7 +71,7 @@ process mgexpose_region {
 	label "annotate_genome"
 	container "ghcr.io/cschu/mgexpose:v3.7.6"
 	executor "local"
-	tag "${genome_id}"
+	tag "${speci}/${genome_id}"
 
 	input:
 	tuple val(speci), val(genome_id), path(gff), path(txsscan), path(emapper), val(region_id), path(recombinases), path(genome_fa)

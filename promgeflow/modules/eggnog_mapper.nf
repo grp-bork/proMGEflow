@@ -1,7 +1,7 @@
 process eggnog_mapper {
 	container "quay.io/biocontainers/eggnog-mapper:2.1.12--pyhdfd78af_0"
 	label "eggnog_mapper"
-	tag "${genome_id}"
+	tag "${speci}/${genome_id}"
 	cpus 16
 	time {4.d * task.attempt}
 	memory {64.GB * task.attempt}

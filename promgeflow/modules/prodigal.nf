@@ -1,5 +1,5 @@
 process prodigal {
-	tag "${genome_id}"
+	tag "${speci}/${genome_id}"
 	label "prodigal"
 	container "quay.io/biocontainers/prodigal:2.6.3--h031d066_7"
 	cpus 1
@@ -57,7 +57,7 @@ process buffered_prodigal {
 
 process publish_annotations {
 	executor "local"
-	tag "${genome_id}"
+	tag "${speci}/${genome_id}"
 
 	input:
 	tuple val(speci), val(genome_id), path(annotations)
