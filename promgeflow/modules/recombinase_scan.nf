@@ -40,13 +40,17 @@ process publish_recombinase_scan {
 	tuple val(speci), val(genome_id), path(mge_table), path(mge_gff)
 
 	output:
-	path("${speci}/${genome_id}/**")
+	// path("${speci}/${genome_id}/**")
+	path("**/*.{tsv,gff3}")
 
 	script:
-	"""
-	mkdir -p ${speci}/${genome_id}/ && cd ${speci}/${genome_id}
+	def outdir = (params.publish_with_speci_prefix) ? "${speci}/${genome_id}" : "${genome_id}"
+	def lvlup = (params.publish_with_speci_prefix) ? "../.." : ".."
 
-	ln -s ../../*.tsv
-	ln -s ../../*.gff3
+	"""
+	mkdir -p ${outdir}/ && cd ${outdir}
+
+	ln -s ${lvlup}/*.tsv
+	ln -s ${lvlup}/*.gff3
 	"""
 }

@@ -20,10 +20,10 @@ process mgexpose {
 	
 	script:
 	def y_cluster_option = (params.use_y_clusters) ? " --use_y_clusters" : ""
-	def outdir = "${speci}/${genome_id}"
+	def outdir = (params.publish_with_speci_prefix) ? "${speci}/${genome_id}" : "${genome_id}"
 
 	"""
-	mkdir -p ${outdir}
+	mkdir -p ${outdir}/
 	echo mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
 			--speci ${speci} \
 			--txs_macsy_rules ${txsscan_rules} \

@@ -63,14 +63,19 @@ process publish_annotations {
 	tuple val(speci), val(genome_id), path(annotations)
 
 	output:
-	path("${speci}/${genome_id}/**")
+	// path("${speci}/${genome_id}/**")
+	path("**/*.{faa,ffn,gff}")
 
 	script:
-	"""
-	mkdir -p ${speci}/${genome_id}/ && cd ${speci}/${genome_id}
 
-	ln -s ../../*.faa ${genome_id}.faa
-	ln -s ../../*.ffn ${genome_id}.ffn
-	ln -s ../../*.gff ${genome_id}.gff
+	def outdir = (params.publish_with_speci_prefix) ? "${speci}/${genome_id}" : "${genome_id}"
+	def lvlup = (params.publish_with_speci_prefix) ? "../.." : ".."
+
+	"""
+	mkdir -p ${outdir}/ && cd ${outdir}
+
+	ln -s ${lvlup}/*.faa ${genome_id}.faa
+	ln -s ${lvlup}/*.ffn ${genome_id}.ffn
+	ln -s ${lvlup}/*.gff ${genome_id}.gff
 	"""
 }
