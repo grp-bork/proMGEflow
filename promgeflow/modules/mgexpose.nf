@@ -10,6 +10,7 @@ process mgexpose {
 	path(mge_rules)
 	path(txsscan_rules)
 	path(phage_filter_terms)
+	val(simple_outdir)
 
 	output:
 	tuple val(speci), val(genome_id), path("**/*.mge_islands.gff3"), emit: gff, optional: true
@@ -20,7 +21,7 @@ process mgexpose {
 	
 	script:
 	def y_cluster_option = (params.use_y_clusters) ? " --use_y_clusters" : ""
-	def outdir = (params.publish_with_speci_prefix) ? "${speci}/${genome_id}" : "${genome_id}"
+	def outdir = (simple_outdir) ? "${genome_id}" : "${speci}/${genome_id}"
 
 	"""
 	mkdir -p ${outdir}/

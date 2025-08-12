@@ -31,26 +31,3 @@ process recombinase_scan {
 	fi
 	"""
 }
-
-process publish_recombinase_scan {
-	executor "local"
-	tag "${speci}/${genome_id}"
-
-	input:
-	tuple val(speci), val(genome_id), path(mge_table), path(mge_gff)
-
-	output:
-	// path("${speci}/${genome_id}/**")
-	path("**/*.{tsv,gff3}")
-
-	script:
-	def outdir = (params.publish_with_speci_prefix) ? "${speci}/${genome_id}" : "${genome_id}"
-	def lvlup = (params.publish_with_speci_prefix) ? "../.." : ".."
-
-	"""
-	mkdir -p ${outdir}/ && cd ${outdir}
-
-	ln -s ${lvlup}/*.tsv
-	ln -s ${lvlup}/*.gff3
-	"""
-}

@@ -4,8 +4,7 @@ nextflow.enable.dsl=2
 
 include { mgexpose } from "../modules/mgexpose"
 include { get_db_seqs } from "../modules/get_db_seqs"
-include { publish_annotations } from "../modules/prodigal"
-include { publish_recombinase_scan } from "../modules/recombinase_scan"
+include { publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
 
 include { genome_annotation } from "./genome_annotation"
 include { species_recognition } from "./species_recognition"
@@ -103,40 +102,15 @@ workflow full_annotation {
 	publish_annotations(
 		annotations_ch
 			.join(mgexpose.out.gff, by: [0, 1])
-			.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] }
+			.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] },
+		params.simple_output
 	)
 
 	publish_recombinase_scan(
 		recombinase_annotation.out.mge_predictions
 			.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
-			.filter { it[0] == "unknown" }
+			.filter { it[0] == "unknown" },
+		params.simple_output
 	)
 
-	/*
-	annotations_ch
-		.join(mgexpose.out.gff, by: [0, 1], remainder: true)
-		.branch { it ->
-			with_mge: it[3] != null
-			without_mge: true
-		}
-		.set { publish_ch }
-
-	// publish_ch
-	// 	.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] }
-	// 	.dump(pretty: true, tag: "final_annotations_ch")
-
-	publish_annotations(
-		publish_ch.with_mge
-		// annotations_ch
-		// 	.join(mgexpose.out.gff, by: [0, 1])
-			.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] }
-	)
-
-	publish_recombinase_scan(
-		publish_ch.without_mge
-			.join(recombinase_annotation.out.mge_predictions, by: [0, 1])
-			.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
-			.map { speci, genome_id, annotations, null_mge, mge_predictions, mge_pred_gff -> [ speci, genome_id, mge_predictions, mge_pred_gff ] }
-	)	
-	*/
 }

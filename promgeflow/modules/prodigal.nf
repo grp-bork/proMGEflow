@@ -54,28 +54,3 @@ process buffered_prodigal {
 	"""
 
 }
-
-process publish_annotations {
-	executor "local"
-	tag "${speci}/${genome_id}"
-
-	input:
-	tuple val(speci), val(genome_id), path(annotations)
-
-	output:
-	// path("${speci}/${genome_id}/**")
-	path("**/*.{faa,ffn,gff}")
-
-	script:
-
-	def outdir = (params.publish_with_speci_prefix) ? "${speci}/${genome_id}" : "${genome_id}"
-	def lvlup = (params.publish_with_speci_prefix) ? "../.." : ".."
-
-	"""
-	mkdir -p ${outdir}/ && cd ${outdir}
-
-	ln -s ${lvlup}/*.faa ${genome_id}.faa
-	ln -s ${lvlup}/*.ffn ${genome_id}.ffn
-	ln -s ${lvlup}/*.gff ${genome_id}.gff
-	"""
-}
