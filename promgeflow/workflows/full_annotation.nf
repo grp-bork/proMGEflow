@@ -100,7 +100,7 @@ workflow full_annotation {
 		params.simple_output
 	)
 
-	publish_annotations(
+	publish_gene_annotations(
 		annotations_ch
 			.join(mgexpose.out.gff, by: [0, 1])
 			.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] },
