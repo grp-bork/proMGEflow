@@ -25,34 +25,40 @@
           "type": "string",
           "description": "Directory path to COG markers",
           "hidden": true,
-          "default": "/vol/data/databases/clowm/CLDB-0190075fa6117f75add6ee173932d013/latest/recognise_marker_genes/"
+          "default": "/vol/data/databases/clowm/CLDB-0190075fa6117f75add6ee173932d013/latest/recognise_marker_genes"
         },
         "emapper_db": {
           "type": "string",
           "description": "Directory path to the eggNOG database",
           "hidden": true,
-          "default": "/vol/data/databases/clowm/CLDB-018e846affa774508716ac5b5a20386e/latest/eggnog-mapper/5.0.2/"
+          "default": "/vol/data/databases/clowm/CLDB-018e846affa774508716ac5b5a20386e/latest/eggnog-mapper/5.0.2"
         },
-		"recombinase_scan_db": {
+		    "recombinase_scan_db": {
           "type": "string",
           "description": "Directory path to the recombinase hmm models",
           "hidden": true,
-          "default": ""
+          "default": "/vol/data/databases/clowm/CLDB-01989ab239d67f958d691c15857d41e1/latest/proMGE_recombinases/v1.0/all_rec_68.hmm"
         },
-		"txsscan_db": {
+		    "txsscan_db": {
           "type": "string",
           "description": "Directory path to the mcsyfinder TXSS models",
           "hidden": true,
-          "default": ""
+          "default": "/vol/data/databases/clowm/CLDB-01988fdca3d774cb9bd8d1b26c83e132/latest/macsyfinder/txsscan_models_1.1.3"
         },
-		"gene_cluster_seqdb": {
+		    "gene_cluster_seqdb": {
           "type": "string",
           "description": "Directory path to the gene cluster reference sequences",
           "hidden": true,
-          "default": ""
-        }           
+          "default": "/vol/data/databases/clowm/CLDB-01989ad5e4277a63a8d9e83c417dea20/01989ad5e42b760c94651fc7c31ead09/proMGE_v1.0_sp095_refdb/sp095_refdb.tar"
+        },
+        "simple_output": {
+        "type": "boolean",
+        "description": "Simplify output directory structure",
+        "hidden": true,
+        "default": true
+        }
       },
-      "required": ["output_dir", "input_dir", "recognise_marker_db", "emapper_db", "recombinase_scan_db", "txsscan_db", "gene_cluster_seqdb"]
+      "required": ["output_dir", "input_dir", "recognise_marker_db", "emapper_db", "recombinase_scan_db", "txsscan_db", "gene_cluster_seqdb", "simple_output"]
     }
   },
   "allOf": [
