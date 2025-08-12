@@ -1,6 +1,6 @@
 # proMGEflow: recombinase-based detection of mobile genetic elements in prokaryotes
 
-Blahblah.
+`proMGEflow` can detect and annotate mobile genetic elements (MGEs) in prokaryoric genomes based on the presence of recombinase signatures.
 
 ![proMGE_workflow](docs/img/proMGEflow.svg)
 
@@ -60,5 +60,7 @@ nextflow run grp-bork/promgeflow --input_dir /path/to/input/genome/fasta/files -
 
 ### Output
 
-TBD
+Upon successful MGE detection in an input genome `proMGEflow` returns a gff with the annotated MGEs, the extracted sequences of the MGEs as well as a set of gene coordinates, gene and protein sequences as predicted by `prodigal`.
+
+In case the input genome could not undergo pangenome analysis or no MGEs could be found, `proMGEflow` will return a set of predicted recombinases in the input genome.
 
