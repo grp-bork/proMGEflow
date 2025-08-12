@@ -1,5 +1,5 @@
 process prodigal {
-	tag "${genome_id}"
+	tag "${speci}/${genome_id}"
 	label "prodigal"
 	container "quay.io/biocontainers/prodigal:2.6.3--h031d066_7"
 	cpus 1
@@ -26,6 +26,7 @@ process prodigal {
 process buffered_prodigal {
 	tag "batch_${batch_id}"
 	label "prodigal"
+	label "small"
 	container "quay.io/biocontainers/prodigal:2.6.3--h031d066_7"
 	cpus 1
 	time {1.d * task.attempt}
@@ -53,25 +54,4 @@ process buffered_prodigal {
 	done
 	"""
 
-}
-
-process publish_annotations {
-	publishDir "${params.output_dir}", mode: "copy"
-	executor "local"
-	tag "${genome_id}"
-
-	input:
-	tuple val(speci), val(genome_id), path(annotations)
-
-	output:
-	path("${speci}/${genome_id}/**")
-
-	script:
-	"""
-	mkdir -p ${speci}/${genome_id}/ && cd ${speci}/${genome_id}
-
-	ln -s ../../*.faa ${genome_id}.faa
-	ln -s ../../*.ffn ${genome_id}.ffn
-	ln -s ../../*.gff ${genome_id}.gff
-	"""
 }

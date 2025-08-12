@@ -1,0 +1,66 @@
+### INPUT
+
+# Input can be supplied via --input_sheet, pointing to a tab-separated samplesheet
+# Column format is specI, sample_id, /path/to/genome/fasta; with specI = "unknown" triggering specI recognition
+
+# Path to input samplesheet
+input_sheet: "/path/to/input/sheet"
+
+# Alternatively, input can be supplied via --input_dir, pointing to a path to an input directory (tree) containing genome fasta files.
+# These files must be named according to the pattern
+# <prefix>.(fna|fa(sta)?)(.gz)?, i.e. .fna, .fasta, .fa endings with or without .gz compression are supported
+# When using the --input_dir option, a common specI for all input files can be specified via --known_speci (if known)
+
+# Path to input directory
+# input_dir: "/path/to/input/directory"
+# specI of input; specI = "unknown" triggers specI recognition
+# known_speci: "unknown"
+
+
+### OUTPUT
+
+# Path to output directory
+output_dir: "output/"
+
+
+### PRODIGAL - GENOME ANNOTATION
+
+# To avoid small hpc jobs, genome annotation via prodigal can be run in batches.
+
+# Set --prodigal_batch_size to a number greater than 1 to enable batch mode.
+prodigal_batch_size: 10
+
+
+### RECOGNISE - SPECI RECOGNITION
+
+# specI recognition requires a path to a COG marker db (--recognise_marker_db)
+recognise_marker_db: "/path/to/recognise/markers"
+
+# The marker set can be "motus" (10 COGs) or "full" (40 COGs) via --recognise_marker_set
+recognise_marker_set: "motus"
+
+
+### RECOMBINASE_SCAN - RECOMBINASE IDENTIFICATION
+
+# Recombinase identification requires an HMM database via --recombinase_scan_db
+recombinase_scan_db: "/path/to/recombinase/hmm/db"
+
+
+### MACSYFINDER/TXSSCAN - SECRETION SYSTEM ANNOTATION
+
+# Secretion system annotation requires a path to the Macsyfinder TXSSCAN models
+# Note: if TXSS folder is located in /path/to/somewhere/TXSS,
+# then --txsscan_db has to point at /path/to/somewhere
+txsscan_db: "/path/to/txsscan/db"
+
+
+### EGGNOG-MAPPER - FUNCTIONAL GENE ANNOTATION (PHAGE AND CARGO) 
+
+# Functional annotation requires a path to an eggnog-mapper database
+emapper_db: "/path/to/emapper/db"
+
+
+### LINCLUST - PAN-GENOME ANALYSIS
+
+# Pangenome clustering requires a path to reference cluster gene sequences
+gene_cluster_seqdb: "/path/to/gene/cluster/reference/sequences"

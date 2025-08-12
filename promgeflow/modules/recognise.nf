@@ -1,39 +1,14 @@
+// phasing out nested parameters
 params.recognise = [:]
 params.recognise.marker_set = "motus"
+params.recognise_marker_set = params.recognise.marker_set
 
-
-process recognise {
-	container "ghcr.io/grp-bork/recognise:main"
-	label "recognise"
-	cpus 8
-	memory {16.GB * task.attempt}
-	time { 1.d * task.attempt }
-
-
-	input:
-	tuple val(speci), val(genome_id), path(genes), path(proteins)
-	path(marker_genes_db)
-	path(genes_db)
-	path(db_credentials)
-	
-	output:
-	tuple val(speci), val(genome_id), path("recognise/${genome_id}/${genome_id}.cogs.txt"), emit: cog_table
-	tuple val(speci), val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.txt"), emit: genome_speci
-	tuple val(speci), val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.status"), emit: speci_status
-	tuple val(speci), val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.ffn.gz"), emit: speci_sequences, optional: true
-	tuple val(speci), val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.status.OK"), emit: speci_status_ok, optional: true 
-
-	script:
-	"""
-	recognise --marker_set ${params.recognise.marker_set} --genes ${genes} --proteins ${proteins} --cpus ${task.cpus} -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
-	"""
-
-}
 
 process recognise_genome {
 	container "ghcr.io/grp-bork/recognise:main"
 	tag "${genome_id}"
 	label "recognise"
+	label "small"
 
 	input:
 	tuple val(genome_id), path(genome)
@@ -41,13 +16,13 @@ process recognise_genome {
 	
 	
 	output:
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.status.OK"), emit: speci_status_ok, optional: true 
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.cogs.txt"), emit: cog_table
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.txt"), emit: genome_speci
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.specI.status"), emit: speci_status
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.faa"), emit: proteins
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.ffn"), emit: genes
-	tuple val(genome_id), path("recognise/${genome_id}/${genome_id}.gff"), emit: gff
+	tuple val(genome_id), path("**/${genome_id}.specI.status.OK"), emit: speci_status_ok, optional: true 
+	tuple val(genome_id), path("**/${genome_id}.cogs.txt"), emit: cog_table
+	tuple val(genome_id), path("**/${genome_id}.specI.txt"), emit: genome_speci
+	tuple val(genome_id), path("**/${genome_id}.specI.status"), emit: speci_status
+	tuple val(genome_id), path("**/${genome_id}.faa"), emit: proteins
+	tuple val(genome_id), path("**/${genome_id}.ffn"), emit: genes
+	tuple val(genome_id), path("**/${genome_id}/${genome_id}.gff"), emit: gff
 	
 	script:
 	"""
@@ -57,73 +32,17 @@ process recognise_genome {
 		ln -sf ${genome} genome_file
 	fi
 
-	recognise --marker_set ${params.recognise.marker_set} --genome genome_file --cpus ${task.cpus} --with_gff -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
+	recognise --marker_set ${params.recognise_marker_set} --genome genome_file --cpus ${task.cpus} --with_gff -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
+
+	if [[ -s recognise/${genome_id}/${genome_id}.specI.txt ]]; then 
+		speci=\$(cat recognise/${genome_id}/${genome_id}.specI.txt)
+	else
+		speci="unknown"
+	fi
+
+	mv -v recognise \$speci
 	
 	rm -fv genome_file
-	"""
-
-}
-
-
-process buffered_recognise {
-	container "ghcr.io/grp-bork/recognise:main"
-	label "recognise"
-	
-	input:
-	path(fasta)
-	path(marker_genes_db)
-
-	output:
-	path("recognise/**.cogs.txt"), emit: cog_table
-	path("recognise/**.specI.txt"), emit: genome_speci
-	path("recognise/**.specI.status"), emit: speci_status
-	path("recognise/**.specI.status.OK"), emit: speci_status_ok
-
-	script:
-	"""
-	for protein_file in *.faa.gz; do
-		genome_id=\$(basename \$protein_file .faa.gz)
-		recognise --marker_set ${params.recognise.marker_set} --genes \$genome_id.ffn.gz --proteins \$protein_file --cpus ${task.cpus} -o recognise/\$genome_id \$genome_id \$(readlink ${marker_genes_db})
-	done
-	"""
-
-}
-
-process buffered_recognise_genome {
-	container "ghcr.io/grp-bork/recognise:main"
-	label "recognise"
-
-	input:
-	path(fasta)
-	path(marker_genes_db)
-	val(file_suffix)
-
-	output:
-	path("recognise/**.cogs.txt"), emit: cog_table
-	path("recognise/**.specI.txt"), emit: genome_speci
-	path("recognise/**.specI.status"), emit: speci_status
-	path("recognise/**.specI.status.OK"), emit: speci_status_ok
-	path("prodigal/**.gz"), emit: prodigal_annotations
-
-	script:
-	"""
-	for genome_file in ${fasta}; do
-		genome_id=\$(basename \$genome_file ${file_suffix})
-		mkdir -p prodigal/\$genome_id/
-
-		if [[ "\$genome_file" == *".gz" ]]; then
-			gzip -dc \$genome_file > \$(basename \$genome_file .gz)
-		fi
-		
-		recognise --marker_set ${params.recognise.marker_set} --genome \$(basename \$genome_file .gz) --cpus ${task.cpus} --with_gff -o recognise/\$genome_id \$genome_id \$(readlink ${marker_genes_db})
-		mv -v recognise/\$genome_id/\$genome_id.{faa,ffn,gff}  prodigal/\$genome_id/
-
-		if [[ "\$genome_file" == *".gz" ]]; then
-			rm -fv \$(basename \$genome_file .gz)
-		fi
-
-		gzip -v prodigal/\$genome_id/*
-	done
 	"""
 
 }
