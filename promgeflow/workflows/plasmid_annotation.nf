@@ -33,8 +33,6 @@ workflow plasmid_annotation {
 	// prodigal output channels
 	annotations_ch = genome_annotation.out.annotations
 
-	// publish_annotations(annotations_ch)
-
 	annotations_ch.dump(pretty: true, tag: "annotations_ch")
 
 	/* STEP 2: Run recombinase annotation */
@@ -85,8 +83,9 @@ workflow plasmid_annotation {
 
 	publish_ch.dump(pretty: true, tag: "final_annotations_ch")
 
-	publish_annotations(
-		publish_ch
+	publish_gene_annotations(
+		publish_ch,
+		params.simple_output
 	)
 
 }
