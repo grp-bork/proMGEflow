@@ -96,7 +96,8 @@ workflow full_annotation {
 		annotation_data_ch,
 		"${projectDir}/assets/mge_rules_ms.txt",
 		"${projectDir}/assets/txsscan_rules.txt",
-		"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt"
+		"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt",
+		params.simple_output
 	)
 
 	publish_annotations(
