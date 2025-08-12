@@ -1,6 +1,8 @@
 include { prodigal; buffered_prodigal; pyrodigal; buffered_pyrodigal } from "../modules/prodigal"
 
+// phasing out prodigal_buffer_size
 params.prodigal_buffer_size = -1
+params.prodigal_batch_size = params.prodigal_buffer_size
 
 
 workflow genome_annotation {
@@ -10,17 +12,18 @@ workflow genome_annotation {
 	
 	main:
 
-	    if (params.prodigal_buffer_size != null && params.prodigal_buffer_size > 1) {
+	    if (params.prodigal_batch_size != null && params.prodigal_batch_size > 1) {
 
 			def batch_id = 0
 			prodigal_input_ch = genomes_ch
 				.map { speci, genome_id, genome_fasta -> genome_fasta }					
-				.buffer(size: params.prodigal_buffer_size, remainder: true)
+				.buffer(size: params.prodigal_batch_size, remainder: true)
 				.map { files -> [ batch_id++, files ] }
 
 			genome_map = genomes_ch
 				.map { speci, genome_id, genome_fasta ->
-					[ genome_fasta.replaceAll(/.+\//, ""), genome_id ]
+					// [ genome_fasta.replaceAll(/.+\//, ""), genome_id ]
+					[ genome_fasta.getName(), genome_id ]
 				}
 
 			genome_map.dump(pretty: true, tag: "genome_map")

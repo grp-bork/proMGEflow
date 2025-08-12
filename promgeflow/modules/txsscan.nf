@@ -1,9 +1,10 @@
 process txsscan {
 	container = "quay.io/biocontainers/macsyfinder:2.1.4--pyhdfd78af_0"
-	tag "${genome_id}"
+	tag "${speci}/${genome_id}"
 	cpus 8
 	time {1.d * task.attempt}
 	memory {16.GB * task.attempt}
+	label "small"
 
 	input:
 	tuple val(speci), val(genome_id), path(proteins)
