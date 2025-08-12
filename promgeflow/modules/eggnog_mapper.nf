@@ -1,6 +1,7 @@
 process eggnog_mapper {
 	container "quay.io/biocontainers/eggnog-mapper:2.1.12--pyhdfd78af_0"
 	label "eggnog_mapper"
+	label "process_high"
 	tag "${speci}/${genome_id}"
 	cpus 16
 	time {4.d * task.attempt}

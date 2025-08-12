@@ -1,5 +1,6 @@
 process publish_gene_annotations {
 	executor "local"
+	label "tiny"
 	tag "${speci}/${genome_id}"
 
 	input:
@@ -30,6 +31,7 @@ process publish_gene_annotations {
 
 process publish_recombinase_scan {
 	executor "local"
+	label "tiny"
 	tag "${speci}/${genome_id}"
 
 	input:

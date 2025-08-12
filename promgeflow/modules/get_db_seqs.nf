@@ -1,6 +1,7 @@
 process get_db_seqs {
     tag "${speci}"
     executor "local"
+    label "tiny"
     cpus 1
 
     input:

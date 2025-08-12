@@ -4,6 +4,7 @@ process recombinase_scan {
 	cpus 4
 	time {1.d * task.attempt}
 	memory {8.GB * task.attempt}
+	label "small"
 
 	input:
 	tuple val(speci), val(genome_id), path(proteins)

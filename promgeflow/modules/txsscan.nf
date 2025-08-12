@@ -4,6 +4,7 @@ process txsscan {
 	cpus 8
 	time {1.d * task.attempt}
 	memory {16.GB * task.attempt}
+	label "small"
 
 	input:
 	tuple val(speci), val(genome_id), path(proteins)

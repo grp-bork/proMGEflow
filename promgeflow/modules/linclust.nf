@@ -1,6 +1,7 @@
 process linclust {
 	container "quay.io/biocontainers/mmseqs2:13.45111--h2d02072_0"
 	label "linclust"
+	label "process_high"
 	tag "${speci}/${genome_id}"
 	memory {32.GB * task.attempt}
 	time { 1.d * task.attempt }

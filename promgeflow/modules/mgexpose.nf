@@ -1,6 +1,7 @@
 // [speci, bin_id, gene_coords, txsscan, emapper, clusters, recombinases, genome_fa]
 process mgexpose {
 	label "annotate_genome"
+	label "small"
 	container "ghcr.io/cschu/mgexpose:v3.7.6"
 	executor "local"
 	tag "${speci}/${genome_id}"

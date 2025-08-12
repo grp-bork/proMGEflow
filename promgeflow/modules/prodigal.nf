@@ -26,6 +26,7 @@ process prodigal {
 process buffered_prodigal {
 	tag "batch_${batch_id}"
 	label "prodigal"
+	label "small"
 	container "quay.io/biocontainers/prodigal:2.6.3--h031d066_7"
 	cpus 1
 	time {1.d * task.attempt}
