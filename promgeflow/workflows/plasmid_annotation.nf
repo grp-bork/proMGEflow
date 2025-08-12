@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 
 include { mgexpose_region } from "../modules/mgexpose"
 include { get_db_seqs } from "../modules/get_db_seqs"
-include { publish_annotations } from "../modules/prodigal"
+include { publish_gene_annotations } from "../modules/publish"
 
 include { genome_annotation } from "./genome_annotation"
 include { recombinase_annotation } from "./recombinase_annotation"
