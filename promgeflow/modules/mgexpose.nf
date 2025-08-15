@@ -3,7 +3,7 @@ process mgexpose {
 	label "annotate_genome"
 	label "medium"
 	container "ghcr.io/cschu/mgexpose:v3.7.6"
-	executor "local"
+	// executor "local"  -> move to run.config @ EMBL
 	tag "${speci}/${genome_id}"
 
 	input:
@@ -72,7 +72,7 @@ process mgexpose {
 process mgexpose_region {
 	label "annotate_genome"
 	container "ghcr.io/cschu/mgexpose:v3.7.6"
-	executor "local"
+	// executor "local"  -> move to run.config @ EMBL
 	tag "${speci}/${genome_id}"
 
 	input:

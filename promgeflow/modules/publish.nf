@@ -1,5 +1,5 @@
 process publish_gene_annotations {
-	executor "local"
+	// executor "local"  -> move to run.config @ EMBL
 	label "tiny"
 	tag "${speci}/${genome_id}"
 
@@ -30,7 +30,7 @@ process publish_gene_annotations {
 }
 
 process publish_recombinase_scan {
-	executor "local"
+	// executor "local"  -> move to run.config @ EMBL
 	label "tiny"
 	tag "${speci}/${genome_id}"
 
