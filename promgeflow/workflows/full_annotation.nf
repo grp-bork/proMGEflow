@@ -104,8 +104,16 @@ workflow full_annotation {
 
 		pub_recombinases_ch = recombinase_annotation.out.mge_predictions
 			.mix(recombinase_annotation.out.mge_predictions_gff)
+
+		pub_recombinases_nospeci_ch = pub_recombinases_ch
 			.filter { it[0] == "unknown" }
 			.groupTuple(by: [0, 1], size: 2)
+
+		pub_recombinases_nomge_ch = pub_recombinases_ch
+			.filter { it[0] != "unknown" }
+			.groupTuple(by: [0, 1], size: 2)
+			.join(mgexpose.out.no_mge, by: [0, 1])
+			.map { speci, genome_id, recombinases, no_mge -> [speci, genome_id, recombinases[0], recombinases[1] ] }
 		// pub_recombinases_ch.dump(pretty: true, tag: "pub_recombinases_ch")
 		// [DUMP: pub_recombinases_ch] [
  		//    "unknown",
@@ -122,7 +130,8 @@ workflow full_annotation {
 				by: [0, 1]
 			)
 			.map { speci, genome_id, annotations, mges -> [ speci, genome_id, [ annotations[0], annotations[1], annotations[2], mges[0], mges[1] ] ] }
-			.mix(pub_recombinases_ch)
+			.mix(pub_recombinases_nospeci_ch)
+			.mix(pub_recombinases_nomge_ch)
 
 		// [DUMP: publish_ch] [
 		// 	"specI_v4_00001",
