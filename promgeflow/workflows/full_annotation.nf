@@ -121,7 +121,7 @@ workflow full_annotation {
 				mgexpose.out.gff.mix(mgexpose.out.fasta).groupTuple(by: [0, 1], size: 2),
 				by: [0, 1]
 			)
-			// .map { speci, genome_id, annotations, mges -> [ speci, genome_id, [ annotations[0], annotations[1], annotations[2], mges[0], mges[1] ] ] }
+			.map { speci, genome_id, annotations, mges -> [ speci, genome_id, [ annotations[0], annotations[1], annotations[2], mges[0], mges[1] ] ] }
 			.mix(pub_recombinases_ch)
 
 		// [DUMP: publish_ch] [
@@ -136,7 +136,7 @@ workflow full_annotation {
 		// 		"/g/bork6/schudoma/projects/mge/typas_hogan_TEST_DONT_TOUCH/work/87/58a40b5d8f2fcdd755bc8ca9173045/NT12014/NT12014.mge_islands.gff3",
 		// 		"/g/bork6/schudoma/projects/mge/typas_hogan_TEST_DONT_TOUCH/work/87/58a40b5d8f2fcdd755bc8ca9173045/NT12014/NT12014.mge_islands.ffn.gz"
     	// ]
-]
+
 					// 
 			// .mix
 			// .groupTuple(
