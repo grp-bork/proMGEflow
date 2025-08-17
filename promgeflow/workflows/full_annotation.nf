@@ -110,10 +110,10 @@ workflow full_annotation {
 
 		publish_ch = annotations_ch
 			.join(
-				mgexpose.out.gff, by: [0, 1]
-					.mix(mgexpose.out.fasta)
-					.groupTuple(by: [0, 1], size: 2)
+				mgexpose.out.gff.mix(mgexpose.out.fasta),
+				by: [0, 1]
 			)
+					.groupTuple(by: [0, 1], size: 2)
 			// .mix
 			// .groupTuple(
 			// 	recombinase_annotation.out.mge_predictions
