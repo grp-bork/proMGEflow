@@ -112,7 +112,7 @@ workflow full_annotation {
 			)
 		publish_ch.dump(pretty: true, tag: "publish_ch")
 
-		// publish_results(publish_ch, params.simple_output, params.tarball_output)
+		publish_results(publish_ch, params.simple_output, params.tarball_output)
 
 	} else {
 

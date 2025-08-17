@@ -17,7 +17,7 @@ process mgexpose {
 	tuple val(speci), val(genome_id), path("**/*.mge_islands.gff3"), emit: gff, optional: true
 	path("**/*.unannotated_islands.gff3"), emit: genomic_islands, optional: true
 	path("**/*.NO_MGE"), emit: no_mge, optional: true
-	path("**/*.mge_islands.ffn.gz"), emit: fasta, optional: true
+	tuple val(speci), val(genome_id), path("**/*.mge_islands.ffn.gz"), emit: fasta, optional: true
 	path("**/*.gene_info.txt"), emit: gene_info, optional: true
 	
 	script:
