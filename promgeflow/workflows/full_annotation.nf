@@ -113,7 +113,7 @@ workflow full_annotation {
 				mgexpose.out.gff.mix(mgexpose.out.fasta),
 				by: [0, 1]
 			)
-					.groupTuple(by: [0, 1], size: 2)
+					// .groupTuple(by: [0, 1], size: 2)
 			// .mix
 			// .groupTuple(
 			// 	recombinase_annotation.out.mge_predictions
