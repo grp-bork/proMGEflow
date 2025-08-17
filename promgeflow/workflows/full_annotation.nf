@@ -106,13 +106,37 @@ workflow full_annotation {
 			.mix(recombinase_annotation.out.mge_predictions_gff)
 			.filter { it[0] == "unknown" }
 			.groupTuple(by: [0, 1], size: 2)
-		pub_recombinases_ch.dump(pretty: true, tag: "pub_recombinases_ch")
+		// pub_recombinases_ch.dump(pretty: true, tag: "pub_recombinases_ch")
+		// [DUMP: pub_recombinases_ch] [
+ 		//    "unknown",
+    	// 	"NT12426",
+		// 	[
+		// 		"/g/bork6/schudoma/projects/mge/typas_hogan_TEST_DONT_TOUCH/work/f7/c18fae0ed1453f5856c80f41560c59/unknown/NT12426/NT12426.recombinase_based_MGE_predictions.tsv",
+		// 		"/g/bork6/schudoma/projects/mge/typas_hogan_TEST_DONT_TOUCH/work/f7/c18fae0ed1453f5856c80f41560c59/unknown/NT12426/NT12426.predicted_recombinase_mges.gff3"
+		// 	]
+		// ]
 
 		publish_ch = annotations_ch
 			.join(
 				mgexpose.out.gff.mix(mgexpose.out.fasta).groupTuple(by: [0, 1], size: 2),
 				by: [0, 1]
 			)
+			.map { speci, genome_id, annotations, mges -> [ speci, genome_id, [ annotations[0], annotations[1], annotations[2], mges[0], mges[1] ] ] }
+			.mix(pub_recombinases_ch)
+
+		// [DUMP: publish_ch] [
+		// 	"specI_v4_00001",
+		// 	"NT12014",
+		// 	[
+		// 		"/g/bork6/schudoma/projects/mge/typas_hogan_TEST_DONT_TOUCH/work/50/ab817e0603271f117769bd8e24d6be/specI_v4_00001/NT12014/NT12014.faa",
+		// 		"/g/bork6/schudoma/projects/mge/typas_hogan_TEST_DONT_TOUCH/work/50/ab817e0603271f117769bd8e24d6be/specI_v4_00001/NT12014/NT12014.ffn",
+		// 		"/g/bork6/schudoma/projects/mge/typas_hogan_TEST_DONT_TOUCH/work/50/ab817e0603271f117769bd8e24d6be/specI_v4_00001/NT12014/NT12014.gff"
+		// 	],
+		// 	[
+		// 		"/g/bork6/schudoma/projects/mge/typas_hogan_TEST_DONT_TOUCH/work/87/58a40b5d8f2fcdd755bc8ca9173045/NT12014/NT12014.mge_islands.gff3",
+		// 		"/g/bork6/schudoma/projects/mge/typas_hogan_TEST_DONT_TOUCH/work/87/58a40b5d8f2fcdd755bc8ca9173045/NT12014/NT12014.mge_islands.ffn.gz"
+    	// ]
+]
 					// 
 			// .mix
 			// .groupTuple(
