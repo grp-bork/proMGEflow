@@ -47,13 +47,19 @@
           "hidden": true
         },
         "simple_output": {
-        "type": "boolean",
-        "description": "Simplify output directory structure",
-        "hidden": true,
-        "default": true
+          "type": "boolean",
+          "description": "Simplify output directory structure",
+          "hidden": true,
+          "default": true
+        },
+        "tarball_output": {
+          "type": "boolean",
+          "description": "Output as tarball",
+          "hidden": true,
+          "default": false
         }
       },
-      "required": ["output_dir", "input_dir", "recognise_marker_db", "emapper_db", "recombinase_scan_db", "txsscan_db", "gene_cluster_seqdb", "simple_output"]
+      "required": ["output_dir", "input_dir", "recognise_marker_db", "emapper_db", "recombinase_scan_db", "txsscan_db", "gene_cluster_seqdb", "simple_output", "tarball_output"]
     }
   },
   "allOf": [

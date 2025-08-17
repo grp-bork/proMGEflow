@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 
 include { mgexpose } from "../modules/mgexpose"
 include { get_db_seqs } from "../modules/get_db_seqs"
-include { publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
+include { publish_gene_annotations; publish_recombinase_scan; publish_results } from "../modules/publish"
 
 include { genome_annotation } from "./genome_annotation"
 include { species_recognition } from "./species_recognition"
@@ -100,18 +100,36 @@ workflow full_annotation {
 		params.simple_output
 	)
 
-	publish_gene_annotations(
-		annotations_ch
-			.join(mgexpose.out.gff, by: [0, 1])
-			.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] },
-		params.simple_output
-	)
+	if (true) {
 
-	publish_recombinase_scan(
-		recombinase_annotation.out.mge_predictions
-			.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
-			.filter { it[0] == "unknown" },
-		params.simple_output
-	)
+		publish_ch = annotations_ch
+			.join(mgexpose.out.gff, by: [0, 1])
+			.join(mgexpose.out.fasta, by: [0, 1])
+			.mix(
+				recombinase_annotation.out.mge_predictions
+					.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
+					.filter { it[0] == "unknown" },
+			)
+
+		publish_results(publish_ch, params.simple_output, params.tarball_output)
+
+	} else {
+
+		publish_gene_annotations(
+			annotations_ch
+				.join(mgexpose.out.gff, by: [0, 1])
+				.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] },
+			params.simple_output
+		)
+
+		publish_recombinase_scan(
+			recombinase_annotation.out.mge_predictions
+				.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
+				.filter { it[0] == "unknown" },
+			params.simple_output
+		)
+
+	}
+
 
 }

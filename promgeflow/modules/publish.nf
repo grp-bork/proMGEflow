@@ -1,3 +1,37 @@
+process publish_results {
+	label "tiny"
+	tag "${speci}/${genome_id}"
+
+	input:
+	tuple val(speci), val(genome_id), path("promgeflow_results/*")
+	val(simple_output)
+	val(as_tarball)
+
+	output:
+	("**.*")
+
+	script:
+	def outdir = "${speci}/${genome_id}"
+	def lvlup = "../.."
+
+	if (as_tarball) {
+		"""
+		tar cvzf ${genome_id}.promgeflow.tar.gz promgeflow_results/ 
+		"""
+	} else {
+		if (simple_output) {
+			outdir = "${genome_id}"
+			lvlup = ".."
+		}
+		"""
+		mkdir ${outdir} && cd ${outdir}
+		find ${lvlup} -type l -exec ln -s {} \\;
+		"""
+	}
+		
+}
+
+
 process publish_gene_annotations {
 	// executor "local"  -> move to run.config @ EMBL
 	label "tiny"
