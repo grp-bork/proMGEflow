@@ -121,7 +121,7 @@ workflow full_annotation {
 				mgexpose.out.gff.mix(mgexpose.out.fasta).groupTuple(by: [0, 1], size: 2),
 				by: [0, 1]
 			)
-			.map { speci, genome_id, annotations, mges -> [ speci, genome_id, [ annotations[0], annotations[1], annotations[2], mges[0], mges[1] ] ] }
+			// .map { speci, genome_id, annotations, mges -> [ speci, genome_id, [ annotations[0], annotations[1], annotations[2], mges[0], mges[1] ] ] }
 			.mix(pub_recombinases_ch)
 
 		// [DUMP: publish_ch] [
