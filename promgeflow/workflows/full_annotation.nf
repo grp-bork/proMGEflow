@@ -110,8 +110,9 @@ workflow full_annotation {
 					.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
 					.filter { it[0] == "unknown" }
 			)
+		publish_ch.dump(pretty: true, tag: "publish_ch")
 
-		publish_results(publish_ch, params.simple_output, params.tarball_output)
+		// publish_results(publish_ch, params.simple_output, params.tarball_output)
 
 	} else {
 
