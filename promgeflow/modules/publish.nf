@@ -8,7 +8,7 @@ process publish_results {
 	val(as_tarball)
 
 	output:
-	("**.*")
+	path("**.*")
 
 	script:
 	def outdir = "${speci}/${genome_id}"
