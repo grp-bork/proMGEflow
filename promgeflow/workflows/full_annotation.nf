@@ -102,17 +102,27 @@ workflow full_annotation {
 
 	if (true) {
 
+		pub_recombinases_ch = recombinase_annotation.out.mge_predictions
+			.mix(recombinase_annotation.out.mge_predictions_gff)
+			.filter { it[0] == "unknown" }
+			.groupTuple(by: [0, 1], size: 2)
+		pub_recombinases_ch.dump(pretty: true, tag: "pub_recombinases_ch")
+
 		publish_ch = annotations_ch
-			.join(mgexpose.out.gff, by: [0, 1])
-			.join(mgexpose.out.fasta, by: [0, 1])
-			.mix(
-				recombinase_annotation.out.mge_predictions
-					.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
-					.filter { it[0] == "unknown" }
+			.join(
+				mgexpose.out.gff, by: [0, 1]
+					.mix(mgexpose.out.fasta)
+					.groupTuple(by: [0, 1], size: 2)
 			)
+			// .mix
+			// .groupTuple(
+			// 	recombinase_annotation.out.mge_predictions
+			// 		.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
+			// 		.filter { it[0] == "unknown" }
+			// )
 		publish_ch.dump(pretty: true, tag: "publish_ch")
 
-		publish_results(publish_ch, params.simple_output, params.tarball_output)
+		// publish_results(publish_ch, params.simple_output, params.tarball_output)
 
 	} else {
 
