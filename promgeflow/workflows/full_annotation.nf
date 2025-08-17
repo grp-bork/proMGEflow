@@ -108,7 +108,7 @@ workflow full_annotation {
 			.mix(
 				recombinase_annotation.out.mge_predictions
 					.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
-					.filter { it[0] == "unknown" },
+					.filter { it[0] == "unknown" }
 			)
 
 		publish_results(publish_ch, params.simple_output, params.tarball_output)
