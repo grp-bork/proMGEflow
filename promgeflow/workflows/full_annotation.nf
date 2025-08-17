@@ -112,7 +112,8 @@ workflow full_annotation {
 		pub_recombinases_nomge_ch = pub_recombinases_ch
 			.filter { it[0] != "unknown" }
 			.groupTuple(by: [0, 1], size: 2)
-			.join(mgexpose.out.no_mge, by: [0, 1])
+			.join(mgexpose.out.gff, by: [0, 1], remainder: true)
+			.filter { it[3] == null }			
 			.map { speci, genome_id, recombinases, no_mge -> [speci, genome_id, recombinases[0], recombinases[1] ] }
 		// pub_recombinases_ch.dump(pretty: true, tag: "pub_recombinases_ch")
 		// [DUMP: pub_recombinases_ch] [
