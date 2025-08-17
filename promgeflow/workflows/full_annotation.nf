@@ -104,14 +104,14 @@ workflow full_annotation {
 
 		pub_recombinases_ch = recombinase_annotation.out.mge_predictions
 			.mix(recombinase_annotation.out.mge_predictions_gff)
+			.groupTuple(by: [0, 1], size: 2)
 
 		pub_recombinases_nospeci_ch = pub_recombinases_ch
 			.filter { it[0] == "unknown" }
-			.groupTuple(by: [0, 1], size: 2)
 
 		pub_recombinases_nomge_ch = pub_recombinases_ch
 			.filter { it[0] != "unknown" }
-			.groupTuple(by: [0, 1], size: 2)
+			// .groupTuple(by: [0, 1], size: 2)
 			.join(mgexpose.out.gff, by: [0, 1], remainder: true)
 			.filter { it[3] == null }			
 			.map { speci, genome_id, recombinases, no_mge -> [speci, genome_id, recombinases ] }
