@@ -15,9 +15,11 @@ process publish_results {
 	def lvlup = "../.."
 
 	if (as_tarball) {
+		def tarball_prefix = (as_tarball == true) ? "${genome_id}" : "${as_tarball}"
 		"""
-		tar cvzf ${genome_id}.promgeflow.tar.gz promgeflow_results/ 
+		tar cvzf ${tarball_prefix}.promgeflow.tar.gz promgeflow_results/ 
 		"""
+		// tar cvzf ${genome_id}.promgeflow.tar.gz promgeflow_results/ 
 	} else {
 		if (simple_output) {
 			outdir = "${genome_id}"
