@@ -16,6 +16,7 @@ process recombinase_scan {
 	tuple val(speci), val(genome_id), path("${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.besthits.out"), emit: recombinases, optional: true
 	tuple val(speci), val(genome_id), path("${speci}/${genome_id}/${genome_id}.recombinase_based_MGE_predictions.tsv"), emit: recomb_table, optional: true
 	tuple val(speci), val(genome_id), path("${speci}/${genome_id}/${genome_id}.predicted_recombinase_mges.gff3"), emit: mge_pred_gff, optional: true
+	path("${speci}.${genome_id}.recombinase_sentinel"), emit: done_sentinel
 
 	script:
 	"""
@@ -30,5 +31,7 @@ process recombinase_scan {
 		rm -rvf ${speci}/${genome_id}/${genome_id}.recombinase_based_MGE_predictions.tsv;
 		rm -rvf ${speci}/${genome_id}/${genome_id}.predicted_recombinase_mges.gff3
 	fi
+
+	touch ${speci}.${genome_id}.recombinase_sentinel
 	"""
 }

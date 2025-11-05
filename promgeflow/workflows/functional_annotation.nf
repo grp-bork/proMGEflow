@@ -9,15 +9,25 @@ params.emapper_db = params.phage_scan.db
 workflow functional_annotation {
 
 	take:
-		filtered_proteins_ch
+		// filtered_proteins_ch
+		genomes_ch
 
 	main:
+
+		filtered_proteins_ch = genomes_ch.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.proteins ] }
+
 		eggnog_mapper(filtered_proteins_ch, params.emapper_db)
 		emapper_annotations_ch = eggnog_mapper.out.eggnog
 			.join(eggnog_mapper.out.done_sentinel, by: [0, 1])
 			.map { speci, genome_id, annotation, sentinel -> [ speci, genome_id, annotation ] }
+			.join(genomes_ch, by: [0, 1])
+			.map { speci, genome_id, annotation, gdata_old ->
+				def gdata = gdata_old.clone()
+				gdata.emapper = annotation
+				return [ speci, genome_id, gdata ]
+			}		
 
 	emit:
-		annotation = emapper_annotations_ch	
+		genomes = emapper_annotations_ch	
 
 }
