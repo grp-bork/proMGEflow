@@ -22,11 +22,12 @@ workflow pangenome_analysis {
 			.map { speci, genome_id, clusters, sentinel ->
 				[ speci, genome_id, clusters ]
 			}
-			.join(genomes_ch)
-			.map { speci, genome_id, clusters, gdata_old ->
+		linclust_clusters_ch = genomes_ch
+			.join(linclust_clusters_ch, by: [0, 1])
+			.map { speci, genome_id, gdata_old, clusters ->
 				def gdata = gdata_old.clone()
 				gdata.gene_clusters = clusters
-				return [ speci, genome_id, clusters, gdata ]
+				return [ speci, genome_id, gdata ]
 			}	
 
 		linclust_clusters_ch.dump(pretty: true, tag: "linclust_clusters_ch")
