@@ -19,6 +19,8 @@ workflow recombinase_annotation {
 		proteins_ch = genomes_ch
 			.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.proteins ] }
 
+		proteins_ch.dump(pretty: true, tag: "proteins_ch_in_recombinase_annotation")
+
 		recombinase_scan(
 			proteins_ch,
 			params.recombinase_scan_db,
