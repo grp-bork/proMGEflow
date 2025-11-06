@@ -40,7 +40,7 @@ workflow full_annotation {
 	xgenomes_ch.dump(pretty: true, tag: "xgenomes_ch")
 
 	// prodigal output channels
-	genomes_ch = genome_annotation.out.annotations
+	genomes_ch = genome_annotation.out.genomes
 		.mix(species_recognition.out.genomes)
 		.mix(handle_input_genomes.out.to_recombinase_scan)
 	genomes_ch.dump(pretty: true, tag: "genomes_ch")
