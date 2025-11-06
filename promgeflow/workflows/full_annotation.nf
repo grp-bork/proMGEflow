@@ -47,11 +47,11 @@ workflow full_annotation {
 	// annotations_ch.dump(pretty: true, tag: "annotations_ch")
 
 	/* STEP 2: Run recombinase annotation */
-	recombinase_annotation(
-		genomes_ch
+	recombinase_annotation(genomes_ch)
+		
 		// annotations_ch
 		// 	.map { it -> [it[0], it[1], it[2][0]] }
-	)
+	
 
 	/* STEP 2b: Filter by recombinase presence */
 	// with_recombinase_ch = annotations_ch
@@ -67,11 +67,9 @@ workflow full_annotation {
 		}
 		.set { emapper_input_ch }
 
-	functional_annotation(
+	functional_annotation(emapper_input_ch.to_emapper)
 		// with_recombinase_ch.map { speci, genome_id, annotations -> [speci, genome_id, annotations[0]] }
 		// with_speci_and_recombinase_ch
-		emapper_input_ch.to_emapper
-	)
 
 	with_functional_annotation_ch = with_speci_and_recombinase_ch.has_emapper
 		.mix(functional_annotation.out.genomes)
@@ -83,7 +81,7 @@ workflow full_annotation {
 	/* STEP 2c: Obtain speci reference gene sequences */
 	speci_seqs_ch = with_functional_annotation_ch
 		// .map { speci, genome_id, annotations -> speci }
-		.map { speci, genome_id, gdata }
+		.map { speci, genome_id, gdata -> speci }
 		.filter { it != "unknown" }
 		.unique()
 	
@@ -113,7 +111,7 @@ workflow full_annotation {
 	// tuple val(speci), val(genome_id), path(gff), path(txsscan), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
 
 	annotation_data_ch = secretion_annotation.out.genomes
-		.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.gff, gdata.secretion, gdata.emapper, gdata.gene_clusters, gdata.recombinases, gdata.genome ]}
+		.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.gff, gdata.secretion, gdata.emapper, gdata.gene_clusters, gdata.recombinases, gdata.genome ] }
 
 
 	// annotation_data_ch = with_cluster_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotations[2] ] }
