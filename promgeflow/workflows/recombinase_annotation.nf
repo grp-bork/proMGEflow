@@ -24,8 +24,8 @@ workflow recombinase_annotation {
 		)
 
 		recombinase_output_ch = recombinase_scan.out.done_sentinel
-			.join(recombinase_scan.out.recombinases, by: [0, 1]),
-			.join(recombinase_scan.out.recomb_table, by: [0, 1]),
+			.join(recombinase_scan.out.recombinases, by: [0, 1])
+			.join(recombinase_scan.out.recomb_table, by: [0, 1])
 			.join(recombinase_scan.out.mge_pred_gff, by: [0, 1])
 			.map { speci, genome_id, sentinel, recombinases, recomb_table, recomb_gff -> 
 				return [ speci, genome_id, recombinases, recomb_table, recomb_gff ]
