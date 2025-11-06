@@ -134,7 +134,7 @@ workflow full_annotation {
 		secretion_annotation.out.genomes
 			.join(mgexpose.out.gff, by: [0, 1])
 			// .map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] },
-			.map { speci, genome_id, gdata -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] },
+			.map { speci, genome_id, gdata, mge_gff -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] },
 		params.simple_output
 	)
 
