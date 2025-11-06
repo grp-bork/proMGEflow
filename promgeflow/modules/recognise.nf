@@ -76,12 +76,12 @@ process recognise_genome {
 	script:
 	"""
 	if [[ "${genome}" == *".gz" ]]; then
-		gzip -dc ${genome} > genome_file
+		gzip -dc ${genome} > recognise.fna
 	else
-		ln -sf ${genome} genome_file
+		ln -sf ${genome} recognise.fna
 	fi
 
-	recognise --marker_set ${params.recognise_marker_set} --genome genome_file --cpus ${task.cpus} --with_gff -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
+	recognise --marker_set ${params.recognise_marker_set} --genome recognise.fna --cpus ${task.cpus} --with_gff -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
 
 	if [[ -s recognise/${genome_id}/${genome_id}.specI.txt ]]; then 
 		speci=\$(cat recognise/${genome_id}/${genome_id}.specI.txt)
@@ -91,7 +91,7 @@ process recognise_genome {
 
 	mv -v recognise \$speci
 	
-	rm -fv genome_file
+	rm -fv recognise.fna
 	"""
 
 }

@@ -21,10 +21,16 @@ process recombinase_scan {
 	script:
 	"""
 	mkdir -p ${speci}/${genome_id}/
-	
-	hmmsearch -o /dev/null --cpu $task.cpus --tblout ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.out --cut_ga ${recombinase_hmm_db} ${proteins}
 
-	parse_hmmsearch.py --proteins ${proteins} --mge_rules ${mge_rules} --prefix ${speci}/${genome_id}/${genome_id} ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.out
+	if [[ "${proteins}" == *".gz" ]]; then
+		gzip -dc ${proteins} > recombinase_scan.faa
+	else
+		ln -sf ${genome} recombinase_scan.faa
+	fi
+	
+	hmmsearch -o /dev/null --cpu $task.cpus --tblout ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.out --cut_ga ${recombinase_hmm_db} recombinase_scan.faa
+
+	parse_hmmsearch.py --proteins recombinase_scan.faa --mge_rules ${mge_rules} --prefix ${speci}/${genome_id}/${genome_id} ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.out
 
 	if [[ ! -s ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.besthits.out ]]; then 
 		rm -rvf ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.besthits.out;
@@ -33,5 +39,7 @@ process recombinase_scan {
 	fi
 
 	touch ${speci}.${genome_id}.recombinase_sentinel
+
+	rm -vf recombinase_scan.faa
 	"""
 }

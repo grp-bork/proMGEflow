@@ -19,7 +19,16 @@ process txsscan {
 	"""
 	set -e -o pipefail
 	mkdir -p ${prefix}/
-	macsyfinder -vvv -w ${task.cpus} --models TXSS all --models-dir ${txsscan_models} -o ${prefix} --db-type unordered --multi-loci all --sequence-db ${proteins}
+
+	if [[ "${proteins}" == *".gz" ]]; then
+		gzip -dc ${proteins} > txsscan.faa
+	else
+		ln -sf ${proteins} txsscan.faa
+	fi
+
+	macsyfinder -vvv -w ${task.cpus} --models TXSS all --models-dir ${txsscan_models} -o ${prefix} --db-type unordered --multi-loci all --sequence-db txsscan.faa
 	cp -v ${prefix}/all_systems.tsv ${prefix}/${genome_id}.all_systems.tsv || touch ${prefix}/${genome_id}.all_systems.tsv
+
+	rm -vf txsscan.faa
 	"""
 }

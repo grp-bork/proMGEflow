@@ -17,20 +17,26 @@ process linclust {
 	script:
 	"""
 	set -e -o pipefail
+	
 	mkdir -p tmp/ ${speci}/${genome_id}/
 
-	gzip -c ${genes} > all_genes.fa.gz
-	cat ${speci_seqs} >> all_genes.fa.gz
+	if [[ "${genes}" == *".gz" ]]; then
+		cat ${speci_seqs} ${genes} > linclust.ffn.gz
+	else
+		cp -v ${speci_seqs} linclust.ffn.gz
+		gzip -c ${genes} > linclust.ffn.gz
+	fi
 		
-	mmseqs createdb all_genes.fa.gz mmseqsdb
+	mmseqs createdb linclust.ffn.gz mmseqsdb
 	mmseqs linclust --threads ${task.cpus} --split-memory-limit ${task.memory.toGiga()}G --min-seq-id 0.95 -c 0.90 --cov-mode 0 mmseqsdb mmseqcluster ./tmp
 	mmseqs createsubdb mmseqcluster mmseqsdb mmseqcluster_representatives
 	mmseqs createtsv mmseqsdb mmseqsdb mmseqcluster mmseqcluster.tsv
 	mv mmseqcluster.tsv ${speci}/${genome_id}/${genome_id}_mmseqcluster.tsv
 	gzip -v ${speci}/${genome_id}/${genome_id}_mmseqcluster.tsv
 
-	rm -rvf all_genes.fa.gz tmp/
 	touch ${speci}/${genome_id}/${genome_id}.LINCLUST_DONE
+	
+	rm -rvf linclust.ffn.gz tmp/
 	"""
 
 }

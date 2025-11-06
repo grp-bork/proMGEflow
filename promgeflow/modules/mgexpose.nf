@@ -26,7 +26,15 @@ process mgexpose {
 
 	"""
 	mkdir -p ${outdir}/
-	echo mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
+
+	if [[ "${gff}" == *".gz" ]]; then
+		gzip -dc ${gff} > mgexpose.gff
+	else
+		ln -sf ${gff} mgexpose.gff
+	fi
+
+
+	echo mgexpose denovo ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
 			--speci ${speci} \
 			--txs_macsy_rules ${txsscan_rules} \
 			--txs_macsy_report ${txsscan} \
@@ -41,7 +49,7 @@ process mgexpose {
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands \
 			${y_cluster_option}
-	mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
+	mgexpose denovo ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
 			--speci ${speci} \
 			--txs_macsy_rules ${txsscan_rules} \
 			--txs_macsy_report ${txsscan} \
@@ -64,6 +72,8 @@ process mgexpose {
 	else
 		rm -f ${genome_id}.NO_MGE
 	fi
+
+	rm -vf mgexpose.gff
 	"""
 
 }
