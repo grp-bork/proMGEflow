@@ -34,8 +34,9 @@ workflow recombinase_annotation {
 			.map { speci, genome_id, sentinel, recombinases, recomb_table, recomb_gff -> 
 				return [ speci, genome_id, recombinases, recomb_table, recomb_gff ]
 			}
-			.join(genomes_ch, by: [0, 1])
-			.map { speci, genome_id, recombinases, recomb_table, recomb_gff, old_gdata ->
+		recombinase_output_ch = genomes_ch
+			.join(recombinase_output_ch, by: [0, 1])
+			.map { speci, genome_id, old_gdata, recombinases, recomb_table, recomb_gff ->
 				def gdata = old_gdata.clone()
 				gdata.recombinases = recombinases
 				gdata.recomb_table = recomb_table

@@ -20,8 +20,9 @@ workflow functional_annotation {
 		emapper_annotations_ch = eggnog_mapper.out.eggnog
 			.join(eggnog_mapper.out.done_sentinel, by: [0, 1])
 			.map { speci, genome_id, annotation, sentinel -> [ speci, genome_id, annotation ] }
-			.join(genomes_ch, by: [0, 1])
-			.map { speci, genome_id, annotation, gdata_old ->
+		emapper_annotations_ch = genomes_ch
+			.join(emapper_annotations_ch, by: [0, 1])
+			.map { speci, genome_id, gdata_old, annotation ->
 				def gdata = gdata_old.clone()
 				gdata.emapper = annotation
 				return [ speci, genome_id, gdata ]
