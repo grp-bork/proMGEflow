@@ -134,12 +134,14 @@ workflow full_annotation {
 		secretion_annotation.out.genomes
 			.join(mgexpose.out.gff, by: [0, 1])
 			// .map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] },
-			.map { speci, genome_id, gdata, mge_gff -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] },
+			.join(handle_input_genomes.out.to_genome_annotation, by: [0, 1])
+			.map { speci, genome_id, gdata, mge_gff, gdata_raw -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] },
 		params.simple_output
 	)
 
 	publish_recombinase_scan(
-		with_speci_and_recombinase_ch.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.recomb_table, gdata.recomb_gff ] },
+		with_speci_and_recombinase_ch
+			.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.recomb_table, gdata.recomb_gff ] },
 		// recombinase_annotation.out.mge_predictions
 		// 	.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
 		// 	.filter { it[0] == "unknown" },
