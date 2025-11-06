@@ -26,7 +26,7 @@ process eggnog_mapper {
 		ln -sf ${proteins} emapper.faa
 	fi
 
-	emapper.py -i emapper.fa --data_dir ${eggnog_db} --output ${speci}/${genome_id}/${genome_id} -m diamond --cpu $task.cpus --dmnd_algo 0
+	emapper.py -i emapper.faa --data_dir ${eggnog_db} --output ${speci}/${genome_id}/${genome_id} -m diamond --cpu $task.cpus --dmnd_algo 0
 	
 	touch ${speci}/${genome_id}/${genome_id}.emapper.annotations
 	
