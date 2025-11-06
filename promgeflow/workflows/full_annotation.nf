@@ -113,7 +113,7 @@ workflow full_annotation {
 	annotation_data_ch = secretion_annotation.out.genomes
 		.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.gff, gdata.secretion, gdata.emapper, gdata.gene_clusters, gdata.recombinases, gdata.genome ] }
 
-
+	annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
 	// annotation_data_ch = with_cluster_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotations[2] ] }
 	// 	.join( secretion_annotation.out.txsscan, by: [0, 1] )
 	// 	.join( functional_annotation.out.annotation, by: [0, 1] )
