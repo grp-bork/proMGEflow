@@ -70,8 +70,8 @@ workflow genome_annotation {
 			.join(annotations_ch, by: [0, 1])
 			.map { speci, genome_id, gdata_old, proteins, genes, gff ->
 				def gdata = gdata_old.clone()
-				gdata.genes = genes
 				gdata.proteins = proteins
+				gdata.genes = genes
 				gdata.gff = gff
 				return [ speci, genome_id, gdata ]
 			}

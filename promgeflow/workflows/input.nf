@@ -45,7 +45,7 @@ workflow handle_input_genomes {
 		if (params.input_sheet) {
 			genomes_ch = Channel
 				.fromPath(params.input_sheet)
-        		.splitCsv(sep: '\t', header: ["speci", "genome_id", "genome", "genes", "proteins", "gff", "emapper"])
+        		.splitCsv(sep: '\t', header: ["speci", "genome_id", "genome", "proteins", "genes", "gff", "emapper"])
 				.map { gdata -> [gdata.speci, gdata.genome_id, gdata] }
         		// .map { it -> [it[0], it[1], it[2]] }
         
