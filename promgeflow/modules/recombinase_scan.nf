@@ -25,7 +25,7 @@ process recombinase_scan {
 	if [[ "${proteins}" == *".gz" ]]; then
 		gzip -dc ${proteins} > recombinase_scan.faa
 	else
-		ln -sf ${genome} recombinase_scan.faa
+		ln -sf ${proteins} recombinase_scan.faa
 	fi
 	
 	hmmsearch -o /dev/null --cpu $task.cpus --tblout ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.out --cut_ga ${recombinase_hmm_db} recombinase_scan.faa
