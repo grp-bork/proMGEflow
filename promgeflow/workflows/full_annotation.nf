@@ -71,7 +71,7 @@ workflow full_annotation {
 		// with_recombinase_ch.map { speci, genome_id, annotations -> [speci, genome_id, annotations[0]] }
 		// with_speci_and_recombinase_ch
 
-	with_functional_annotation_ch = with_speci_and_recombinase_ch.has_emapper
+	with_functional_annotation_ch = emapper_input_ch.has_emapper
 		.mix(functional_annotation.out.genomes)
 
 	// with_functional_annotation_ch = with_recombinase_ch
