@@ -10,7 +10,7 @@ include { genome_annotation } from "./genome_annotation"
 include { species_recognition } from "./species_recognition"
 include { recombinase_annotation } from "./recombinase_annotation"
 include { pangenome_analysis } from "./pangenome_analysis"
-include { secretion_annotation } from "./secretion_annotation"
+include { secretion_annotation; secretion_annotation as forced_secretion_annotation } from "./secretion_annotation"
 include { functional_annotation } from "./functional_annotation"
 
 include { handle_input_genomes } from "./input"
@@ -106,11 +106,28 @@ workflow full_annotation {
 	/* STEP 4 Protein annotation - phage signals and secretion systems */
 	// secretion_annotation(with_cluster_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotations[0] ] })
 	secretion_annotation(pangenome_analysis.out.genomes)
+	secretion_ch = secretion_annotation.out.genomes
+	if (params.force_secretion_analysis) {
+		// in certain situations, we want to annotate the secretion system 
+		// on genomes without pangenome
+		// e.g. bulk annotation with preliminary pangenome data
+		dummy_clusters = file('DUMMY_CLUSTERS.txt')
+
+
+		forced_secretion_annotation(with_functional_annotation_ch)
+		forced_secretion_ch = forced_secretion_annotation.out.genomes
+			.map { speci, genome_id, gdata_old -> 
+				def gdata = gdata_old.clone()
+				gdata.gene_clusters = dummy_clusters
+				return [ speci, genome_id, gdata ]
+			}
+		secretion_ch = secretion_ch.mix(forced_secretion_ch)
+	}
 	
 	/* STEP 5 Annotate the genomes with island data and assign mges */
 	// tuple val(speci), val(genome_id), path(gff), path(txsscan), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
 
-	annotation_data_ch = secretion_annotation.out.genomes
+	annotation_data_ch = secretion_ch
 		.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.gff, gdata.secretion_data, gdata.emapper, gdata.gene_clusters, gdata.recombinases, gdata.genome ] }
 
 	annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
@@ -140,7 +157,8 @@ workflow full_annotation {
 	)
 
 	publish_recombinase_scan(
-		with_speci_and_recombinase_ch
+		// with_speci_and_recombinase_ch
+		recombinase_annotation.out.genomes
 			.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.recomb_table, gdata.recomb_gff ] },
 		// recombinase_annotation.out.mge_predictions
 		// 	.join(recombinase_annotation.out.mge_predictions_gff, by: [0, 1])
