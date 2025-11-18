@@ -57,10 +57,11 @@ workflow species_recognition {
 			.mix(recognise_genome.out.genes)
 			.mix(recognise_genome.out.gff)
 			.groupTuple(by: 0, sort: true, size: 3)
+			.map { genome_id, annots -> [genome_id, annots[0], annots[1], annots[2] ] }
 
 		recognise_output_ch = recognise_input_ch.unannotated
 			.join(annotations_ch, by: 0)
-			.map { genome_id, old_gdata, [proteins, genes, gff] ->
+			.map { genome_id, old_gdata, proteins, genes, gff ->
 				def gdata = old_gdata.clone()
 				gdata.proteins = proteins
 				gdata.genes = genes
