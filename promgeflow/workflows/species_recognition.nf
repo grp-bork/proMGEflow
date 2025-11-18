@@ -60,7 +60,7 @@ workflow species_recognition {
 
 		recognise_output_ch = recognise_input_ch.unannotated
 			.join(annotations_ch, by: 0)
-			.map { genome_id, old_gdata, proteins, genes, gff ->
+			.map { genome_id, old_gdata, [proteins, genes, gff] ->
 				def gdata = old_gdata.clone()
 				gdata.proteins = proteins
 				gdata.genes = genes
