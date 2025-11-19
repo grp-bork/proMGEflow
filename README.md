@@ -41,7 +41,7 @@ Installation
 2. txsscan models (50MB)
 	```
 	mkdir -p /path/to/txsscan_models && cd /path/to/txsscan_models
-	git clone https://github.com/macsy-models/TXSScan.git TXSS
+	git clone https://github.com/macsy-models/CONJScan.git CONJ
 	```
 3. recombinase HMMs -- from Zenodo
 4. recognise marker set -- from Zenodo
