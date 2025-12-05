@@ -36,9 +36,9 @@
           "description": "Directory path to the recombinase hmm models",
           "hidden": true
         },
-		    "txsscan_db": {
+		    "conjscan_models": {
           "type": "string",
-          "description": "Directory path to the mcsyfinder TXSS models",
+          "description": "Directory path to the macsyfinder CONJScan models",
           "hidden": true
         },
 		    "gene_cluster_seqdb": {
@@ -53,7 +53,7 @@
         "default": true
         }
       },
-      "required": ["output_dir", "input_dir", "recognise_marker_db", "emapper_db", "recombinase_scan_db", "txsscan_db", "gene_cluster_seqdb", "simple_output"]
+      "required": ["output_dir", "input_dir", "recognise_marker_db", "emapper_db", "recombinase_scan_db", "conjscan_models", "gene_cluster_seqdb", "simple_output"]
     }
   },
   "allOf": [
