@@ -38,14 +38,27 @@ Installation
 	tar xvzf eggnog.taxa.tar.gz
 	```
 
-2. txsscan models (50MB)
+2. conjscan models (50MB)
 	```
 	mkdir -p /path/to/txsscan_models && cd /path/to/txsscan_models
 	git clone https://github.com/macsy-models/CONJScan.git CONJ
 	```
-3. recombinase HMMs -- from Zenodo
+
+3. recombinase HMMs (1.7MB)
+	```
+	wget https://zenodo.org/records/15829523/files/promge_v1_recombinase_models.hmm.gz
+	```
+
 4. recognise marker set -- from Zenodo
-5. pangenome cluster reference sequences -- from Zenodo
+	```
+	TBD
+	```
+
+5. pangenome cluster reference sequences (38.9GB)
+	```
+	wget https://zenodo.org/records/17704403/files/sp095_refdb_v1ypg3.tar
+	# Do not untar the .tar file!
+	```
 
 Usage
 -----
