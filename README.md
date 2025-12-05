@@ -40,7 +40,7 @@ Installation
 
 2. conjscan models (50MB)
 	```
-	mkdir -p /path/to/txsscan_models && cd /path/to/txsscan_models
+	mkdir -p /path/to/conjscan_models && cd /path/to/conjscan_models
 	git clone https://github.com/macsy-models/CONJScan.git CONJ
 	```
 
