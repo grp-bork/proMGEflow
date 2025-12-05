@@ -16,7 +16,7 @@ Dependencies
 - mmseqs2
 - eggnog-mapper
 - hmmer
-- MACsyfinder/txsscan
+- MACsyfinder
 - MGExpose
 - reCOGnise
 
