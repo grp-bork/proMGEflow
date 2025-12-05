@@ -1,4 +1,4 @@
-// [speci, bin_id, gene_coords, txsscan, emapper, clusters, recombinases, genome_fa]
+// [speci, bin_id, gene_coords, conjscan, emapper, clusters, recombinases, genome_fa]
 process mgexpose {
 	label "annotate_genome"
 	label "medium"
@@ -7,9 +7,9 @@ process mgexpose {
 	tag "${speci}/${genome_id}"
 
 	input:
-	tuple val(speci), val(genome_id), path(gff), path(txsscan), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
+	tuple val(speci), val(genome_id), path(gff), path(conjscan), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
 	path(mge_rules)
-	path(txsscan_rules)
+	path(conjscan_rules)
 	path(phage_filter_terms)
 	val(simple_output)
 
@@ -36,8 +36,8 @@ process mgexpose {
 
 	echo mgexpose denovo ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
 			--speci ${speci} \
-			--txs_macsy_rules ${txsscan_rules} \
-			--txs_macsy_report ${txsscan} \
+			--txs_macsy_rules ${conjscan_rules} \
+			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
 			--phage_filter_terms ${phage_filter_terms} \
 			--cluster_data ${gene_clusters} \
@@ -51,8 +51,8 @@ process mgexpose {
 			${y_cluster_option}
 	mgexpose denovo ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
 			--speci ${speci} \
-			--txs_macsy_rules ${txsscan_rules} \
-			--txs_macsy_report ${txsscan} \
+			--txs_macsy_rules ${conjscan_rules} \
+			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
 			--phage_filter_terms ${phage_filter_terms} \
 			--cluster_data ${gene_clusters} \
@@ -86,9 +86,9 @@ process mgexpose_region {
 	tag "${speci}/${genome_id}"
 
 	input:
-	tuple val(speci), val(genome_id), path(gff), path(txsscan), path(emapper), val(region_id), path(recombinases), path(genome_fa)
+	tuple val(speci), val(genome_id), path(gff), path(conjscan), path(emapper), val(region_id), path(recombinases), path(genome_fa)
 	path(mge_rules)
-	path(txsscan_rules)
+	path(conjscan_rules)
 	path(phage_filter_terms)
 
 	output:
@@ -109,8 +109,8 @@ process mgexpose_region {
 
 	echo mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
 			--speci no_speci \
-			--txs_macsy_rules ${txsscan_rules} \
-			--txs_macsy_report ${txsscan} \
+			--txs_macsy_rules ${conjscan_rules} \
+			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
 			--phage_filter_terms ${phage_filter_terms} \
 			--precomputed_islands region.txt \
@@ -124,8 +124,8 @@ process mgexpose_region {
 
 	mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
 			--speci no_speci \
-			--txs_macsy_rules ${txsscan_rules} \
-			--txs_macsy_report ${txsscan} \
+			--txs_macsy_rules ${conjscan_rules} \
+			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
 			--phage_filter_terms ${phage_filter_terms} \
 			--precomputed_islands region.txt \
