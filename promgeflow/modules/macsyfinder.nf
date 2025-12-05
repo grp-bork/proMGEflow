@@ -1,4 +1,4 @@
-process txsscan {
+process macsyfinder {
 	container = "quay.io/biocontainers/macsyfinder:2.1.4--pyhdfd78af_0"
 	tag "${speci}/${genome_id}"
 	cpus 8
@@ -8,10 +8,10 @@ process txsscan {
 
 	input:
 	tuple val(speci), val(genome_id), path(proteins)
-	path(txsscan_models)
+	path(models)
 
 	output:
-	tuple val(speci), val(genome_id), path("**/${genome_id}.all_systems.tsv"), emit: txsscan_report
+	tuple val(speci), val(genome_id), path("**/${genome_id}.all_systems.tsv"), emit: macsy_report
 
 	script:
 	def prefix = (speci != null) ? "${speci}/${genome_id}" : "${genome_id}"
@@ -21,14 +21,14 @@ process txsscan {
 	mkdir -p ${prefix}/
 
 	if [[ "${proteins}" == *".gz" ]]; then
-		gzip -dc ${proteins} > txsscan.faa
+		gzip -dc ${proteins} > macsy.faa
 	else
-		ln -sf ${proteins} txsscan.faa
+		ln -sf ${proteins} macsy.faa
 	fi
 
-	macsyfinder -vvv -w ${task.cpus} --models CONJ all --models-dir ${txsscan_models} -o ${prefix} --db-type unordered --multi-loci all --sequence-db txsscan.faa
+	macsyfinder -vvv -w ${task.cpus} --models CONJ all --models-dir ${models} -o ${prefix} --db-type unordered --multi-loci all --sequence-db macsy.faa
 	cp -v ${prefix}/all_systems.tsv ${prefix}/${genome_id}.all_systems.tsv || touch ${prefix}/${genome_id}.all_systems.tsv
 
-	rm -vf txsscan.faa
+	rm -vf macsy.faa
 	"""
 }
