@@ -136,7 +136,7 @@ workflow full_annotation {
     //     "711",
     //     "1609"
     // ]
-]
+	// ]
 	
 	// pangenome_ch.collectFile(name: "pangenome_info.txt", newLine: true, storeDir: params.output_dir)
 
