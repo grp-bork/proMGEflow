@@ -116,6 +116,15 @@ workflow full_annotation {
 		params.simple_output
 	)
 
+	pangenome_ch = Channel.fromPath("${projectDir}/assets/speci_sizes_pg3.txt")
+		.splitCsv(header: false, sep: '\t')
+		.join(
+			mgexpose.out.pangenome_info.splitCsv(header: false, sep: '\t'),
+			by: [0, 1]
+		)
+		.collectFile(name: "pangenome_info.txt", newLine: true, storeDir: params.output_dir)
+
+
 	publish_gene_annotations(
 		secretion_annotation.out.genomes
 			.join(mgexpose.out.gff, by: [0, 1])

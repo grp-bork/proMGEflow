@@ -19,6 +19,7 @@ process mgexpose {
 	path("**/*.NO_MGE"), emit: no_mge, optional: true
 	path("**/*.mge_islands.ffn.gz"), emit: fasta, optional: true
 	path("**/*.gene_info.txt"), emit: gene_info, optional: true
+	tuple val(speci), val(genome_id), path("${genome_id}.pangenome.txt"), emit: pangenome_info, optional: true
 	
 	script:
 	def y_cluster_option = (params.use_y_clusters) ? " --use_y_clusters" : ""
@@ -71,6 +72,10 @@ process mgexpose {
 		mv -v ${genome_id}.NO_MGE ${outdir}/
 	else
 		rm -f ${genome_id}.NO_MGE
+	fi
+
+	if [[ -f ${outdir}/${genome_id}.gene_info.txt ]]; then
+		awk -v OFS='\\t' '{ core[\$10]++;n++;} END {print "${speci}","${genome_id}",n,core["False"],core["True"]}' ${outdir}/${genome_id}.gene_info.txt > ${genome_id}.pangenome.txt
 	fi
 
 	rm -vf mgexpose.gff
