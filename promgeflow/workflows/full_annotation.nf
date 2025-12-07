@@ -118,12 +118,11 @@ workflow full_annotation {
 
 	pangenome_ch = Channel.fromPath("${projectDir}/assets/speci_sizes_pg3.txt")
 		.splitCsv(header: false, sep: '\t')
+		.join(
+			mgexpose.out.pangenome_info.splitCsv(header: false, sep: '\t'),
+			by: 0
+		)
 	pangenome_ch.dump(pretty: true, tag: "pangenome_ch")
-
-	// 	.join(
-	// 		mgexpose.out.pangenome_info.splitCsv(header: false, sep: '\t'),
-	// 		by: [0, 1]
-	// 	)
 
 	
 	// pangenome_ch.collectFile(name: "pangenome_info.txt", newLine: true, storeDir: params.output_dir)
