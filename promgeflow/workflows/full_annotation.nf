@@ -122,7 +122,7 @@ workflow full_annotation {
 			mgexpose.out.pangenome_info.splitCsv(header: false, sep: '\t'),
 			by: 0
 		)
-		.map { speci, n_genomes, genome, data -> [ speci, genome, n_genomes, data[0], data[1], data[2], ((data[1].toFloat() / data[0].toFloat()) * 100.0).round(2) ]}
+		.map { speci, n_genomes, genome, data -> [ speci, genome, n_genomes, data[0], data[1], data[2], ((data[1].toFloat() / data[0].toFloat()) * 100.0).round(2).toString() ]}
 		.collectFile(name: "pangenome_info.txt", newLine: true, storeDir: params.output_dir)
 	pangenome_ch.dump(pretty: true, tag: "pangenome_ch")
 
