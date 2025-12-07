@@ -125,17 +125,17 @@ workflow full_annotation {
 		.map { speci, n_genomes, genome, data -> [ speci, genome, n_genomes, data[2], data[3], data[4], ((data[3].toFloat() / data[2].toFloat()) * 100.0).round(2) ]}
 	pangenome_ch.dump(pretty: true, tag: "pangenome_ch")
 
-	[DUMP: pangenome_ch] [
-    "specI_v4_08282",
-    "2",
-    "GCA_000014125.1",
-    [
-        "specI_v4_08282",
-        "GCA_000014125.1",
-        "2321",
-        "711",
-        "1609"
-    ]
+	// [DUMP: pangenome_ch] [
+    // "specI_v4_08282",
+    // "2",
+    // "GCA_000014125.1",
+    // [
+    //     "specI_v4_08282",
+    //     "GCA_000014125.1",
+    //     "2321",
+    //     "711",
+    //     "1609"
+    // ]
 ]
 	
 	// pangenome_ch.collectFile(name: "pangenome_info.txt", newLine: true, storeDir: params.output_dir)
