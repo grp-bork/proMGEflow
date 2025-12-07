@@ -75,7 +75,7 @@ process mgexpose {
 	fi
 
 	if [[ -f ${outdir}/${genome_id}.gene_info.txt ]]; then
-		awk -v OFS='\\t' '{ core[\$10]++;n++;} END {print "${speci}","${genome_id}",n,core["False"],core["True"]}' ${outdir}/${genome_id}.gene_info.txt > ${genome_id}.pangenome.txt
+		awk -v OFS='\\t' '{ core[\$10]++;n++;} END {print n,core["False"],core["True"]}' ${outdir}/${genome_id}.gene_info.txt > ${genome_id}.pangenome.txt
 	fi
 
 	rm -vf mgexpose.gff
