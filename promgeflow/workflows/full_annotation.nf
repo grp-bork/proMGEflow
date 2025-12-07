@@ -122,7 +122,10 @@ workflow full_annotation {
 			mgexpose.out.pangenome_info.splitCsv(header: false, sep: '\t'),
 			by: [0, 1]
 		)
-		.collectFile(name: "pangenome_info.txt", newLine: true, storeDir: params.output_dir)
+
+	pangenome_ch.dump(pretty: true, tag: "pangenome_ch")
+	
+	pangenome_ch.collectFile(name: "pangenome_info.txt", newLine: true, storeDir: params.output_dir)
 
 
 	publish_gene_annotations(
