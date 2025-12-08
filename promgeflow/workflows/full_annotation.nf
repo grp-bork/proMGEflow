@@ -32,7 +32,7 @@ process pangenome_summary {
 	script:
 	"""
 	head -n 1 ${genome_report} | awk -v OFS='\\t' '{ print \$0,"n_genomes"; }' >> pangenome_summary.txt
-	join -1 1 -2 1 <(tail -n +2 ${genome_report} | sort -k1,1 -k2,2) ${speci_sizes} | tr " " "\\t" >> pangenome_summary.txt
+	join -1 1 -2 1 <(tail -n +2 ${genome_report} | sort -k1,1) ${speci_sizes} | sort -k1,1 -k2,2 | tr " " "\\t" >> pangenome_summary.txt
 	"""
 }
 
