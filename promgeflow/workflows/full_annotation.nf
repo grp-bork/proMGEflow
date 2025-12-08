@@ -123,8 +123,10 @@ workflow full_annotation {
 			by: 0
 		)
 		.map { speci, n_genomes, genome, data -> [ speci, genome, n_genomes, data[0], data[1], data[2], ((data[1].toFloat() / data[0].toFloat()) * 100.0).round(2).toString() ]}
+		.map { it -> it.join("\t") }
 		.collect()
-		.collectFile(name: "pangenome_info.txt", newLine: true)
+		.collectFile { it -> [ "${params.output_dir}/pangenome_info.txt", item + "\n" ] }
+		// (name: "pangenome_info.txt", newLine: true)
 	pangenome_ch.dump(pretty: true, tag: "pangenome_ch")
 
 	// [DUMP: pangenome_ch] [
