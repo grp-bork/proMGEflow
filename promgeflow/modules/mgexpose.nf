@@ -1,15 +1,15 @@
-// [speci, bin_id, gene_coords, txsscan, emapper, clusters, recombinases, genome_fa]
+// [speci, bin_id, gene_coords, conjscan, emapper, clusters, recombinases, genome_fa]
 process mgexpose {
 	label "annotate_genome"
 	label "medium"
-	container "ghcr.io/cschu/mgexpose:v3.7.6"
+	container "ghcr.io/cschu/mgexpose:v3.8.0"
 	// executor "local"  -> move to run.config @ EMBL
 	tag "${speci}/${genome_id}"
 
 	input:
-	tuple val(speci), val(genome_id), path(gff), path(txsscan), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
+	tuple val(speci), val(genome_id), path(gff), path(conjscan), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
 	path(mge_rules)
-	path(txsscan_rules)
+	path(conjscan_rules)
 	path(phage_filter_terms)
 	val(simple_output)
 
@@ -19,6 +19,7 @@ process mgexpose {
 	path("**/*.NO_MGE"), emit: no_mge, optional: true
 	path("**/*.mge_islands.ffn.gz"), emit: fasta, optional: true
 	path("**/*.gene_info.txt"), emit: gene_info, optional: true
+	tuple val(speci), val(genome_id), path("${genome_id}.pangenome.txt"), emit: pangenome_info, optional: true
 	
 	script:
 	def y_cluster_option = (params.use_y_clusters) ? " --use_y_clusters" : ""
@@ -26,10 +27,18 @@ process mgexpose {
 
 	"""
 	mkdir -p ${outdir}/
-	echo mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
+
+	if [[ "${gff}" == *".gz" ]]; then
+		gzip -dc ${gff} > mgexpose.gff
+	else
+		ln -sf ${gff} mgexpose.gff
+	fi
+
+
+	echo mgexpose denovo ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
 			--speci ${speci} \
-			--txs_macsy_rules ${txsscan_rules} \
-			--txs_macsy_report ${txsscan} \
+			--txs_macsy_rules ${conjscan_rules} \
+			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
 			--phage_filter_terms ${phage_filter_terms} \
 			--cluster_data ${gene_clusters} \
@@ -41,10 +50,10 @@ process mgexpose {
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands \
 			${y_cluster_option}
-	mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
+	mgexpose denovo ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
 			--speci ${speci} \
-			--txs_macsy_rules ${txsscan_rules} \
-			--txs_macsy_report ${txsscan} \
+			--txs_macsy_rules ${conjscan_rules} \
+			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
 			--phage_filter_terms ${phage_filter_terms} \
 			--cluster_data ${gene_clusters} \
@@ -64,6 +73,12 @@ process mgexpose {
 	else
 		rm -f ${genome_id}.NO_MGE
 	fi
+
+	if [[ -f ${outdir}/${genome_id}.gene_info.txt ]]; then
+		awk -v OFS='\\t' '{ core[\$10]++;n++;} END {print "specI","genome","n_genes","n_accessory","n_core","%acc"; printf("%s\\t%s\\t%s\\t%s\\t%s\\t%.2f\\n", "${speci}","${genome_id}",n,core["False"],core["True"],core["False"]/n*100);}' ${outdir}/${genome_id}.gene_info.txt > ${genome_id}.pangenome.txt
+	fi
+
+	rm -vf mgexpose.gff
 	"""
 
 }
@@ -76,9 +91,9 @@ process mgexpose_region {
 	tag "${speci}/${genome_id}"
 
 	input:
-	tuple val(speci), val(genome_id), path(gff), path(txsscan), path(emapper), val(region_id), path(recombinases), path(genome_fa)
+	tuple val(speci), val(genome_id), path(gff), path(conjscan), path(emapper), val(region_id), path(recombinases), path(genome_fa)
 	path(mge_rules)
-	path(txsscan_rules)
+	path(conjscan_rules)
 	path(phage_filter_terms)
 
 	output:
@@ -99,8 +114,8 @@ process mgexpose_region {
 
 	echo mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
 			--speci no_speci \
-			--txs_macsy_rules ${txsscan_rules} \
-			--txs_macsy_report ${txsscan} \
+			--txs_macsy_rules ${conjscan_rules} \
+			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
 			--phage_filter_terms ${phage_filter_terms} \
 			--precomputed_islands region.txt \
@@ -114,8 +129,8 @@ process mgexpose_region {
 
 	mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
 			--speci no_speci \
-			--txs_macsy_rules ${txsscan_rules} \
-			--txs_macsy_report ${txsscan} \
+			--txs_macsy_rules ${conjscan_rules} \
+			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
 			--phage_filter_terms ${phage_filter_terms} \
 			--precomputed_islands region.txt \

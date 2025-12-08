@@ -46,12 +46,12 @@ recognise_marker_set: "motus"
 recombinase_scan_db: "/path/to/recombinase/hmm/db"
 
 
-### MACSYFINDER/TXSSCAN - SECRETION SYSTEM ANNOTATION
+### MACSYFINDER/CONJScan - SECRETION SYSTEM ANNOTATION
 
-# Secretion system annotation requires a path to the Macsyfinder TXSSCAN models
-# Note: if TXSS folder is located in /path/to/somewhere/TXSS,
-# then --txsscan_db has to point at /path/to/somewhere
-txsscan_db: "/path/to/txsscan/db"
+# Secretion system annotation requires a path to the Macsyfinder CONJScan models
+# Note: if CONJ folder is located in /path/to/somewhere/CONJ,
+# then --conjscan_models has to point at /path/to/somewhere
+conjscan_models: "/path/to/conjscan_models"
 
 
 ### EGGNOG-MAPPER - FUNCTIONAL GENE ANNOTATION (PHAGE AND CARGO) 

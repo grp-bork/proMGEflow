@@ -4,11 +4,15 @@ include { linclust } from "../modules/linclust"
 workflow pangenome_analysis {
 
 	take:
-		filtered_genes_ch
+		// filtered_genes_ch
+		genomes_ch
 		cluster_reps_ch
 
 	main:
-		linclust_input_ch = filtered_genes_ch
+
+		genes_ch = genomes_ch.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.genes ] }
+
+		linclust_input_ch = genes_ch
 			.combine(cluster_reps_ch, by: 0)
 
 		linclust(linclust_input_ch)
@@ -17,11 +21,18 @@ workflow pangenome_analysis {
 			.join(linclust.out.done_sentinel, by: [0, 1])
 			.map { speci, genome_id, clusters, sentinel ->
 				[ speci, genome_id, clusters ]
-			}		
+			}
+		linclust_clusters_ch = genomes_ch
+			.join(linclust_clusters_ch, by: [0, 1])
+			.map { speci, genome_id, gdata_old, clusters ->
+				def gdata = gdata_old.clone()
+				gdata.gene_clusters = clusters
+				return [ speci, genome_id, gdata ]
+			}	
 
 		linclust_clusters_ch.dump(pretty: true, tag: "linclust_clusters_ch")
 	
 	emit:
-		clusters = linclust_clusters_ch
+		genomes = linclust_clusters_ch
 
 }

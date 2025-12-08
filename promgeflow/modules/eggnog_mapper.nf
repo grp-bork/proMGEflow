@@ -18,14 +18,25 @@ process eggnog_mapper {
 	script:
 	"""
 	set -e -o pipefail
-	mkdir -p ${speci}/${genome_id}/	
+	mkdir -p ${speci}/${genome_id}/
 
-	emapper.py -i ${proteins} --data_dir ${eggnog_db} --output ${speci}/${genome_id}/${genome_id} -m diamond --cpu $task.cpus --dmnd_algo 0
+	if [[ "${proteins}" == *".gz" ]]; then
+		gzip -dc ${proteins} > emapper.faa
+	else
+		ln -sf ${proteins} emapper.faa
+	fi
+
+	emapper.py -i emapper.faa --data_dir ${eggnog_db} --output ${speci}/${genome_id}/${genome_id} -m diamond --cpu $task.cpus --dmnd_algo 0
+	
 	touch ${speci}/${genome_id}/${genome_id}.emapper.annotations
+	
 	if [[ -z \$(grep -v "#" ${speci}/${genome_id}/${genome_id}.emapper.annotations) ]]; then
 		rm ${speci}/${genome_id}/${genome_id}.emapper.annotations;
 	fi
+	
 	touch ${speci}/${genome_id}/${genome_id}.EMAPPER.DONE
+
+	rm -vf emapper.faa
 	"""
 
 }
