@@ -134,41 +134,15 @@ workflow full_annotation {
 		params.simple_output
 	)
 
-	// pangenome_ch = Channel.fromPath("${projectDir}/assets/speci_sizes_pg3.txt")
+	/* STEP 6 Generate a pangenome report for the input genomes with identifed specI */
+
 	genome_summary_ch = mgexpose.out.pangenome_info
 		.map { speci, genome_id, file -> file }
 		.collectFile(name: "pangenome_info.txt", skip: 1, keepHeader: true, sort: true)
 
 	pangenome_summary(genome_summary_ch, "${projectDir}/assets/speci_sizes_pg3.txt")
 	
-		// .splitCsv(header: false, sep: '\t')
-		// .join(
-			// mgexpose.out.pangenome_info.splitCsv(header: false, sep: '\t'),
-			// by: 0
-		// )
-		// .map { speci, n_genomes, genome, data -> [ speci, genome, n_genomes, data[0], data[1], data[2], ((data[1].toFloat() / data[0].toFloat()) * 100.0).round(2).toString() ]}
-		// .map { it -> it.join("\t") }
-		// .collect()
-		// .collectFile { it -> [ "pangenome_info.txt", it + "\n" ] }
-
-		// (name: "pangenome_info.txt", newLine: true)
-	// pangenome_ch.dump(pretty: true, tag: "pangenome_ch")
-
-	// [DUMP: pangenome_ch] [
-    // "specI_v4_08282",
-    // "2",
-    // "GCA_000014125.1",
-    // [
-    //     "specI_v4_08282",
-    //     "GCA_000014125.1",
-    //     "2321",
-    //     "711",
-    //     "1609"
-    // ]
-	// ]
-	// pangenome_ch.collectFile(name: "pangenome_info.txt", newLine: true, storeDir: params.output_dir)
-	
-
+	/* STEP X Publish gene annotations of input genomes that were not pre-annotated */
 
 	publish_gene_annotations(
 		secretion_annotation.out.genomes
@@ -177,6 +151,8 @@ workflow full_annotation {
 			.map { speci, genome_id, gdata, mge_gff, gdata_raw -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] },
 		params.simple_output
 	)
+
+	/* STEP Y Publish recombinase annotations */
 
 	publish_recombinase_scan(
 		recombinase_annotation.out.genomes
