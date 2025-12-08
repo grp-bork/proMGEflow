@@ -19,6 +19,24 @@ include { handle_input_genomes } from "./input"
 params.genome_buffer_size = 100
 print "PARAMS:\n" + params
 
+process pangenome_summary {
+	executor "local"
+
+	input:
+	path(genome_report)
+	path(speci_sizes)
+
+	output:
+	path("pangenome_summary.txt")
+
+	script:
+	"""
+	head -n 1 ${genome_report} | awk -v OFS='\\t' '{ print $0,n_genomes; }' >> pangenome_summary.txt
+	join -1 1 -2 1 <(tail -n +2 ${genome_report} | sort -k1,1 -k2,2) ${speci_sizes} | tr " " "\\t" >> pangenome_summary.txt
+	"""
+}
+
+
 
 workflow full_annotation {
 
@@ -117,9 +135,12 @@ workflow full_annotation {
 	)
 
 	// pangenome_ch = Channel.fromPath("${projectDir}/assets/speci_sizes_pg3.txt")
-	mgexpose.out.pangenome_info
+	genome_summary_ch = mgexpose.out.pangenome_info
 		.map { speci, genome_id, file -> file }
-		.collectFile(name: "pangenome_info.txt", storeDir: params.output_dir, skip: 1, keepHeader: true, sort: true)
+		.collectFile(name: "pangenome_info.txt", skip: 1, keepHeader: true, sort: true)
+
+	pangenome_summary(genome_summary_ch, "${projectDir}/assets/speci_sizes_pg3.txt")
+	
 		// .splitCsv(header: false, sep: '\t')
 		// .join(
 			// mgexpose.out.pangenome_info.splitCsv(header: false, sep: '\t'),
