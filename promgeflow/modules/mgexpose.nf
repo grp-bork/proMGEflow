@@ -2,7 +2,7 @@
 process mgexpose {
 	label "annotate_genome"
 	label "medium"
-	container "ghcr.io/cschu/mgexpose:v3.7.6"
+	container "ghcr.io/cschu/mgexpose:v3.8.0"
 	// executor "local"  -> move to run.config @ EMBL
 	tag "${speci}/${genome_id}"
 
