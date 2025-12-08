@@ -116,7 +116,9 @@ workflow full_annotation {
 		params.simple_output
 	)
 
-	pangenome_ch = Channel.fromPath("${projectDir}/assets/speci_sizes_pg3.txt")
+	// pangenome_ch = Channel.fromPath("${projectDir}/assets/speci_sizes_pg3.txt")
+	mgexpose.out.pangenome_info
+		.map { speci, genome_id, file -> file }
 		.collectFile(name: "pangenome_info.txt", storeDir: params.output_dir, newLine: true)
 		// .splitCsv(header: false, sep: '\t')
 		// .join(
