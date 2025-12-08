@@ -131,7 +131,7 @@ workflow full_annotation {
 		// .collectFile { it -> [ "pangenome_info.txt", it + "\n" ] }
 
 		// (name: "pangenome_info.txt", newLine: true)
-	pangenome_ch.dump(pretty: true, tag: "pangenome_ch")
+	// pangenome_ch.dump(pretty: true, tag: "pangenome_ch")
 
 	// [DUMP: pangenome_ch] [
     // "specI_v4_08282",
