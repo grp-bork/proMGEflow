@@ -42,6 +42,9 @@ Installation
 	```
 	mkdir -p /path/to/conjscan_models && cd /path/to/conjscan_models
 	git clone https://github.com/macsy-models/CONJScan.git CONJ
+	cd CONJ
+	git checkout d5fc1e3724362cb14c03a6e2f6de879bbdf3f64e
+	# ignore the "detached" head message
 	```
 
 3. recombinase HMMs (1.7MB)
