@@ -49,6 +49,7 @@ Installation
 
 3. recombinase HMMs (1.7MB)
 	```
+	mkdir -p /path/to/recombinase_models && /path/to/recombinase_models
 	wget https://zenodo.org/records/15829523/files/promge_v1_recombinase_models.hmm.gz
 	```
 
@@ -59,6 +60,7 @@ Installation
 
 5. pangenome cluster reference sequences (38.9GB)
 	```
+	mkdir -p /path/to/cluster_ref_seqs && cd /path/to/cluster_ref_seqs
 	wget https://zenodo.org/records/17704403/files/sp095_refdb_v1ypg3.tar
 	# Do not untar the .tar file!
 	```
