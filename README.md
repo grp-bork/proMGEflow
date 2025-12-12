@@ -53,9 +53,11 @@ Installation
 	wget https://zenodo.org/records/15829523/files/promge_v1_recombinase_models.hmm.gz
 	```
 
-4. recognise marker set -- from Zenodo
+4. recognise marker set (1GB)
 	```
-	TBD
+	mkdir -p /path/to/recognise_markers && cd /path/to/recognise_markers
+	wget https://zenodo.org/records/17916463/files/recognise_markers.tar.gz
+	tar cvzf recognise_markers.tar.gz
 	```
 
 5. pangenome cluster reference sequences (38.9GB)
