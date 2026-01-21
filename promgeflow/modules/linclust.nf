@@ -24,7 +24,7 @@ process linclust {
 		cat ${speci_seqs} ${genes} > linclust.ffn.gz
 	else
 		cp -v ${speci_seqs} linclust.ffn.gz
-		gzip -c ${genes} > linclust.ffn.gz
+		gzip -c ${genes} >> linclust.ffn.gz
 	fi
 		
 	mmseqs createdb linclust.ffn.gz mmseqsdb
