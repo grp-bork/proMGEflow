@@ -22,7 +22,7 @@ process mgexpose {
 	tuple val(speci), val(genome_id), path("${genome_id}.pangenome.txt"), emit: pangenome_info, optional: true
 	
 	script:
-	def y_cluster_option = (params.use_y_clusters) ? " --use_y_clusters" : ""
+	def y_cluster_option = (params.use_y_clusters) ? " --use_y_clusters --core_threshold -1" : ""
 	def outdir = (simple_output) ? "${genome_id}" : "${speci}/${genome_id}"
 
 	"""
