@@ -23,10 +23,12 @@ print "PARAMS:\n" + params
 workflow guided_annotation {
 
 	handle_input_genomes()
-	
+
+	// handle_input_genomes().out.to_genome_annotation.dump(pretty: true, tag: "tga_ch")
+
 
 	/* genome annotation via prodigal */
-	genome_annotation(handle_input_genomes.out.to_genome_annotation)
+	genome_annotation(handle_input_genomes.out.to_species_recognition.map { genome_id, gdata -> [ "unknown", genome_id, gdata ] } )
 	// genome_annotation(
 	// 	handle_input_genomes.out.to_species_recognition.mix(handle_input_genomes.out.to_genome_annotation)
 	// )
