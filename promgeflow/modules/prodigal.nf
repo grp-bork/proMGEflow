@@ -16,11 +16,13 @@ process prodigal {
 
 	script:
 	def gunzip_cmd = (genome_fna.name.endsWith(".gz")) ? "gzip -dc ${genome_fna} > \$(basename ${genome_fna} .gz)" : ""
+	def procedure = (params.run_mode == "guided") ? "meta" : "single"
+
 	"""
 	mkdir -p ${genome_id}
 	${gunzip_cmd}
 
-	prodigal -i \$(basename ${genome_fna} .gz) -f gff -o ${genome_id}/${genome_id}.gff -a ${genome_id}/${genome_id}.faa -d ${genome_id}/${genome_id}.ffn
+	prodigal -p ${procedure} -i \$(basename ${genome_fna} .gz) -f gff -o ${genome_id}/${genome_id}.gff -a ${genome_id}/${genome_id}.faa -d ${genome_id}/${genome_id}.ffn
 	"""
 }
 
@@ -40,6 +42,8 @@ process buffered_prodigal {
 	path("prodigal/**.*"), emit: annotations
 
 	script:
+	def procedure = (params.run_mode == "guided") ? "meta" : "single"
+
 	"""
 	mkdir -p prodigal/
 	for genome_file in ${genomes}; do
@@ -48,7 +52,7 @@ process buffered_prodigal {
 		if [[ \$genome_file == *.gz ]]; then
 			gzip -dc \$genome_file > \$(basename \$genome_file .gz) 			
 		fi
-		prodigal -i \$(basename \$genome_file .gz) -f gff -o prodigal/\$genome_id.gff -a prodigal/\$genome_id.faa -d prodigal/\$genome_id.ffn
+		prodigal -p ${procedure} -i \$(basename \$genome_file .gz) -f gff -o prodigal/\$genome_id.gff -a prodigal/\$genome_id.faa -d prodigal/\$genome_id.ffn
 		if [[ \$genome_file == *.gz ]]; then
 			rm -fv \$(basename \$genome_file .gz) 			
 		fi
