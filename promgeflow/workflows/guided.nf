@@ -26,7 +26,7 @@ workflow guided_annotation {
 
 	/* genome annotation via prodigal */
 	genome_annotation(
-		handle_input_genomes.to_species_recognition.mix(handle_input_genomes.to_genome_annotation)
+		handle_input_genomes.out.to_species_recognition.mix(handle_input_genomes.out.to_genome_annotation)
 	)
 	
 	// prodigal output channels
