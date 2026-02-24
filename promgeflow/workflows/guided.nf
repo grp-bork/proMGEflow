@@ -23,24 +23,24 @@ print "PARAMS:\n" + params
 workflow guided_annotation {
 
 	handle_input_genomes()
-
 	
 
 	/* genome annotation via prodigal */
+	genome_annotation(handle_input_genomes.out.to_genome_annotation)
 	// genome_annotation(
 	// 	handle_input_genomes.out.to_species_recognition.mix(handle_input_genomes.out.to_genome_annotation)
 	// )
 	
 	// // prodigal output channels
-	// genomes_ch = genome_annotation.out.genomes
+	genomes_ch = genome_annotation.out.genomes
 	// 	// .mix(handle_input_genomes.out.to_recombinase_scan)
-	// genomes_ch.dump(pretty: true, tag: "genomes_ch")
+	genomes_ch.dump(pretty: true, tag: "genomes_ch")
 
-	// /* STEP 2: Run recombinase annotation */
-	// recombinase_annotation(genomes_ch)
+	/* STEP 2: Run recombinase annotation */
+	recombinase_annotation(genomes_ch)
 
-	// /* STEP 2b: Filter by recombinase presence */
-	// with_recombinase_ch = recombinase_annotation.out.genomes
+	/* STEP 2b: Filter by recombinase presence */
+	with_recombinase_ch = recombinase_annotation.out.genomes
 
 
 
