@@ -66,9 +66,10 @@ workflow genome_annotation {
 				.groupTuple(by: [0, 1], sort: true, size: 3)
 		}
 
+		//  [unknown, SAMN10093185-assembled, [speci:unknown, genome_id:SAMN10093185-assembled, genome:/scratch/schudoma/guided_pgf/input/SAMN10093185-assembled.fa.gz], [/scratch/schudoma/guided_pgf/work/22/a20c9f6ade136044da3290126f3b2a/prodigal/SAMN10093185-assembled.fa.gz.faa, /scratch/schudoma/guided_pgf/work/22/a20c9f6ade136044da3290126f3b2a/prodigal/SAMN10093185-assembled.fa.gz.ffn, /scratch/schudoma/guided_pgf/work/22/a20c9f6ade136044da3290126f3b2a/prodigal/SAMN10093185-assembled.fa.gz.gff]]
 		prodigal_output_ch = genomes_ch
 			.join(annotations_ch, by: [0, 1])
-			.map { speci, genome_id, gdata_old, proteins, genes, gff ->
+			.map { speci, genome_id, gdata_old, [proteins, genes, gff] ->
 				def gdata = gdata_old.clone()
 				gdata.proteins = proteins
 				gdata.genes = genes
