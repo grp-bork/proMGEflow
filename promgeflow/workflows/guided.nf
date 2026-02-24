@@ -24,6 +24,8 @@ workflow guided_annotation {
 
 	handle_input_genomes()
 
+	
+
 	/* genome annotation via prodigal */
 	genome_annotation(
 		handle_input_genomes.out.to_species_recognition.mix(handle_input_genomes.out.to_genome_annotation)
@@ -31,7 +33,7 @@ workflow guided_annotation {
 	
 	// prodigal output channels
 	genomes_ch = genome_annotation.out.genomes
-		.mix(handle_input_genomes.out.to_recombinase_scan)
+		// .mix(handle_input_genomes.out.to_recombinase_scan)
 	genomes_ch.dump(pretty: true, tag: "genomes_ch")
 
 	/* STEP 2: Run recombinase annotation */
