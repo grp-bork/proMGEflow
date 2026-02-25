@@ -40,7 +40,7 @@ process extract_recombinase_contigs {
 
 }
 
-params.mgedb = "/g/scb2/bork/grekova/projects/promge_website/14112025/dataset/mge100/mge_sequences_unique.fa"
+params.mgedb = "/scratch/schudoma/databases/mge/mge_sequences_unique.fa"
 params.minimap_x = "asm20"
 
 process map_mgedb {
@@ -58,7 +58,9 @@ process map_mgedb {
 
 	script:
 	"""
-	minimap2 -x ${params.minimap_x} -t ${task.cpus} -a -c -L --eqx --sam-hit-only -o ${genome_id}.${db_id}.sam ${fasta} ${db} 
+	minimap2 -x ${params.minimap_x} -d ${genome_id}.mmi ${fasta}
+
+	minimap2 -x ${params.minimap_x} -t ${task.cpus} -a -c -L --eqx --sam-hit-only -o ${genome_id}.${db_id}.sam ${genome_id}.mmi ${db}
 	"""
 
 
