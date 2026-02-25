@@ -58,7 +58,7 @@ process map_mgedb {
 
 	script:
 	"""
-	minimap2 -x ${params.minimap_x} -t ${task.cpus} -a -c -L --eqx --sam-hit-only -o ${genome_id}.${db_id}.sam ${db} ${fasta}
+	minimap2 -x ${params.minimap_x} -t ${task.cpus} -a -c -L --eqx --sam-hit-only -o ${genome_id}.${db_id}.sam ${fasta} ${db} 
 	"""
 
 
