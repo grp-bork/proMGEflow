@@ -40,6 +40,30 @@ process extract_recombinase_contigs {
 
 }
 
+params.mgedb = "/g/scb2/bork/grekova/projects/promge_website/14112025/dataset/mge100/mge_sequences_unique.fa"
+params.minimap_x = "asm20"
+
+process map_mgedb {
+	container "quay.io/biocontainers/minimap2:2.30--h577a1d6_0"
+	// container "registry.git.embl.org/schudoma/align-docker:latest"
+	memory { 32.GB * task.attempt }
+	time { 8.h * task.attempt }
+	cpus 4
+	tag "${genome_id}"
+
+
+	input:
+	tuple val(genome_id), path(fasta)
+	tuple val(db_id), path(db)
+
+	script:
+	"""
+	minimap2 -x ${params.minimap_x} -t ${task.cpus} -a -c -L --eqx --sam-hit-only -o ${genome_id}.${db_id}.sam ${db} ${fasta}
+	"""
+
+
+}
+
 
 workflow guided_annotation {
 
@@ -70,6 +94,10 @@ workflow guided_annotation {
 			.map { speci, genome_id, gdata -> [ genome_id, gdata.genome, gdata.recomb_gff ] }
 	)
 
+	map_mgedb(
+		extract_recombinase_contigs.out.contigs,
+		["promge100", params.mgedb]
+	)
 
 
 	/* STEP Y Publish recombinase annotations */
