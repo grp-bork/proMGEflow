@@ -56,11 +56,27 @@ process map_mgedb {
 	tuple val(genome_id), path(fasta)
 	tuple val(db_id), path(db)
 
+	output:
+	tuple val(genome_id), path("${genome_id}.${db_id}.sam"), emit: sam
+	tuple val(genome_id), path("${genome_id}.mmi"), emit: index
+
 	script:
 	"""
 	minimap2 -x ${params.minimap_x} -d ${genome_id}.mmi ${fasta}
 
 	minimap2 -x ${params.minimap_x} -t ${task.cpus} -a -c -L --eqx --sam-hit-only -o ${genome_id}.${db_id}.sam ${genome_id}.mmi ${db}
+	"""
+
+
+}
+
+process extract_matches {
+	input:
+	tuple val(genome_id), path(sam)
+
+	script:
+	"""
+	guide.py ${sam} > \$(basename ${sam} .sam).bed
 	"""
 
 
@@ -100,6 +116,8 @@ workflow guided_annotation {
 		extract_recombinase_contigs.out.contigs,
 		["promge100", params.mgedb]
 	)
+
+	extract_matches(map_mgedb.out.sam)
 
 
 	/* STEP Y Publish recombinase annotations */
