@@ -20,6 +20,27 @@ params.genome_buffer_size = 100
 print "PARAMS:\n" + params
 
 
+process extract_recombinase_contigs {
+	container "quay.io/biocontainers/seqtk:1.5--h577a1d6_1"
+	memory { 4.GB * task.attempt }
+	time { 2.h * task.attempt }
+	tag "${genome_id}"
+
+	input:
+	tuple val(genome_id), path(fasta), path(gff)
+
+	output:
+	tuple val(genome_id), path("${genome_id}.recombinase_contigs.fa.gz"), emit: contigs
+
+	script:
+	"""
+	seqtk subseq ${fasta} <(zgrep -v "^#" ${gff} | cut -f 1 | uniq | sort -u) | gzip -c - > ${genome_id}.recombinase_contigs.fa.gz
+	"""
+	// seqtk subseq ${sample.id}_1.fastq chimeras.txt >> chimeras.fastq
+
+}
+
+
 workflow guided_annotation {
 
 	handle_input_genomes()
@@ -43,6 +64,11 @@ workflow guided_annotation {
 
 	/* STEP 2b: Filter by recombinase presence */
 	with_recombinase_ch = recombinase_annotation.out.genomes
+
+	extract_recombinase_contigs(
+		with_recombinase_ch
+			.map { speci, genome_id, gdata -> [ genome_id, gdata.genome, gdata.recomb_gff ] }
+	)
 
 
 
