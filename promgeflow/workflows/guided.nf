@@ -34,7 +34,7 @@ process extract_recombinase_contigs {
 
 	script:
 	"""
-	seqtk subseq ${fasta} <(zgrep -v "^#" ${gff} | cut -f 1 | uniq | sort -u) | gzip -c - > ${genome_id}.recombinase_contigs.fa.gz
+	seqtk subseq ${fasta} <(grep -v "^#" ${gff} | cut -f 1 | uniq | sort -u) | gzip -c - > ${genome_id}.recombinase_contigs.fa.gz
 	"""
 	// seqtk subseq ${sample.id}_1.fastq chimeras.txt >> chimeras.fastq
 
