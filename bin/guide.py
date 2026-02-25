@@ -16,7 +16,7 @@ def parse_cigar(start, cigar):
 		if op in ("S", "H"):
 			if p == start:
 				start += n
-			p += n
+			# p += n
 		elif op in ("=", "X", "D", "N"):
 			p += n
 			mis += n * (op == "X")
