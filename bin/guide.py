@@ -21,7 +21,8 @@ def parse_cigar(start, cigar):
 		n, op = int(match[:-1]), match[-1]
 		if op in ("S", "H"):
 			if p == start:
-				start += n
+				start += (n + 1)
+				p = start
 			else:
 				# end = p
 				length = n
