@@ -45,7 +45,7 @@ params.minimap_x = "asm20"
 
 process map_mgedb {
 	// container "quay.io/biocontainers/minimap2:2.30--h577a1d6_0"
-	container "registry.git.embl.org/schudoma/align-docker:latest"
+	container "registry.git.embl.org/schudoma/align-docker:with_minimap2"
 	memory { 32.GB * task.attempt }
 	time { 8.h * task.attempt }
 	cpus 4
