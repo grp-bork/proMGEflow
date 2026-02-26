@@ -44,8 +44,8 @@ params.mgedb = "/scratch/schudoma/databases/mge/mge_sequences_unique.fa"
 params.minimap_x = "asm20"
 
 process map_mgedb {
-	container "quay.io/biocontainers/minimap2:2.30--h577a1d6_0"
-	// container "registry.git.embl.org/schudoma/align-docker:latest"
+	// container "quay.io/biocontainers/minimap2:2.30--h577a1d6_0"
+	container "registry.git.embl.org/schudoma/align-docker:latest"
 	memory { 32.GB * task.attempt }
 	time { 8.h * task.attempt }
 	cpus 4
@@ -64,7 +64,7 @@ process map_mgedb {
 	"""
 	minimap2 -x ${params.minimap_x} -d ${genome_id}.mmi ${fasta}
 
-	minimap2 -x ${params.minimap_x} -t ${task.cpus} -a -c -L --eqx --sam-hit-only -o ${genome_id}.${db_id}.sam ${genome_id}.mmi ${db}
+	minimap2 -x ${params.minimap_x} -t ${task.cpus} -a -c -L --eqx --sam-hit-only ${genome_id}.mmi ${db} | samtools sort -O SAM -o ${genome_id}.${db_id}.sam 
 	"""
 
 
