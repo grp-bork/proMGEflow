@@ -71,6 +71,8 @@ process map_mgedb {
 }
 
 process extract_matches {
+	time { 30.m * task.attempt }
+
 	input:
 	tuple val(genome_id), path(sam)
 
