@@ -76,12 +76,28 @@ process extract_matches {
 	input:
 	tuple val(genome_id), path(sam)
 
+	output:
+	tuple val(genome_id), path("*.bed"), emit: bed
+
 	script:
 	"""
 	guide.py ${sam} > \$(basename ${sam} .sam).bed
 	"""
 
 
+}
+
+process check_recombinase_hits {
+	container "quay.io/biocontainers/bedtools:2.31.1--h13024bc_3"
+	time { 30.m * task.attempt }
+
+	input:
+	tuple val(genome_id), path(bed), path(gff)
+
+	script:
+	"""
+	bedtools intersect -wo -a ${bed} -b ${gff} > ${genome_id}.recombinase_hits.tsv
+	"""
 }
 
 
@@ -121,6 +137,14 @@ workflow guided_annotation {
 
 	extract_matches(map_mgedb.out.sam)
 
+
+	ch = extract_matches.out.bed.join(
+		with_recombinase_ch
+			.map { speci, genome_id, gdata -> [ genome_id, gdata.recomb_gff ] },
+		by: 0
+	) 
+
+	check_recombinase_hits(ch)
 
 	/* STEP Y Publish recombinase annotations */
 
