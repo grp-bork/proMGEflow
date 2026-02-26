@@ -3,7 +3,7 @@
 import re
 import sys
 
-CIGAR_RE = re.compile('r([0-9]+[MIDNSH=X])')
+CIGAR_RE = re.compile(r'([0-9]+[MIDNSH=X])')
 
 
 def parse_cigar(start, cigar):
@@ -12,6 +12,11 @@ def parse_cigar(start, cigar):
 	length = 0
 	
 	# 662S23=1X5=1X2=1X26=1X90=1X10=1X137=1X21=1X17=
+	# 11789S261=1X181=1X324=15262S
+	# start = 11790
+	# + 261 + 1 + 181 + 1 + 324
+
+
 	for match in CIGAR_RE.findall(cigar):
 		n, op = int(match[:-1]), match[-1]
 		if op in ("S", "H"):
@@ -27,6 +32,7 @@ def parse_cigar(start, cigar):
 			dels += n * (op in ("D", "N"))
 		elif op == "I":
 			ins += n
+		print(match, start, p, length, mis, dels, ins)
 
 	length += (p - start)
 
