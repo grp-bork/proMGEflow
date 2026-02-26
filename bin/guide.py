@@ -32,7 +32,7 @@ def parse_cigar(start, cigar):
 			dels += n * (op in ("D", "N"))
 		elif op == "I":
 			ins += n
-		print(match, start, p, length, mis, dels, ins)
+		# print(match, start, p, length, mis, dels, ins)
 
 	length += (p - start)
 
