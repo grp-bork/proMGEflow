@@ -4,7 +4,7 @@ import csv
 import sys
 
 from collections import Counter
-
+from contextlib import nullcontext
 
 def main():
 
@@ -13,7 +13,12 @@ def main():
 	key = None
 	n_aln, coverage = 0, Counter()
 
-	with open(sys.argv[1], 'rt') as _in, open(sys.argv[2], 'wt') as _out:
+	if sys.argv[1] == "-":
+		_in = nullcontext()
+	else:
+		_in = open(sys.argv[1], 'rt')
+
+	with _in, open(sys.argv[2], 'wt') as _out:
 		for row in csv.reader(_in, delimiter='\t'):
 			contig, mge_start, mge_end, mge, _, _, _, rec_start, rec_end, _, _, _, recombinase, overlap = row
 
