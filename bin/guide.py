@@ -46,11 +46,14 @@ def main():
 			if new_key != key:
 				if key is not None:
 					fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
-					for c_start in range(rec_start, min(coverage) + 1, -1):
+					c_start, c_end = rec_start, rec_end
+					for c in range(rec_start, min(coverage) + 1, -1):
+						c_start = c
 						if fr_coverage[c_start] < 0.5:
 							c_start += 1
 							break
-					for c_end in range(rec_end, max(coverage) + 1):
+					for c in range(rec_end, max(coverage) + 1):
+						c_end = c
 						if fr_coverage[c_end] < 0.5:
 							c_end -= 1
 							break
@@ -76,11 +79,14 @@ def main():
 			# print(*row, sep='\t')
 		if key is not None:
 			fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
-			for c_start in range(rec_start, min(coverage), -1):
+			c_start, c_end = rec_start, rec_end
+			for c in range(rec_start, min(coverage) - 1, -1):
+				c_start = c
 				if fr_coverage[c_start] < 0.5:
 					c_start += 1
 					break
-			for c_end in range(rec_end, max(coverage) + 1):
+			for c in range(rec_end, max(coverage) + 1):
+				c_end = c
 				if fr_coverage[c_end] < 0.5:
 					c_end -= 1
 					break
