@@ -97,7 +97,7 @@ process check_recombinase_hits {
 	tuple val(genome_id), path(bed), path(gff)
 
 	output:
-	tuple val(genome_id), path(table), emit: results
+	tuple val(genome_id), path("${genome_id}.recombinase_hits.tsv"), emit: results
 
 	script:
 	"""
