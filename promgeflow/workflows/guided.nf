@@ -106,6 +106,7 @@ process check_recombinase_hits {
 }
 
 process extract_mge_candidates {
+	container "ghcr.io/cschu/mgexpose:v3.8.0"
 	time { 2.h * task.attempt }
 	memory { 16.GB * task.attempt }
 	tag "${genome_id}"
