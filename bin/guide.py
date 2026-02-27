@@ -15,8 +15,16 @@ def main():
 			alen = mge_end - (mge_start + 1) # mge_start comes from bed, so is 0-based!
 			rlen = rec_end - rec_start + 1  # rec_start comes from gff, so is 1-based
 
-			if abs(alen - rlen) > 100:
-				print(*row, sep='\t')
+			if alen < rlen:
+				# aligned part is shorter than mge-recombinase
+				continue
+
+			if not (mge_start <= rec_start and rec_end <= mge_end):
+				# mge/recombinase overlap is guaranteed by input
+				# discard partial recombinase hits
+				continue
+			
+			print(*row, sep='\t')
 
 
 
