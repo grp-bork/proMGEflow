@@ -10,7 +10,7 @@ def main():
 
 			# MGE_SAMEA3888906.psa_megahit.psb_metabat2.00002_k119_43134:104944-125189;20247:18:0:0:0:19671:60;576;575M19671S
 			mge, scores, alen, cigar = mge.split(";")
-			_, mis, dels, ins, clips5, clips3 = map(int, scores)
+			_, mis, dels, ins, clips5, clips3, mapq = map(int, scores.split(":"))
 			mge_start, mge_end, rec_start, rec_end, overlap, alen = map(int, (mge_start, mge_end, rec_start, rec_end, overlap, alen))
 			alen = mge_end - (mge_start + 1) # mge_start comes from bed, so is 0-based!
 			rlen = rec_end - rec_start + 1  # rec_start comes from gff, so is 1-based
