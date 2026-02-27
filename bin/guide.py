@@ -42,11 +42,12 @@ def main():
 				# discard partial recombinase hits
 				continue
 			
-			new_key = (contig, mge_start + 1, mge_end, rec_start, rec_end, recombinase.split(";")[0].split("=")[1])
+			new_key = (contig, rec_start, rec_end, recombinase.split(";")[0].split("=")[1])
 			if new_key != key:
 				if key is not None:
 					fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
 					c_start, c_end = rec_start, rec_end
+					mge_start, mge_end = min(coverage), max(coverage)
 					for c in range(rec_start, min(coverage) + 1, -1):
 						c_start = c
 						if fr_coverage[c_start] < 0.5:
@@ -63,7 +64,7 @@ def main():
 					lc_mge_coverage = sum(fr_coverage[c] for c in range(mge_start, mge_end + 1)) / (mge_end - mge_start + 1)
 
 					print(
-						*key, n_aln, round(hc_mge_coverage, 3), round(lc_mge_coverage, 3), round(rec_coverage, 3),
+						*key, mge_start, mge_end, c_start, c_end, n_aln, round(hc_mge_coverage, 3), round(lc_mge_coverage, 3), round(rec_coverage, 3),
 						file=_out,
 						sep="\t"
 					)
@@ -76,10 +77,11 @@ def main():
 			# ra[0] += 1
 			# ra[1].update(range(mge_start + 1, mge_end + 1))
 
-			# print(*row, sep='\t')
+			print(*row, sep='\t')
 		if key is not None:
 			fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
 			c_start, c_end = rec_start, rec_end
+			mge_start, mge_end = min(coverage), max(coverage)
 			for c in range(rec_start, min(coverage) - 1, -1):
 				c_start = c
 				if fr_coverage[c_start] < 0.5:
@@ -96,7 +98,7 @@ def main():
 			lc_mge_coverage = sum(fr_coverage[c] for c in range(mge_start, mge_end + 1)) / (mge_end - mge_start + 1)
 
 			print(
-				*key, n_aln, round(hc_mge_coverage, 3), round(lc_mge_coverage, 3), round(rec_coverage, 3),
+				*key, mge_start, mge_end, c_start, c_end, n_aln, round(hc_mge_coverage, 3), round(lc_mge_coverage, 3), round(rec_coverage, 3),
 				file=_out,
 				sep="\t"
 			)
