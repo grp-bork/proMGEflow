@@ -14,11 +14,11 @@ def main():
 	n_aln, coverage = 0, Counter()
 
 	if sys.argv[1] == "-":
-		_in = nullcontext()
+		_in, stream = sys.stdin, nullcontext()
 	else:
-		_in = open(sys.argv[1], 'rt')
+		_in = stream = open(sys.argv[1], 'rt')
 
-	with _in, open(sys.argv[2], 'wt') as _out:
+	with stream, open(sys.argv[2], 'wt') as _out:
 		for row in csv.reader(_in, delimiter='\t'):
 			contig, mge_start, mge_end, mge, _, _, _, rec_start, rec_end, _, _, _, recombinase, overlap = row
 
