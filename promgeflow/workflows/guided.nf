@@ -72,6 +72,7 @@ process map_mgedb {
 
 process extract_matches {
 	time { 30.m * task.attempt }
+	tag "${genome_id}"
 
 	input:
 	tuple val(genome_id), path(sam)
@@ -90,6 +91,7 @@ process extract_matches {
 process check_recombinase_hits {
 	container "quay.io/biocontainers/bedtools:2.31.1--h13024bc_3"
 	time { 30.m * task.attempt }
+	tag "${genome_id}"
 
 	input:
 	tuple val(genome_id), path(bed), path(gff)
@@ -105,6 +107,7 @@ process check_recombinase_hits {
 
 process extract_mge_candidates {
 	time { 30.m * task.attempt }
+	tag "${genome_id}"
 
 	input:
 	tuple val(genome_id), path(table)
