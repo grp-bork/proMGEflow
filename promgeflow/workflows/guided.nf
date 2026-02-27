@@ -107,7 +107,7 @@ process check_recombinase_hits {
 
 process extract_mge_candidates {
 	time { 2.h * task.attempt }
-	memory { 8.GB * task.attempt }
+	memory { 16.GB * task.attempt }
 	tag "${genome_id}"
 
 	input:

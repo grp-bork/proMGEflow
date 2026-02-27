@@ -54,9 +54,9 @@ def main():
 						c_end -= 1
 						break
 				
-				rec_coverage = sum(fr_coverage[c] for c in range(rec_start, rec_end + 1))
-				hc_mge_coverage = sum(fr_coverage[c] for c in range(c_start, c_end + 1))
-				lc_mge_coverage = sum(fr_coverage[c] for c in range(mge_start, mge_end + 1))
+				rec_coverage = sum(coverage[c] for c in range(rec_start, rec_end + 1)) / n_aln
+				hc_mge_coverage = sum(coverage[c] for c in range(c_start, c_end + 1)) / n_aln
+				lc_mge_coverage = sum(coverage[c] for c in range(mge_start, mge_end + 1)) / n_aln
 
 				print(
 					contig, c_start, c_end, mge_start, mge_end, rec_start, rec_end, recombinase, n_aln, round(hc_mge_coverage, 3), round(lc_mge_coverage, 3), round(rec_coverage, 3),
