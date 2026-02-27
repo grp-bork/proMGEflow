@@ -81,7 +81,7 @@ process extract_matches {
 
 	script:
 	"""
-	guide.py ${sam} > \$(basename ${sam} .sam).bed
+	guide_extract_matches.py ${sam} > \$(basename ${sam} .sam).bed
 	"""
 
 
@@ -94,9 +94,24 @@ process check_recombinase_hits {
 	input:
 	tuple val(genome_id), path(bed), path(gff)
 
+	output:
+	tuple val(genome_id), path(table), emit: results
+
 	script:
 	"""
 	bedtools intersect -wo -a ${bed} -b ${gff} > ${genome_id}.recombinase_hits.tsv
+	"""
+}
+
+process extract_mge_candidates {
+	time { 30.m * task.attempt }
+
+	input:
+	tuple val(genome_id), path(table)
+
+	script:
+	"""
+	guide.py ${table} > ${genome_id}.mge_candidates.tsv
 	"""
 }
 
@@ -145,6 +160,8 @@ workflow guided_annotation {
 	) 
 
 	check_recombinase_hits(ch)
+
+	extract_mge_candidates(check_recombinase_hits.out.results)
 
 	/* STEP Y Publish recombinase annotations */
 
