@@ -48,7 +48,7 @@ def parse_cigar(start, cigar):
 
 	length += (p - start + 1)
 
-	return start, p, length, mis, dels, ins, clips5, clips3, "".join(f"{n}{op}" for n, op in ops)
+	return start, p, length, mis, dels, ins, clips5, clips3, re.sub(r'[=X]', "M", "".join(f"{n}{op}" for n, op in ops))
 
 		
 
