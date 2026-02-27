@@ -15,7 +15,7 @@ def parse_cigar(start, cigar):
 	# 11789S261=1X181=1X324=15262S
 	# start = 11790
 	# + 261 + 1 + 181 + 1 + 324
-
+	ops = []
 
 	for match in CIGAR_RE.findall(cigar):
 		n, op = int(match[:-1]), match[-1]
@@ -28,13 +28,22 @@ def parse_cigar(start, cigar):
 				# end = p
 				length = n
 				clips3 += n
+			ops.append((n, op))
 
 		elif op in ("=", "X", "D", "N", "M"):
 			p += n
 			mis += n * (op == "X")
 			dels += n * (op in ("D", "N"))
+			if op in ("=", "X"):
+				if ops and ops[-1][1] in ("=", "X"):
+					ops[-1][0] += n
+				else:
+					ops.append((n, op))
 		elif op == "I":
 			ins += n
+			ops.append((n, op))
+		else:
+			raise ValueError(f"Unknown cigar op {op}.")
 		# print(match, start, p, length, mis, dels, ins)
 
 	length += (p - start + 1)
