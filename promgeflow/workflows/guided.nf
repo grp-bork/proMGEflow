@@ -116,7 +116,7 @@ process extract_mge_candidates {
 
 	script:
 	"""
-	sort -k1,1 ${table} | guide.py - ${genome_id}.mge_candidates.tsv > ${genome_id}.mge_candidates.raw.tsv
+	sort -k1,1 -k8,8g -k9,9g ${table} | guide.py - ${genome_id}.mge_candidates.tsv > ${genome_id}.mge_candidates.raw.tsv
 	"""
 }
 
