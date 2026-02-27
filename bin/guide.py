@@ -28,7 +28,7 @@ def parse_cigar(start, cigar):
 				# end = p
 				length = n
 				clips3 += n
-			ops.append((n, op))
+			ops.append([n, op])
 
 		elif op in ("=", "X", "D", "N", "M"):
 			p += n
@@ -38,10 +38,10 @@ def parse_cigar(start, cigar):
 				if ops and ops[-1][1] in ("=", "X"):
 					ops[-1][0] += n
 				else:
-					ops.append((n, op))
+					ops.append([n, op])
 		elif op == "I":
 			ins += n
-			ops.append((n, op))
+			ops.append([n, op])
 		else:
 			raise ValueError(f"Unknown cigar op {op}.")
 		# print(match, start, p, length, mis, dels, ins)
