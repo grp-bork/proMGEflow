@@ -8,7 +8,7 @@ CIGAR_RE = re.compile(r'([0-9]+[MIDNSH=X])')
 
 def parse_cigar(start, cigar):
 	p = start
-	mis, dels, ins = 0, 0, 0
+	mis, dels, ins, clips5, clips3 = 0, 0, 0, 0, 0
 	length = 0
 	
 	# 662S23=1X5=1X2=1X26=1X90=1X10=1X137=1X21=1X17=
@@ -23,11 +23,13 @@ def parse_cigar(start, cigar):
 			if p == start:
 				start += (n + 1)
 				p = start
+				clips5 += n
 			else:
 				# end = p
 				length = n
+				clips3 += n
 
-		elif op in ("=", "X", "D", "N"):
+		elif op in ("=", "X", "D", "N", "M"):
 			p += n
 			mis += n * (op == "X")
 			dels += n * (op in ("D", "N"))
@@ -35,9 +37,9 @@ def parse_cigar(start, cigar):
 			ins += n
 		# print(match, start, p, length, mis, dels, ins)
 
-	length += (p - start)
+	length += (p - start + 1)
 
-	return start, p, length, mis, dels, ins
+	return start, p, length, mis, dels, ins, clips5, clips3
 
 		
 
@@ -60,7 +62,8 @@ def main():
 
 				start, end, *scores = parse_cigar(start, cigar)
 				scores = ":".join(map(str, (scores + [mapq,])))
-				print(contig, start - 1, end, f"{mge_id};{scores}", sep="\t")
+				cigar = re.sub(r'[X=]', "M", cigar)
+				print(contig, start - 1, end, f"{mge_id};{scores};{end-start+1};{cigar}", sep="\t")
 
 
 
