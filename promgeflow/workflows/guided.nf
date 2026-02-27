@@ -114,7 +114,7 @@ process extract_mge_candidates {
 
 	script:
 	"""
-	guide.py ${table} > ${genome_id}.mge_candidates.tsv
+	guide.py ${table} ${genome_id}.mge_candidates.tsv > ${genome_id}.mge_candidates.raw.tsv
 	"""
 }
 

@@ -3,7 +3,13 @@
 import csv
 import sys
 
+from collections import Counter
+
+
 def main():
+
+	recombinase_anchors = {}
+
 	with open(sys.argv[1], 'rt') as _in:
 		for row in csv.reader(_in, delimiter='\t'):
 			contig, mge_start, mge_end, mge, _, _, _, rec_start, rec_end, _, _, _, recombinase, overlap = row
@@ -15,6 +21,10 @@ def main():
 			alen = mge_end - (mge_start + 1) # mge_start comes from bed, so is 0-based!
 			rlen = rec_end - rec_start + 1  # rec_start comes from gff, so is 1-based
 
+			if "H" in cigar:
+				# supplementary/secondary alignment
+				continue
+
 			if alen < rlen:
 				# aligned part is shorter than mge-recombinase
 				continue
@@ -24,7 +34,38 @@ def main():
 				# discard partial recombinase hits
 				continue
 			
+			ra = recombinase_anchors.setdefault((contig, mge_start + 1, mge_end, rec_start, rec_end, recombinase.split(";")[0].split("=")[1]), [0, Counter()])
+			ra[0] += 1
+			ra[1].update(range(mge_start + 1, mge_end + 1))
+
 			print(*row, sep='\t')
+
+
+		with open(sys.argv[2], "wt") as _out:
+
+			for (contig, mge_start, mge_end, rec_start, rec_end, recombinase), (n_aln, coverage) in recombinase_anchors.items():
+				fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
+				for c_start in range(rec_start, min(coverage), -1):
+					if fr_coverage[c_start] < 0.5:
+						c_start += 1
+						break
+				for c_end in range(rec_end, max(coverage) + 1):
+					if fr_coverage[c_end] < 0.5:
+						c_end -= 1
+						break
+				
+				rec_coverage = sum(fr_coverage[c] for c in range(rec_start, rec_end + 1))
+				hc_mge_coverage = sum(fr_coverage[c] for c in range(c_start, c_end + 1))
+				lc_mge_coverage = sum(fr_coverage[c] for c in range(mge_start, mge_end + 1))
+
+				print(
+					contig, c_start, c_end, mge_start, mge_end, rec_start, rec_end, recombinase, n_aln, round(hc_mge_coverage, 3), round(lc_mge_coverage, 3), round(rec_coverage, 3),
+					file=_out,
+					sep="\t"
+				)
+
+			
+
 
 
 
