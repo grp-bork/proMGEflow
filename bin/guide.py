@@ -46,7 +46,7 @@ def main():
 			if new_key != key:
 				if key is not None:
 					fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
-					for c_start in range(rec_start, min(coverage), -1):
+					for c_start in range(rec_start, min(coverage) + 1, -1):
 						if fr_coverage[c_start] < 0.5:
 							c_start += 1
 							break
