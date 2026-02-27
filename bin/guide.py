@@ -48,7 +48,7 @@ def parse_cigar(start, cigar):
 
 	length += (p - start + 1)
 
-	return start, p, length, mis, dels, ins, clips5, clips3
+	return start, p, length, mis, dels, ins, clips5, clips3, "".join(f"{n}{op}" for n, op in ops)
 
 		
 
@@ -69,10 +69,10 @@ def main():
 				contig, start, cigar = fields[2], int(fields[3]), fields[5]
 				mge_id, mapq = fields[0], int(fields[4])
 
-				start, end, *scores = parse_cigar(start, cigar)
+				start, end, *scores, small_cigar = parse_cigar(start, cigar)
 				scores = ":".join(map(str, (scores + [mapq,])))
-				cigar = re.sub(r'[X=]', "M", cigar)
-				print(contig, start - 1, end, f"{mge_id};{scores};{end-start+1};{cigar}", sep="\t")
+				# cigar = re.sub(r'[X=]', "M", cigar)
+				print(contig, start - 1, end, f"{mge_id};{scores};{end-start+1};{small_cigar}", sep="\t")
 
 
 
