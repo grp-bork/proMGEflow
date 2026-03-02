@@ -79,7 +79,7 @@ def main():
 						mge_start, mge_end,
 						c_start, c_end,
 						n_aln,
-						round(hc_mge_coverage, 3), round(lc_mge_coverage, 3), round(rec_coverage, 3),
+						round(rec_coverage, 3), round(lc_mge_coverage, 3), round(hc_mge_coverage, 3),
 						file=_out,
 						sep="\t"
 					)
