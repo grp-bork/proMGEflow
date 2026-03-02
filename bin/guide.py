@@ -19,6 +19,13 @@ def main():
 		_in = stream = open(sys.argv[1], 'rt')
 
 	with stream, open(sys.argv[2], 'wt') as _out:
+		header = [
+			"contig", "rstart", "rend", "recombinase",
+			"mstart_lo", "mend_lo", "mstart_hi", "mend_hi",
+			"n_aln", "rcov", "mcov_lo", "mcov_hi",
+		]
+		print(*header, sep="\t", file=_out)
+
 		for row in csv.reader(_in, delimiter='\t'):
 			contig, mge_start, mge_end, mge, _, _, _, rec_start, rec_end, _, _, _, recombinase, overlap = row
 
@@ -59,12 +66,20 @@ def main():
 							c_end -= 1
 							break
 					
-					rec_coverage = sum(fr_coverage[c] for c in range(rec_start, rec_end + 1)) / (rec_end - rec_start + 1)
-					hc_mge_coverage = sum(fr_coverage[c] for c in range(c_start, c_end + 1)) / (c_end - c_start + 1)
-					lc_mge_coverage = sum(fr_coverage[c] for c in range(mge_start, mge_end + 1)) / (mge_end - mge_start + 1)
+					rec_pileup = sum(fr_coverage[c] for c in range(rec_start, rec_end + 1))
+					hc_mge_pileup = sum(fr_coverage[c] for c in range(c_start, c_end + 1))
+					lc_mge_pileup = sum(fr_coverage[c] for c in range(mge_start, mge_end + 1))
+
+					rec_coverage = rec_pileup / (rec_end - rec_start + 1)
+					hc_mge_coverage = hc_mge_pileup / (c_end - c_start + 1)
+					lc_mge_coverage = lc_mge_pileup / (mge_end - mge_start + 1)					
 
 					print(
-						*key, mge_start, mge_end, c_start, c_end, n_aln, round(hc_mge_coverage, 3), round(lc_mge_coverage, 3), round(rec_coverage, 3),
+						*key,
+						mge_start, mge_end,
+						c_start, c_end,
+						n_aln,
+						round(hc_mge_coverage, 3), round(lc_mge_coverage, 3), round(rec_coverage, 3),
 						file=_out,
 						sep="\t"
 					)
