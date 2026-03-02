@@ -134,7 +134,12 @@ process add_genes {
 
 	script:
 	"""
-	bedtools intersect -wo -a ${bed} -b ${gff} > ${genome_id}.mge_candidates.with_genes.tsv
+	head -1 ${gff} > tmp.gff
+	grep -v "^#" ${gff} >> tmp.gff
+
+	bedtools intersect -wo -a ${bed} -b tmp.gff > ${genome_id}.mge_candidates.with_genes.tsv
+
+	rm -frv tmp.gff
 	"""
 }
 
