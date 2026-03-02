@@ -90,7 +90,7 @@ def main():
                 island[0],
                 "proMGE_guide",
                 "region",
-                island[1] + 1,
+                int(island[1]) + 1,
                 island[2],
                 ".",
                 ".",
