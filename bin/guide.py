@@ -72,7 +72,7 @@ def main():
 
 					rec_coverage = rec_pileup / (rec_end - rec_start + 1)
 					hc_mge_coverage = hc_mge_pileup / (c_end - c_start + 1)
-					lc_mge_coverage = lc_mge_pileup / (mge_end - mge_start + 1)					
+					lc_mge_coverage = lc_mge_pileup / (mge_end - mge_start + 1)
 
 					print(
 						*key,
@@ -81,7 +81,7 @@ def main():
 						n_aln,
 						round(rec_coverage, 3), round(lc_mge_coverage, 3), round(hc_mge_coverage, 3),
 						file=_out,
-						sep="\t"
+						sep="\t",
 					)
 				key = new_key
 				n_aln, coverage = 0, Counter()
@@ -108,14 +108,22 @@ def main():
 					c_end -= 1
 					break
 			
-			rec_coverage = sum(fr_coverage[c] for c in range(rec_start, rec_end + 1)) / (rec_end - rec_start + 1)
-			hc_mge_coverage = sum(fr_coverage[c] for c in range(c_start, c_end + 1)) / (c_end - c_start + 1)
-			lc_mge_coverage = sum(fr_coverage[c] for c in range(mge_start, mge_end + 1)) / (mge_end - mge_start + 1)
+			rec_pileup = sum(fr_coverage[c] for c in range(rec_start, rec_end + 1))
+			hc_mge_pileup = sum(fr_coverage[c] for c in range(c_start, c_end + 1))
+			lc_mge_pileup = sum(fr_coverage[c] for c in range(mge_start, mge_end + 1))
+
+			rec_coverage = rec_pileup / (rec_end - rec_start + 1)
+			hc_mge_coverage = hc_mge_pileup / (c_end - c_start + 1)
+			lc_mge_coverage = lc_mge_pileup / (mge_end - mge_start + 1)
 
 			print(
-				*key, mge_start, mge_end, c_start, c_end, n_aln, round(hc_mge_coverage, 3), round(lc_mge_coverage, 3), round(rec_coverage, 3),
+				*key,
+				mge_start, mge_end,
+				c_start, c_end,
+				n_aln,
+				round(rec_coverage, 3), round(lc_mge_coverage, 3), round(hc_mge_coverage, 3),
 				file=_out,
-				sep="\t"
+				sep="\t",
 			)
 
 		# with open(sys.argv[2], "wt") as _out:
