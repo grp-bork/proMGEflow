@@ -6,6 +6,39 @@ import sys
 from collections import Counter
 from contextlib import nullcontext
 
+
+def process_recombinase(coverage, n_aln, rec_start, rec_end):
+	fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
+	c_start, c_end = rec_start, rec_end
+	mge_start, mge_end = min(coverage), max(coverage)
+	for c in range(rec_start, min(coverage) + 1, -1):
+		c_start = c
+		if fr_coverage[c_start] < 0.5:
+			c_start += 1
+			break
+	for c in range(rec_end, max(coverage) + 1):
+		c_end = c
+		if fr_coverage[c_end] < 0.5:
+			c_end -= 1
+			break
+	
+	rec_pileup = sum(fr_coverage[c] for c in range(rec_start, rec_end + 1))
+	hc_mge_pileup = sum(fr_coverage[c] for c in range(c_start, c_end + 1))
+	lc_mge_pileup = sum(fr_coverage[c] for c in range(mge_start, mge_end + 1))
+
+	rec_coverage = rec_pileup / (rec_end - rec_start + 1)
+	hc_mge_coverage = hc_mge_pileup / (c_end - c_start + 1)
+	lc_mge_coverage = lc_mge_pileup / (mge_end - mge_start + 1)
+
+	return (
+		mge_start, mge_end,
+		c_start, c_end,
+		n_aln,
+		round(rec_coverage, 3), round(lc_mge_coverage, 3), round(hc_mge_coverage, 3),
+	)
+
+
+
 def main():
 
 	# recombinase_anchors = {}
@@ -18,7 +51,7 @@ def main():
 	else:
 		_in = stream = open(sys.argv[1], 'rt')
 
-	with stream, open(sys.argv[2], 'wt') as _out:
+	with stream, open(f"{sys.argv[2]}.mge_candidates.tsv", 'wt') as _out, open(f"{sys.argv[2]}.mge_candidates.raw.tsv", "wt") as raw_out:
 		header = [
 			"contig", "rstart", "rend", "recombinase",
 			"mstart_lo", "mend_lo", "mstart_hi", "mend_hi",
@@ -52,79 +85,83 @@ def main():
 			new_key = (contig, rec_start, rec_end, recombinase.split(";")[0].split("=")[1])
 			if new_key != key:
 				if key is not None:
-					fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
-					c_start, c_end = rec_start, rec_end
-					mge_start, mge_end = min(coverage), max(coverage)
-					for c in range(rec_start, min(coverage) + 1, -1):
-						c_start = c
-						if fr_coverage[c_start] < 0.5:
-							c_start += 1
-							break
-					for c in range(rec_end, max(coverage) + 1):
-						c_end = c
-						if fr_coverage[c_end] < 0.5:
-							c_end -= 1
-							break
+					res = process_recombinase(coverage, n_aln, *key[1:3],)
+					print(*key, *res, sep="\t", file=_out,)
+
+					# fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
+					# c_start, c_end = key[1], key[2]
+					# mge_start, mge_end = min(coverage), max(coverage)
+					# for c in range(key[1], min(coverage) + 1, -1):
+					# 	c_start = c
+					# 	if fr_coverage[c_start] < 0.5:
+					# 		c_start += 1
+					# 		break
+					# for c in range(key[2], max(coverage) + 1):
+					# 	c_end = c
+					# 	if fr_coverage[c_end] < 0.5:
+					# 		c_end -= 1
+					# 		break
 					
-					rec_pileup = sum(fr_coverage[c] for c in range(rec_start, rec_end + 1))
-					hc_mge_pileup = sum(fr_coverage[c] for c in range(c_start, c_end + 1))
-					lc_mge_pileup = sum(fr_coverage[c] for c in range(mge_start, mge_end + 1))
+					# rec_pileup = sum(fr_coverage[c] for c in range(rec_start, rec_end + 1))
+					# hc_mge_pileup = sum(fr_coverage[c] for c in range(c_start, c_end + 1))
+					# lc_mge_pileup = sum(fr_coverage[c] for c in range(mge_start, mge_end + 1))
 
-					rec_coverage = rec_pileup / (rec_end - rec_start + 1)
-					hc_mge_coverage = hc_mge_pileup / (c_end - c_start + 1)
-					lc_mge_coverage = lc_mge_pileup / (mge_end - mge_start + 1)
+					# rec_coverage = rec_pileup / (key[2] - key[1] + 1)
+					# hc_mge_coverage = hc_mge_pileup / (c_end - c_start + 1)
+					# lc_mge_coverage = lc_mge_pileup / (mge_end - mge_start + 1)
 
-					print(
-						*key,
-						mge_start, mge_end,
-						c_start, c_end,
-						n_aln,
-						round(rec_coverage, 3), round(lc_mge_coverage, 3), round(hc_mge_coverage, 3),
-						file=_out,
-						sep="\t",
-					)
+					# print(
+					# 	*key,
+					# 	mge_start, mge_end,
+					# 	c_start, c_end,
+					# 	n_aln,
+					# 	round(rec_coverage, 3), round(lc_mge_coverage, 3), round(hc_mge_coverage, 3),
+					# 	file=_out,
+					# 	sep="\t",
+					# )
 				key = new_key
 				n_aln, coverage = 0, Counter()
 
 			n_aln += 1
 			coverage.update(range(mge_start + 1, mge_end + 1))
-			# ra = recombinase_anchors.setdefault(, [0, Counter()])
-			# ra[0] += 1
-			# ra[1].update(range(mge_start + 1, mge_end + 1))
 
-			print(*row, sep='\t')
+
+			print(*row, sep='\t', file=raw_out,)
+
 		if key is not None:
-			fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
-			c_start, c_end = rec_start, rec_end
-			mge_start, mge_end = min(coverage), max(coverage)
-			for c in range(rec_start, min(coverage) - 1, -1):
-				c_start = c
-				if fr_coverage[c_start] < 0.5:
-					c_start += 1
-					break
-			for c in range(rec_end, max(coverage) + 1):
-				c_end = c
-				if fr_coverage[c_end] < 0.5:
-					c_end -= 1
-					break
+			res = process_recombinase(coverage, n_aln, *key[1:3],)
+			print(*key, *res, sep="\t", file=_out,)
+			# fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
+			# c_start, c_end = rec_start, rec_end
+			# mge_start, mge_end = min(coverage), max(coverage)
+			# for c in range(rec_start, min(coverage) - 1, -1):
+			# 	c_start = c
+			# 	if fr_coverage[c_start] < 0.5:
+			# 		c_start += 1
+			# 		break
+			# for c in range(rec_end, max(coverage) + 1):
+			# 	c_end = c
+			# 	if fr_coverage[c_end] < 0.5:
+			# 		c_end -= 1
+			# 		break
 			
-			rec_pileup = sum(fr_coverage[c] for c in range(rec_start, rec_end + 1))
-			hc_mge_pileup = sum(fr_coverage[c] for c in range(c_start, c_end + 1))
-			lc_mge_pileup = sum(fr_coverage[c] for c in range(mge_start, mge_end + 1))
+			# rec_pileup = sum(fr_coverage[c] for c in range(rec_start, rec_end + 1))
+			# hc_mge_pileup = sum(fr_coverage[c] for c in range(c_start, c_end + 1))
+			# lc_mge_pileup = sum(fr_coverage[c] for c in range(mge_start, mge_end + 1))
 
-			rec_coverage = rec_pileup / (rec_end - rec_start + 1)
-			hc_mge_coverage = hc_mge_pileup / (c_end - c_start + 1)
-			lc_mge_coverage = lc_mge_pileup / (mge_end - mge_start + 1)
+			# rec_coverage = rec_pileup / (rec_end - rec_start + 1)
+			# hc_mge_coverage = hc_mge_pileup / (c_end - c_start + 1)
+			# lc_mge_coverage = lc_mge_pileup / (mge_end - mge_start + 1)
 
-			print(
-				*key,
-				mge_start, mge_end,
-				c_start, c_end,
-				n_aln,
-				round(rec_coverage, 3), round(lc_mge_coverage, 3), round(hc_mge_coverage, 3),
-				file=_out,
-				sep="\t",
-			)
+			# print(
+			# 	*key,
+			# 	mge_start, mge_end,
+			# 	c_start, c_end,
+			# 	n_aln,
+			# 	round(rec_coverage, 3), round(lc_mge_coverage, 3), round(hc_mge_coverage, 3),
+			# 	file=_out,
+			# 	sep="\t",
+			# )
 
 		# with open(sys.argv[2], "wt") as _out:
 
