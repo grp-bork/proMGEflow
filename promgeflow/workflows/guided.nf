@@ -108,15 +108,33 @@ process check_recombinase_hits {
 process extract_mge_candidates {
 	container "ghcr.io/grp-bork/mgexpose:v3.8.0"
 	time { 2.h * task.attempt }
-	memory { 16.GB * task.attempt }
+	memory { 4.GB * task.attempt }
 	tag "${genome_id}"
 
 	input:
 	tuple val(genome_id), path(table)
 
+	output:
+	tuple val(genome_id), path("${genome_id}.mge_candidates.bed"), emit: bed
+
 	script:
 	"""
 	sort -k1,1 -k8,8g -k9,9g ${table} | guide.py - ${genome_id}
+	"""
+}
+
+process add_genes {
+	container "quay.io/biocontainers/bedtools:2.31.1--h13024bc_3"
+	time { 2.h * task.attempt }
+	memory { 4.GB * task.attempt }
+	tag "${genome_id}"
+
+	input:
+	tuple val(genome_id), path(bed), path(gff)
+
+	script:
+	"""
+	bedtools intersect -wo -a ${bed} -b ${gff} > ${genome_id}.mge_candidates.with_genes.tsv
 	"""
 }
 
@@ -167,6 +185,15 @@ workflow guided_annotation {
 	check_recombinase_hits(ch)
 
 	extract_mge_candidates(check_recombinase_hits.out.results)
+
+
+	add_genes(
+		extract_mge_candidates.out.bed
+			.join(
+				with_recombinase_ch.map { speci, genome_id, gdata -> [ genome_id, gdata.gff ] }
+			)
+	)
+
 
 	/* STEP Y Publish recombinase annotations */
 
