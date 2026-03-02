@@ -37,6 +37,20 @@ def process_recombinase(coverage, n_aln, rec_start, rec_end):
 		round(rec_coverage, 3), round(lc_mge_coverage, 3), round(hc_mge_coverage, 3),
 	)
 
+def write_bed_line(key, res, stream=sys.stdout):
+	# contig  rstart  rend    recombinase     mstart_lo       mend_lo mstart_hi       mend_hi n_aln   rcov    mcov_lo mcov_hi
+	# k119_100061     20      505     phage_integrase 15      515     17      515     1       1.0     1.0     1.0
+	data = [
+		f"recombinase={key[3]},{key[1]}-{key[2]}",
+		f"n_aln={res[4]}",
+		f"hc_region={res[2]}-{res[3]},{res[7]}",
+		f"lc_cov={res[6]}"
+	]
+	print(
+		key[0], key[1] - 1, key[2], *data, sep="\t", file=stream,
+
+	)
+
 
 
 def main():
@@ -51,7 +65,7 @@ def main():
 	else:
 		_in = stream = open(sys.argv[1], 'rt')
 
-	with stream, open(f"{sys.argv[2]}.mge_candidates.tsv", 'wt') as _out, open(f"{sys.argv[2]}.mge_candidates.raw.tsv", "wt") as raw_out:
+	with stream, open(f"{sys.argv[2]}.mge_candidates.tsv", 'wt') as _out, open(f"{sys.argv[2]}.mge_candidates.raw.tsv", "wt") as raw_out, open(f"{sys.argv[2]}.mge_candidates.bed", "wt") as bed_out:
 		header = [
 			"contig", "rstart", "rend", "recombinase",
 			"mstart_lo", "mend_lo", "mstart_hi", "mend_hi",
@@ -87,6 +101,7 @@ def main():
 				if key is not None:
 					res = process_recombinase(coverage, n_aln, *key[1:3],)
 					print(*key, *res, sep="\t", file=_out,)
+					write_bed_line(key, res, stream=bed_out,)
 
 					# fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
 					# c_start, c_end = key[1], key[2]
@@ -131,6 +146,7 @@ def main():
 		if key is not None:
 			res = process_recombinase(coverage, n_aln, *key[1:3],)
 			print(*key, *res, sep="\t", file=_out,)
+			write_bed_line(key, res, stream=bed_out,)
 			# fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
 			# c_start, c_end = rec_start, rec_end
 			# mge_start, mge_end = min(coverage), max(coverage)
