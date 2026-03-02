@@ -132,6 +132,9 @@ process add_genes {
 	input:
 	tuple val(genome_id), path(bed), path(gff)
 
+	output:
+	tuple val(genome_id), path("${genome_id}.mge_candidates.with_genes.tsv"), emit: table
+
 	script:
 	"""
 	head -1 ${gff} > tmp.gff
@@ -140,6 +143,21 @@ process add_genes {
 	bedtools intersect -wo -a ${bed} -b tmp.gff > ${genome_id}.mge_candidates.with_genes.tsv
 
 	rm -frv tmp.gff
+	"""
+}
+
+process convert_to_gff_and_extract_proteins {
+	container "ghcr.io/grp-bork/mgexpose:v3.8.0"
+	time { 2.h * task.attempt }
+	memory { 8.GB * task.attempt }
+	tag "${genome_id}"
+
+	input:
+	tuple val(genome_id), path(table), path(faa)
+
+	script:
+	"""
+	guide_extract_regions.py ${table} ${faa} ${genome_id}
 	"""
 }
 
@@ -195,7 +213,15 @@ workflow guided_annotation {
 	add_genes(
 		extract_mge_candidates.out.bed
 			.join(
-				with_recombinase_ch.map { speci, genome_id, gdata -> [ genome_id, gdata.gff ] }
+				with_recombinase_ch.map { speci, genome_id, gdata -> [ genome_id, gdata.gff ] },
+				by: 0
+			)
+	)
+
+	convert_to_gff_and_extract_proteins(
+		add_genes.out.table
+			.join(
+				with_recombinase_ch.map { speci, genome_id, gdata -> [ genome_id, gdata.proteins ] }
 			)
 	)
 
