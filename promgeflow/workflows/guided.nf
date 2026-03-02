@@ -140,7 +140,7 @@ process add_genes {
 	head -1 ${gff} > tmp.gff
 	grep -v "^#" ${gff} >> tmp.gff
 
-	bedtools intersect -wo -a ${bed} -b tmp.gff > ${genome_id}.mge_candidates.with_genes.tsv
+	bedtools intersect -wo -a ${bed} -b tmp.gff | sort -k1,1h -k2,2h -k3,3h > ${genome_id}.mge_candidates.with_genes.tsv
 
 	rm -frv tmp.gff
 	"""
@@ -151,7 +151,7 @@ process convert_to_gff_and_extract_proteins {
 	time { 2.h * task.attempt }
 	memory { 8.GB * task.attempt }
 	tag "${genome_id}"
-	maxForks 1
+	// maxForks 1
 
 	input:
 	tuple val(genome_id), path(table), path(faa)
