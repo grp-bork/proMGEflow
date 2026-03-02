@@ -47,7 +47,7 @@ def write_bed_line(key, res, stream=sys.stdout):
 		f"lc_cov={res[6]}"
 	]
 	print(
-		key[0], key[1] - 1, key[2], ";".join(data), sep="\t", file=stream,
+		key[0], res[0] - 1, res[1], ";".join(data), sep="\t", file=stream,
 
 	)
 
