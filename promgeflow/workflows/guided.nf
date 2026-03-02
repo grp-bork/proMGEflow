@@ -156,6 +156,10 @@ process convert_to_gff_and_extract_proteins {
 	input:
 	tuple val(genome_id), path(table), path(faa)
 
+	output:
+	tuple val(genome_id), path("${genome_id}.cargo.faa"), emit: proteins
+	tuple val(genome_id), path("${genome_id}.mge_candidates.gff3"), emit: gff
+
 	script:
 	"""
 	guide_extract_regions.py ${table} ${faa} ${genome_id}
@@ -222,9 +226,32 @@ workflow guided_annotation {
 	convert_to_gff_and_extract_proteins(
 		add_genes.out.table
 			.join(
-				with_recombinase_ch.map { speci, genome_id, gdata -> [ genome_id, gdata.proteins ] }
+				with_recombinase_ch.map { speci, genome_id, gdata -> [ genome_id, gdata.proteins ] },
+				by: 0
 			)
 	)
+
+	downstream_ch = convert_to_gff_and_extract_proteins.out.proteins
+		.map { genome_id, proteins ->
+			def gdata = [:]
+			gdata.proteins = proteins
+			return [ "unknown", genome_id, gdata ]
+		}
+
+		// .join(with_recombinase_ch.map { speci, genome_id, gdata -> [ genome_id, gdata ] }, by: 0)
+		// .map {
+		// 	genome_id, proteins, old_gdata ->
+		// 		def gdata = old_gdata.clone()
+		// 		gdata.proteins = proteins
+		// 		return [ "unknown", genome_id, gdata ]
+		// 	}
+			
+
+	functional_annotation(downstream_ch)
+
+	// secretion_annotation(
+
+	// )
 
 
 	/* STEP Y Publish recombinase annotations */

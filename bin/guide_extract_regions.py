@@ -58,6 +58,7 @@ def main():
     gene_coords = {}
 
     with open(sys.argv[1], 'rt') as _in, open(f"{sys.argv[3]}.mge_candidates.gff3", "wt") as gff_out:
+        print("##gff-version 3", file=gff_out,)
 
         for row in csv.reader(_in, delimiter='\t'):
             new_island = row[:4]
