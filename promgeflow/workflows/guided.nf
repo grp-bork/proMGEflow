@@ -151,6 +151,7 @@ process convert_to_gff_and_extract_proteins {
 	time { 2.h * task.attempt }
 	memory { 8.GB * task.attempt }
 	tag "${genome_id}"
+	maxForks 1
 
 	input:
 	tuple val(genome_id), path(table), path(faa)
