@@ -56,6 +56,7 @@ def write_bed_line(key, res, stream=sys.stdout):
 def main():
 
 	# recombinase_anchors = {}
+	allow_orphan_recombinases = True
 
 	key = None
 	n_aln, coverage = 0, Counter()
@@ -98,7 +99,7 @@ def main():
 			
 			new_key = (contig, rec_start, rec_end, recombinase.split(";")[0].split("=")[1])
 			if new_key != key:
-				if key is not None and n_aln > 1:
+				if key is not None and (allow_orphan_recombinases or n_aln > 1):
 					res = process_recombinase(coverage, n_aln, *key[1:3],)
 					print(*key, *res, sep="\t", file=_out,)
 					write_bed_line(key, res, stream=bed_out,)
@@ -143,7 +144,7 @@ def main():
 
 			print(*row, sep='\t', file=raw_out,)
 
-		if key is not None and n_aln > 1:
+		if key is not None and (allow_orphan_recombinases or n_aln > 1):
 			res = process_recombinase(coverage, n_aln, *key[1:3],)
 			print(*key, *res, sep="\t", file=_out,)
 			write_bed_line(key, res, stream=bed_out,)
