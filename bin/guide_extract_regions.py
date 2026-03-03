@@ -72,7 +72,7 @@ def process_island(island, genes, genome_id, stream=sys.stdout,):
         ".",
         ".",
         ".",
-        f"ID={island_id};{island[3]}",
+        f"ID={island_id}",
         file=stream,
         sep="\t",
     )
