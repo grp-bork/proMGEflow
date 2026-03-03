@@ -78,7 +78,8 @@ def main():
                         sep="\t",
                     )
                     for gene in genes:
-                        print(gene, sep="\t", file=gff_out,)
+                        gene[2] = "gene"
+                        print(*gene, sep="\t", file=gff_out,)
 
                 island = new_island
                 genes.clear()
@@ -101,6 +102,7 @@ def main():
                 sep="\t",
             )
             for gene in genes:
+                gene[2] = "gene"
                 print(gene, sep="\t", file=gff_out,)
 
     with open(f"{sys.argv[3]}.cargo.faa", "wt") as faa_out:
