@@ -249,9 +249,7 @@ workflow guided_annotation {
 
 	functional_annotation(downstream_ch)
 
-	// secretion_annotation(
-
-	// )
+	secretion_annotation(downstream_ch)
 
 
 	/* STEP Y Publish recombinase annotations */
