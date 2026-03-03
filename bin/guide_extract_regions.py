@@ -49,6 +49,27 @@ def read_fasta(f):
         yield header, "".join(seq)
 
 
+def process_island(island, genes, stream=sys.stdout,):
+    print(
+        island[0],
+        "proMGE_guide",
+        "region",
+        # int(island[1]) + 1,
+        min(int(gene[3]) for gene in genes),
+        # island[2],
+        max(int(gene[4]) for gene in genes),
+        ".",
+        ".",
+        ".",
+        island[3],
+        file=stream,
+        sep="\t",
+    )
+    for gene in genes:
+        gene[2] = "gene"
+        print(*gene, sep="\t", file=stream,)
+
+
 def main():
     # k119_100010     266     9537    recombinase=xer,355-1281;n_aln=4;hc_region=269-9163,0.785;lc_cov=0.763  k119_100010     Prodigal_v2.6.3 CDS     355     1281    57.5    -       0       ID=143600_1;partial=00;start_type=ATG;rbs_motif=AACAA;rbs_spacer=14bp;gc_cont=0.384;con>
     # k119_100010     Prodigal_v2.6.3 CDS     355     1281    57.5    -       0       ID=143600_1;partial=00;start_type=ATG;rbs_motif=AACAA;rbs_spacer=14bp;gc_cont=0.384;con>
@@ -64,22 +85,23 @@ def main():
             new_island = row[:4]
             if island != new_island:
                 if island is not None:
-                    print(
-                        island[0],
-                        "proMGE_guide",
-                        "region",
-                        int(island[1]) + 1,
-                        island[2],
-                        ".",
-                        ".",
-                        ".",
-                        island[3],
-                        file=gff_out,
-                        sep="\t",
-                    )
-                    for gene in genes:
-                        gene[2] = "gene"
-                        print(*gene, sep="\t", file=gff_out,)
+                    process_island(island, genes, stream=gff_out,)
+                    # print(
+                    #     island[0],
+                    #     "proMGE_guide",
+                    #     "region",
+                    #     int(island[1]) + 1,
+                    #     island[2],
+                    #     ".",
+                    #     ".",
+                    #     ".",
+                    #     island[3],
+                    #     file=gff_out,
+                    #     sep="\t",
+                    # )
+                    # for gene in genes:
+                    #     gene[2] = "gene"
+                    #     print(*gene, sep="\t", file=gff_out,)
 
                 island = new_island
                 genes.clear()
@@ -88,22 +110,23 @@ def main():
             gene_coords.setdefault(genes[-1][0], set()).add(tuple(map(int, genes[-1][3:5])))
 
         if island is not None:
-            print(
-                island[0],
-                "proMGE_guide",
-                "region",
-                int(island[1]) + 1,
-                island[2],
-                ".",
-                ".",
-                ".",
-                island[3],
-                file=gff_out,
-                sep="\t",
-            )
-            for gene in genes:
-                gene[2] = "gene"
-                print(gene, sep="\t", file=gff_out,)
+            process_island(island, genes, stream=sys.stdout,)
+            # print(
+            #     island[0],
+            #     "proMGE_guide",
+            #     "region",
+            #     int(island[1]) + 1,
+            #     island[2],
+            #     ".",
+            #     ".",
+            #     ".",
+            #     island[3],
+            #     file=gff_out,
+            #     sep="\t",
+            # )
+            # for gene in genes:
+            #     gene[2] = "gene"
+            #     print(*gene, sep="\t", file=gff_out,)
 
     with open(f"{sys.argv[3]}.cargo.faa", "wt") as faa_out:
         for sid, seq in read_fasta(sys.argv[2]):
