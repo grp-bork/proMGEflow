@@ -77,8 +77,8 @@ def process_island(island, genes, genome_id, stream=sys.stdout,):
         sep="\t",
     )
     for gene in sorted(genes, key=lambda x:tuple(map(int, x[3:5]))):
-        gene[2] = "gene"
-        print(*gene, sep="\t", file=stream,)
+        # gene[2] = "gene"
+        print(gene[:2], "gene", gene[3:], sep="\t", file=stream,)
 
 
 def main():
