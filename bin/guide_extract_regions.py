@@ -84,7 +84,7 @@ def main():
                 island = new_island
                 genes.clear()
 
-            genes.append(row[4:])
+            genes.append(row[4:-1])
             gene_coords.setdefault(genes[-1][0], set()).add(tuple(map(int, genes[-1][3:5])))
 
         if island is not None:
