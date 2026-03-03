@@ -49,19 +49,30 @@ def read_fasta(f):
         yield header, "".join(seq)
 
 
-def process_island(island, genes, stream=sys.stdout,):
+def process_island(island, genes, genome_id, stream=sys.stdout,):
+
+    # island_id_match = re.match(r'(GIL|MGE|SPIRE)_(.+)_(.+):(\d+)-(\d+)', id_string)
+    #     if not island_id_match:
+    #         raise ValueError(f"{id_string} does not seem to be a valid island identifier.")
+
+    #     groups = island_id_match.groups()[1:]
+    
+    start = min(int(gene[3]) for gene in genes)
+    end = max(int(gene[4]) for gene in genes)
+    island_id = f"GIL_{genome_id}_{island[0]}:{start}-{end}"
+
     print(
         island[0],
         "proMGE_guide",
         "region",
         # int(island[1]) + 1,
-        min(int(gene[3]) for gene in genes),
+        start,
         # island[2],
-        max(int(gene[4]) for gene in genes),
+        end,
         ".",
         ".",
         ".",
-        island[3],
+        f"ID={island_id};{island[3]}",
         file=stream,
         sep="\t",
     )
@@ -85,7 +96,7 @@ def main():
             new_island = row[:4]
             if island != new_island:
                 if island is not None:
-                    process_island(island, genes, stream=gff_out,)
+                    process_island(island, genes, sys.argv[3], stream=gff_out,)
                     # print(
                     #     island[0],
                     #     "proMGE_guide",
@@ -110,7 +121,7 @@ def main():
             gene_coords.setdefault(genes[-1][0], set()).add(tuple(map(int, genes[-1][3:5])))
 
         if island is not None:
-            process_island(island, genes, stream=sys.stdout,)
+            process_island(island, genes, sys.argv[3], stream=gff_out,)
             # print(
             #     island[0],
             #     "proMGE_guide",
