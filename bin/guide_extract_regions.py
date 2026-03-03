@@ -76,7 +76,7 @@ def process_island(island, genes, genome_id, stream=sys.stdout,):
         file=stream,
         sep="\t",
     )
-    for gene in genes:
+    for gene in sorted(genes, key=lambda x:tuple(map(int, x.split("\t")[3:5]))):
         gene[2] = "gene"
         print(*gene, sep="\t", file=stream,)
 
@@ -85,7 +85,7 @@ def main():
     # k119_100010     266     9537    recombinase=xer,355-1281;n_aln=4;hc_region=269-9163,0.785;lc_cov=0.763  k119_100010     Prodigal_v2.6.3 CDS     355     1281    57.5    -       0       ID=143600_1;partial=00;start_type=ATG;rbs_motif=AACAA;rbs_spacer=14bp;gc_cont=0.384;con>
     # k119_100010     Prodigal_v2.6.3 CDS     355     1281    57.5    -       0       ID=143600_1;partial=00;start_type=ATG;rbs_motif=AACAA;rbs_spacer=14bp;gc_cont=0.384;con>
     island = None
-    genes = []
+    genes = set()
 
     gene_coords = {}
 
@@ -93,7 +93,7 @@ def main():
         print("##gff-version 3", file=gff_out,)
 
         for row in csv.reader(_in, delimiter='\t'):
-            new_island = row[:4]
+            new_island = row[:3]  # was :4 but then we have duplicate islands in case of tandem recombinases
             if island != new_island:
                 if island is not None:
                     process_island(island, genes, sys.argv[3], stream=gff_out,)
@@ -117,11 +117,11 @@ def main():
                 island = new_island
                 genes.clear()
 
-            genes.append(row[4:-1])
+            genes.add(row[4:-1])
             gene_coords.setdefault(genes[-1][0], set()).add(tuple(map(int, genes[-1][3:5])))
 
         if island is not None:
-            process_island(island, genes, sys.argv[3], stream=gff_out,)
+            process_island(island, genes, sys.argv[3], stream=gff_out,) 
             # print(
             #     island[0],
             #     "proMGE_guide",
