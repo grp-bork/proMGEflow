@@ -117,8 +117,9 @@ def main():
                 island = new_island
                 genes.clear()
 
-            genes.add(tuple(row[4:-1]))
-            gene_coords.setdefault(genes[-1][0], set()).add(tuple(map(int, genes[-1][3:5])))
+            gene = tuple(row[4:-1])
+            genes.add(gene)
+            gene_coords.setdefault(gene[0], set()).add(tuple(map(int, gene[3:5])))
 
         if island is not None:
             process_island(island, genes, sys.argv[3], stream=gff_out,) 
