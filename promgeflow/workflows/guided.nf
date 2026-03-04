@@ -197,6 +197,7 @@ process mgexpose {
 
 
 	echo mgexpose reannotate ${genome_id} mgexpose.gff \
+			--annotation_mode raw_islands \
 			--recombinase_hits ${recombinases} \
 			--mge_rules ${mge_rules} \
 			--txs_macsy_rules ${conjscan_rules} \
@@ -207,6 +208,7 @@ process mgexpose {
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands
 	mgexpose reannotate ${genome_id} mgexpose.gff \
+			--annotation_mode raw_islands \
 			--recombinase_hits ${recombinases} \
 			--mge_rules ${mge_rules} \
 			--txs_macsy_rules ${conjscan_rules} \
