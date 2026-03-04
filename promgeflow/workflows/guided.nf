@@ -196,15 +196,19 @@ process mgexpose {
 	fi
 
 
-	echo mgexpose reannotate ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
+	echo mgexpose reannotate ${genome_id} mgexpose.gff \
+			--recombinase_hits ${recombinases} \
+			--mge_rules ${mge_rules} \
 			--txs_macsy_rules ${conjscan_rules} \
 			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
 			--phage_filter_terms ${phage_filter_terms} \
 			--output_dir ${outdir} \
 			--extract_islands ${genome_fa} \
-			--output_suffix mge_islands 
-	mgexpose reannotate ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
+			--output_suffix mge_islands
+	mgexpose reannotate ${genome_id} mgexpose.gff \
+			--recombinase_hits ${recombinases} \
+			--mge_rules ${mge_rules} \
 			--txs_macsy_rules ${conjscan_rules} \
 			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
@@ -326,6 +330,8 @@ workflow guided_annotation {
 				.map { speci, genome_id, gdata -> [ genome_id, gdata.secretion_data, ] },
 				by: 0
 		)
+
+	// tuple val(genome_id), path(gff), path(recombinases), path(genome_fa), path(emapper), path(conjscan)
 
 	mgexpose(
 		mgexpose_ch,
