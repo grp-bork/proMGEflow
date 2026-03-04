@@ -2,7 +2,6 @@
 
 nextflow.enable.dsl=2
 
-include { mgexpose } from "../modules/mgexpose"
 include { get_db_seqs } from "../modules/get_db_seqs"
 include { publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
 
