@@ -327,7 +327,12 @@ workflow guided_annotation {
 				by: 0
 		)
 
-	mgexpose(mgexpose_ch)
+	mgexpose(
+		mgexpose_ch,
+		"${projectDir}/assets/mge_rules_ms.txt",
+		"${projectDir}/assets/conjscan.json",
+		"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt"
+	)
 
 	
 	// mgexpose reannotate -o . --annotation_mode raw_islands 
