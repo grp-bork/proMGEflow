@@ -166,6 +166,66 @@ process convert_to_gff_and_extract_proteins {
 	"""
 }
 
+process mgexpose {
+	label "annotate_genome"
+	label "medium"
+	// container "ghcr.io/cschu/mgexpose:v3.8.0"
+	tag "${genome_id}"
+
+	input:
+	tuple val(genome_id), path(gff), path(recombinases), path(genome_fa), path(emapper), path(conjscan)
+	path(mge_rules)
+	path(conjscan_rules)
+	path(phage_filter_terms)
+
+	output:
+	tuple val(genome_id), path("**/*.mge_islands.gff3"), emit: gff, optional: true
+	path("**/*.NO_MGE"), emit: no_mge, optional: true
+	path("**/*.mge_islands.ffn.gz"), emit: fasta, optional: true
+	path("**/*.gene_info.txt"), emit: gene_info, optional: true
+	
+	script:
+	def outdir = "${genome_id}"
+
+	"""
+	mkdir -p ${outdir}/
+
+	if [[ "${gff}" == *".gz" ]]; then
+		gzip -dc ${gff} > mgexpose.gff
+	else
+		ln -sf ${gff} mgexpose.gff
+	fi
+
+
+	echo mgexpose reannotate ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
+			--txs_macsy_rules ${conjscan_rules} \
+			--txs_macsy_report ${conjscan} \
+			--phage_eggnog_data ${emapper} \
+			--phage_filter_terms ${phage_filter_terms} \
+			--output_dir ${outdir} \
+			--extract_islands ${genome_fa} \
+			--output_suffix mge_islands 
+	mgexpose reannotate ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
+			--txs_macsy_rules ${conjscan_rules} \
+			--txs_macsy_report ${conjscan} \
+			--phage_eggnog_data ${emapper} \
+			--phage_filter_terms ${phage_filter_terms} \
+			--output_dir ${outdir} \
+			--extract_islands ${genome_fa} \
+			--output_suffix mge_islands 
+
+	islands_gff=${outdir}/${genome_id}.mge_islands.gff3
+	(grep mobile_genetic_element \${islands_gff} | grep -v mge= > ${genome_id}.NO_MGE) || true
+	if [[ -s ${genome_id}.NO_MGE ]]; then 
+		mv -v ${genome_id}.NO_MGE ${outdir}/
+	else
+		rm -f ${genome_id}.NO_MGE
+	fi
+
+	rm -vf mgexpose.gff
+	"""
+}
+
 
 workflow guided_annotation {
 
@@ -250,6 +310,37 @@ workflow guided_annotation {
 	functional_annotation(downstream_ch)
 
 	secretion_annotation(downstream_ch)
+
+	mgexpose_ch = convert_to_gff_and_extract_proteins.out.gff
+		.join(
+			recombinase_annotation.out.genomes
+				.map { speci, genome_id, gdata -> [ genome_id, gdata.recombinases, gdata.genome ] },
+			by: 0
+		)
+		.join(
+			functional_annotation.out.genomes
+				.map { speci, genome_id, gdata -> [ genome_id, gdata.emapper ] },
+			by: 0
+		)
+		.join(
+			secretion_annotation.out.genomes
+				.map { speci, genome_id, gdata -> [ genome_id, gdata.secretion_data, ] },
+				by: 0
+		)
+
+	mgexpose(mgexpose_ch)
+
+	
+	// mgexpose reannotate -o . --annotation_mode raw_islands 
+	// --recombinase_hits work/83/067fefaefa515a9538f6bbf25f7d37/unknown/SAMN10093300-assembled/SAMN10093300-assembled.recombinase_hmmsearch.besthits.out
+	// --mge_rules ~/.nextflow/assets/grp-bork/promgeflow/assets/mge_rules_ms.txt 
+	// --txs_macsy_report work/a8/48a2b4f5dbe4817696dbc06997ffa5/unknown/SAMN10093300-assembled/SAMN10093300-assembled.all_systems.tsv 
+	// --txs_macsy_rules ~/.nextflow/assets/grp-bork/promgeflow/assets/conjscan.json 
+	// --phage_eggnog_data work/94/f2664c75b2236a507282b4e84ddabe/unknown/SAMN10093300-assembled/SAMN10093300-assembled.emapper.annotations 
+	// --phage_filter_terms ~/.nextflow/assets/grp-bork/promgeflow/assets/phage_filter_terms_emapper_v2.3.txt 
+	// --extract_islands input/SAMN10093300-assembled.fa.gz 
+	// work/b7/48f9c5ef89b96909cbc51ba93fad72/SAMN10093300-assembled.mge_candidates.gff3 GENOME2 > log.txt
+	
 
 
 	/* STEP Y Publish recombinase annotations */

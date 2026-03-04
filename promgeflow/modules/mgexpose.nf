@@ -43,10 +43,6 @@ process mgexpose {
 			--phage_filter_terms ${phage_filter_terms} \
 			--cluster_data ${gene_clusters} \
 			--output_dir ${outdir} \
-			--write_gff \
-			--write_genes_to_gff \
-			--add_functional_annotation \
-			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands \
 			${y_cluster_option}
@@ -58,10 +54,6 @@ process mgexpose {
 			--phage_filter_terms ${phage_filter_terms} \
 			--cluster_data ${gene_clusters} \
 			--output_dir ${outdir} \
-			--write_gff \
-			--write_genes_to_gff \
-			--add_functional_annotation \
-			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands \
 			${y_cluster_option}
@@ -120,10 +112,6 @@ process mgexpose_region {
 			--phage_filter_terms ${phage_filter_terms} \
 			--precomputed_islands region.txt \
 			--output_dir ${outdir} \
-			--write_gff \
-			--write_genes_to_gff \
-			--add_functional_annotation \
-			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands
 
@@ -135,10 +123,6 @@ process mgexpose_region {
 			--phage_filter_terms ${phage_filter_terms} \
 			--precomputed_islands region.txt \
 			--output_dir ${outdir} \
-			--write_gff \
-			--write_genes_to_gff \
-			--add_functional_annotation \
-			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands
 
