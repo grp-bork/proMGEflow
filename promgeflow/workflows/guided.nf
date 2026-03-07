@@ -63,7 +63,8 @@ process map_mgedb {
 	"""
 	minimap2 -x ${params.minimap_x} -d ${genome_id}.mmi ${fasta}
 
-	minimap2 -x ${params.minimap_x} -t ${task.cpus} -a -c -L --eqx --sam-hit-only ${genome_id}.mmi ${db} | samtools sort -O SAM -o ${genome_id}.${db_id}.sam 
+	minimap2 -x ${params.minimap_x} -t ${task.cpus} -a -c -L --eqx --sam-hit-only ${genome_id}.mmi ${db} | samtools sort -O SAM -o ${genome_id}.${db_id}.samx
+	awk -v OFS='\t' '/^[^@]/ {\$10="*"; print \$0}' ${genome_id}.${db_id}.samx  > ${genome_id}.${db_id}.sam
 	"""
 
 
