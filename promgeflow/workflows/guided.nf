@@ -132,7 +132,7 @@ process extract_mge_candidates {
 	"""
 	sort -k1,1 -k8,8g -k9,9g ${table} | guide.py - ${genome_id}
 
-	if [[ ! -s ${genome_id}.mge_candidates.bed ]]; do
+	if [[ ! -s ${genome_id}.mge_candidates.bed ]]; then
 	  rm -fv ${genome_id}.mge_candidates.bed
 	fi
 
