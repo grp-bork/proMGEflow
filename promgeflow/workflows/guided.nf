@@ -36,7 +36,7 @@ process extract_recombinase_contigs {
 	"""
 	seqtk subseq ${fasta} <(grep -v "^#" ${gff} | cut -f 1 | uniq | sort -u) | gzip -c - > ${genome_id}.recombinase_contigs.fa.gz
 
-	if [[ -z $(zcat ${genome_id}.recombinase_contigs.fa.gz | head -n 1) ]]; then rm -fv ${genome_id}.recombinase_contigs.fa.gz; fi
+	if [[ -z \$(zcat ${genome_id}.recombinase_contigs.fa.gz | head -n 1) ]]; then rm -fv ${genome_id}.recombinase_contigs.fa.gz; fi
 
 	touch ${genome_id}.RECOMBINASE_CONTIGS.DONE
 	"""
