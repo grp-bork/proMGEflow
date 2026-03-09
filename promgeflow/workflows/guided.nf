@@ -83,11 +83,16 @@ process extract_matches {
 	tuple val(genome_id), path(sam)
 
 	output:
-	tuple val(genome_id), path("*.bed"), emit: bed
+	tuple val(genome_id), path("*.bed"), emit: bed, optional: true
+	tuple val(genome_id), path("${genome_id}.RECOMBINASE_MATCHES.DONE"), emit: sentinel
 
 	script:
 	"""
 	guide_extract_matches.py ${sam} > \$(basename ${sam} .sam.gz).bed
+
+	if [[ ! -z \$(basename ${sam} .sam.gz).bed ]]; then rm -fv \$(basename ${sam} .sam.gz).bed; fi
+
+	touch ${genome_id}.RECOMBINASE_MATCHES.DONE
 	"""
 
 
