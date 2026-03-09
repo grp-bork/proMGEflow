@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import gzip
 import re
 import sys
 
@@ -61,7 +62,7 @@ def parse_cigar(start, cigar):
 
 
 def main():
-	with open(sys.argv[1], "rt") as _in:
+	with gzip.open(sys.argv[1], "rt") as _in:
 		for line in _in:
 			if line[0] != "@":
 				# MGE_GCA_006692365.1_593905.SAMN03466345.AAFZNY010000105:439-1439        0       k119_180526     1       60      662S23=1X5=1X2=1X26=1X90=1X10=1X137=1X21=1X17=

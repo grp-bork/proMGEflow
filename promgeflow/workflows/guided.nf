@@ -29,11 +29,16 @@ process extract_recombinase_contigs {
 	tuple val(genome_id), path(fasta), path(gff)
 
 	output:
-	tuple val(genome_id), path("${genome_id}.recombinase_contigs.fa.gz"), emit: contigs
+	tuple val(genome_id), path("${genome_id}.recombinase_contigs.fa.gz"), emit: contigs, optional: true
+	tuple val(genome_id), path("${genome_id}.RECOMBINASE_CONTIGS.DONE"), emit: sentinel
 
 	script:
 	"""
 	seqtk subseq ${fasta} <(grep -v "^#" ${gff} | cut -f 1 | uniq | sort -u) | gzip -c - > ${genome_id}.recombinase_contigs.fa.gz
+
+	if [[ -z $(zcat ${genome_id}.recombinase_contigs.fa.gz | head -n 1) ]]; then rm -fv ${genome_id}.recombinase_contigs.fa.gz; fi
+
+	touch ${genome_id}.RECOMBINASE_CONTIGS.DONE
 	"""
 	// seqtk subseq ${sample.id}_1.fastq chimeras.txt >> chimeras.fastq
 
@@ -56,7 +61,7 @@ process map_mgedb {
 	tuple val(db_id), path(db)
 
 	output:
-	tuple val(genome_id), path("${genome_id}.${db_id}.sam"), emit: sam
+	tuple val(genome_id), path("${genome_id}.${db_id}.sam.gz"), emit: sam
 	tuple val(genome_id), path("${genome_id}.mmi"), emit: index
 
 	script:
@@ -64,7 +69,7 @@ process map_mgedb {
 	minimap2 -x ${params.minimap_x} -d ${genome_id}.mmi ${fasta}
 
 	minimap2 -x ${params.minimap_x} -t ${task.cpus} -a -c -L --eqx --sam-hit-only ${genome_id}.mmi ${db} | samtools sort -O SAM -o ${genome_id}.${db_id}.samx
-	awk -v OFS='\t' '/^[^@]/ {\$10="*"; print \$0}' ${genome_id}.${db_id}.samx  > ${genome_id}.${db_id}.sam
+	awk -v OFS='\t' '/^[^@]/ {\$10="*"; print \$0}' ${genome_id}.${db_id}.samx | gzip -c - > ${genome_id}.${db_id}.sam.gz
 	"""
 
 
@@ -82,7 +87,7 @@ process extract_matches {
 
 	script:
 	"""
-	guide_extract_matches.py ${sam} > \$(basename ${sam} .sam).bed
+	guide_extract_matches.py ${sam} > \$(basename ${sam} .sam.gz).bed
 	"""
 
 
