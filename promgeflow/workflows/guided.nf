@@ -125,11 +125,18 @@ process extract_mge_candidates {
 	tuple val(genome_id), path(table)
 
 	output:
-	tuple val(genome_id), path("${genome_id}.mge_candidates.bed"), emit: bed
+	tuple val(genome_id), path("${genome_id}.mge_candidates.bed"), emit: bed, optional: true
+	tuple val(genome_id), path("${genome_id}.MGE_CANDIDATES.DONE"), emit: sentinel
 
 	script:
 	"""
 	sort -k1,1 -k8,8g -k9,9g ${table} | guide.py - ${genome_id}
+
+	if [[ ! -s ${genome_id}.mge_candidates.bed ]]; do
+	  rm -fv ${genome_id}.mge_candidates.bed
+	fi
+
+	touch ${genome_id}.MGE_CANDIDATES.DONE
 	"""
 }
 
