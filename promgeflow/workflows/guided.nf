@@ -90,7 +90,7 @@ process extract_matches {
 	"""
 	guide_extract_matches.py ${sam} > \$(basename ${sam} .sam.gz).bed
 
-	if [[ ! -z \$(basename ${sam} .sam.gz).bed ]]; then rm -fv \$(basename ${sam} .sam.gz).bed; fi
+	if [[ ! -s \$(basename ${sam} .sam.gz).bed ]]; then rm -fv \$(basename ${sam} .sam.gz).bed; fi
 
 	touch ${genome_id}.RECOMBINASE_MATCHES.DONE
 	"""
