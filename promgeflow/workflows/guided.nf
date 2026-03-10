@@ -49,6 +49,7 @@ process extract_recombinase_contigs {
 }
 
 process collate_recombinase_contig_stats {
+	publishDir "${params.output_dir}", mode: "copy"
 	executor "local"
 
 	input:
