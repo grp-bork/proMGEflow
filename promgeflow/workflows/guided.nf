@@ -141,6 +141,7 @@ process extract_mge_candidates {
 	time { 2.h * task.attempt }
 	memory { 4.GB * task.attempt }
 	tag "${genome_id}"
+	publishDir "${params.output_dir}", mode: "copy", pattern: "**.mge_candidates.raw.tsv"
 
 	input:
 	tuple val(genome_id), path(table)
@@ -148,6 +149,7 @@ process extract_mge_candidates {
 	output:
 	tuple val(genome_id), path("${genome_id}.mge_candidates.bed"), emit: bed, optional: true
 	tuple val(genome_id), path("${genome_id}.MGE_CANDIDATES.DONE"), emit: sentinel
+	tuple val(genome_id), path("${genome_id}.mge_candidates.raw.tsv"), emit: raw_table
 
 	script:
 	"""
