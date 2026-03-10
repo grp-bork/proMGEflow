@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import csv
+import re
 import sys
 
 from collections import Counter
@@ -96,6 +97,15 @@ def main():
 				# mge/recombinase overlap is guaranteed by input
 				# discard partial recombinase hits
 				continue
+
+			# MGE_GCA_011516635.4_2816456.SAMN14355770.JAAOLC040000001	613611-614446	61S771M4S
+			# MGE_GCA_000261625.1_1128257.SAMN02469465.AJQB01000806:1625-2689;1067:56:1:0:0:0:60;1067;1065M
+			#  cut -f 4 | cut -f 1,4 -d \; | tr ";" ":" | tr ":" "\t" |
+			mgstart, mgend = map(int, mge[mge.rfind(":"):].split("-"))
+			mglen = mgend - mgstart + 1
+			cigar_matches = sum(int(m.group(1)) for m in re.finditer("([0-9]+)M"))
+			aln_data = (mglen, cigar_matches, int(cigar_matches / mglen))
+
 			
 			new_key = (contig, rec_start, rec_end, recombinase.split(";")[0].split("=")[1])
 			if new_key != key:
@@ -141,8 +151,7 @@ def main():
 			n_aln += 1
 			coverage.update(range(mge_start + 1, mge_end + 1))
 
-
-			print(*row, sep='\t', file=raw_out,)
+			print(*row, *aln_data, sep='\t', file=raw_out,)
 
 		if key is not None and (allow_orphan_recombinases or n_aln > 1):
 			res = process_recombinase(coverage, n_aln, *key[1:3],)
