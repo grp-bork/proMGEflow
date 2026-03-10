@@ -59,7 +59,7 @@ process collate_recombinase_contig_stats {
 
 	script:
 	"""
-	awk -v OFS='\\t' 'BEGIN { print "n_contigs","with_recombinase"; } {print FILENAME,$0}' > recombinase_stats.tsv
+	awk -v OFS='\\t' 'BEGIN { print "n_contigs","with_recombinase"; } {print FILENAME,\$0}' > recombinase_stats.tsv
 	"""
 }
 
