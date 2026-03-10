@@ -48,6 +48,21 @@ process extract_recombinase_contigs {
 
 }
 
+process collate_recombinase_contig_stats {
+	executor "local"
+
+	input:
+	path(files)
+
+	output:
+	path("recombinase_stats.tsv")
+
+	script:
+	"""
+	awk -v OFS='\\t' 'BEGIN { print "n_contigs","with_recombinase"; } {print FILENAME,$0}' > recombinase_stats.tsv
+	"""
+}
+
 params.mgedb = "/scratch/schudoma/databases/mge/mge_sequences_unique.fa"
 params.minimap_x = "asm20"
 
@@ -283,6 +298,8 @@ workflow guided_annotation {
 		with_recombinase_ch
 			.map { speci, genome_id, gdata -> [ genome_id, gdata.genome, gdata.recomb_gff ] }
 	)
+
+	collate_recombinase_contig_stats(extract_recombinase_contigs.out.sentinel.map { genome_id, file -> file }.collect())
 
 	map_mgedb(
 		extract_recombinase_contigs.out.contigs,
