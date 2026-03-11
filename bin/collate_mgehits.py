@@ -12,7 +12,7 @@ def main():
 		with open(f, "rt") as _in:
 			for row in csv.reader(_in, delimiter="\t"):
 				mge = row[3].split(";")[0]
-				mgelen, matches, _ = map(int, row[-3:])
+				mgelen, matches = map(int, row[-3:-1])
 				d.setdefault(mge, []).append((matches / mgelen, matches, mgelen, i))
 	
 	header = ["mge", "length", "longest_match", "longest_match_cov", "n_25", "n_50", "n75", "n_longest"]
