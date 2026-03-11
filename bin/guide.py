@@ -101,7 +101,7 @@ def main():
 			# MGE_GCA_011516635.4_2816456.SAMN14355770.JAAOLC040000001	613611-614446	61S771M4S
 			# MGE_GCA_000261625.1_1128257.SAMN02469465.AJQB01000806:1625-2689;1067:56:1:0:0:0:60;1067;1065M
 			#  cut -f 4 | cut -f 1,4 -d \; | tr ";" ":" | tr ":" "\t" |
-			mgstart, mgend = map(int, mge[mge.rfind(":"):].split("-"))
+			mgstart, mgend = map(int, mge[mge.rfind(":") + 1:].split("-"))
 			mglen = mgend - mgstart + 1
 			cigar_matches = sum(int(m.group(1)) for m in re.finditer("([0-9]+)M"))
 			aln_data = (mglen, cigar_matches, int(cigar_matches / mglen))
