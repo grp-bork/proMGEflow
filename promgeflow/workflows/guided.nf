@@ -51,6 +51,7 @@ process extract_recombinase_contigs {
 process collate_recombinase_contig_stats {
 	publishDir "${params.output_dir}", mode: "copy"
 	executor "local"
+	tag "Collating recombinase contig stats..."
 
 	input:
 	path(files)
@@ -161,6 +162,26 @@ process extract_mge_candidates {
 
 	touch ${genome_id}.MGE_CANDIDATES.DONE
 	"""
+}
+
+process collate_mge_hits {
+	memory {8.GB * task.attempt}
+	time {30.min * task.attempt}
+	publishDir "${params.output_dir}", mode: "copy"
+	tag "Collating mge hits..,."
+
+	input:
+	path(tables)
+
+	output:
+	path("mge100.aligned.tsv")
+
+	script:
+	"""
+	collate_mgehits.py . mge100.aligned.tsv
+	"""
+
+
 }
 
 process add_genes {
@@ -321,6 +342,8 @@ workflow guided_annotation {
 	check_recombinase_hits(ch)
 
 	extract_mge_candidates(check_recombinase_hits.out.results)
+
+	collate_mge_hits(extract_mge_candidates.out.raw_table.map { genome_id, file -> file }.collect())
 
 
 	add_genes(
