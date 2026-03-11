@@ -106,7 +106,7 @@ def main():
 			mgstart, mgend = map(int, mge[mge.rfind(":") + 1:].split("-"))
 			mglen = mgend - mgstart + 1
 			cigar_matches = sum(int(m.group(1)) for m in MATCH_RE.finditer(cigar))
-			aln_data = (mglen, cigar_matches, int(cigar_matches / mglen * 100))
+			aln_data = (mglen, cigar_matches, f"{cigar_matches / mglen:.3f}")
 
 			
 			new_key = (contig, rec_start, rec_end, recombinase.split(";")[0].split("=")[1])
