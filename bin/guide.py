@@ -7,6 +7,8 @@ import sys
 from collections import Counter
 from contextlib import nullcontext
 
+MATCH_RE = re.compile(r'([0-9]+)M')
+
 
 def process_recombinase(coverage, n_aln, rec_start, rec_end):
 	fr_coverage = Counter({k: v/n_aln for k, v in coverage.items()})
@@ -103,7 +105,7 @@ def main():
 			#  cut -f 4 | cut -f 1,4 -d \; | tr ";" ":" | tr ":" "\t" |
 			mgstart, mgend = map(int, mge[mge.rfind(":") + 1:].split("-"))
 			mglen = mgend - mgstart + 1
-			cigar_matches = sum(int(m.group(1)) for m in re.finditer("([0-9]+)M"))
+			cigar_matches = sum(int(m.group(1)) for m in MATCH_RE.finditer(cigar))
 			aln_data = (mglen, cigar_matches, int(cigar_matches / mglen))
 
 			
