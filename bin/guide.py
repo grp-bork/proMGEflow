@@ -69,7 +69,7 @@ def main():
 	else:
 		_in = stream = open(sys.argv[1], 'rt')
 
-	with stream, open(f"{sys.argv[2]}.mge_candidates.tsv", 'wt') as _out, open(f"{sys.argv[2]}.mge_candidates.raw.tsv", "wt") as raw_out, open(f"{sys.argv[2]}.mge_candidates.bed", "wt") as bed_out:
+	with stream, open(f"{sys.argv[2]}.mge_candidates.tsv", 'wt') as _out, open(f"{sys.argv[2]}.mge_candidates.aligned.tsv", "wt") as aligned_out, open(f"{sys.argv[2]}.mge_candidates.bed", "wt") as bed_out:
 		header = [
 			"contig", "rstart", "rend", "recombinase",
 			"mstart_lo", "mend_lo", "mstart_hi", "mend_hi",
@@ -153,7 +153,7 @@ def main():
 			n_aln += 1
 			coverage.update(range(mge_start + 1, mge_end + 1))
 
-			print(*row, *aln_data, sep='\t', file=raw_out,)
+			print(*row, *aln_data, sep='\t', file=aligned_out,)
 
 		if key is not None and (allow_orphan_recombinases or n_aln > 1):
 			res = process_recombinase(coverage, n_aln, *key[1:3],)
