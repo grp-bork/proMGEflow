@@ -218,12 +218,14 @@ process convert_to_gff_and_extract_proteins {
 	tuple val(genome_id), path(table), path(faa)
 
 	output:
-	tuple val(genome_id), path("${genome_id}.cargo.faa"), emit: proteins
+	tuple val(genome_id), path("${genome_id}.cargo.faa"), emit: proteins, optional: true
 	tuple val(genome_id), path("${genome_id}.mge_candidates.gff3"), emit: gff
 
 	script:
 	"""
 	guide_extract_regions.py ${table} ${faa} ${genome_id}
+
+	if [[ ! -s ${genome_id}.cargo.faa ]]; then rm -fv ${genome_id}.cargo.faa; fi
 	"""
 }
 
