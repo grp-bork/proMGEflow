@@ -42,49 +42,66 @@ workflow full_annotation {
 
 	handle_input_genomes()
 
-	genome_status_ch = Channel.empty()
+	genome_status_ch = handle_input_genomes.out.status
 
 	/* STEP 1A: genome annotation via prodigal for genomes with known speci */
 	genome_annotation(handle_input_genomes.out.to_genome_annotation)
+	genome_status_ch = genome_status_ch.mix(genome_annotation.out.status)
 
 	genome_status_ch = genome_status_ch
-		.mix(
-			handle_input_genomes.out.to_genome_annotation
-				.join(genome_annotation.out.genomes, by: [0, 1], remainder: true)
-				.map { speci, genome_id, genome_fasta, gdata -> 
-					def flags = [:]
-					flags.GENOME_ANNOTATION = (gdata != null)
-					return [ speci, genome_id, flags ]
-				}
-		)
+		.join(genome_annotation.out.genomes, by: [0, 1], remainder: true)
+			.map { speci, genome_id, old_flags, gdata -> 
+				def flags = old_flags.clone()
+				flags.GENOME_ANNOTATION = (gdata != null)
+				return [ speci, genome_id, flags ]
+			}
+
+	// genome_status_ch = genome_status_ch
+	// 	.mix(
+	// 		handle_input_genomes.out.to_genome_annotation
+	// 			.join(genome_annotation.out.genomes, by: [0, 1], remainder: true)
+	// 			.map { speci, genome_id, genome_fasta, gdata -> 
+	// 				def flags = [:]
+	// 				flags.GENOME_ANNOTATION = (gdata != null)
+	// 				return [ speci, genome_id, flags ]
+	// 			}
+	// 	)
 
 	/* STEP 1B: specI assignment via reCOGnise otherwise */
 	species_recognition(handle_input_genomes.out.to_species_recognition)
 
 	genome_status_ch = genome_status_ch
-		.mix(
-			handle_input_genomes.out.to_species_recognition
-				.map { genome_id, genome_fasta -> 
-					def flags = [:]
-					flags.GENOME_ANNOTATION = true
-					return [ "unknown", genome_id, flags ]
-				}
-		)
 		.join(species_recognition.out.genomes, by: 1, remainder: true)
-			.map { genome_id, old_speci, old_flags, speci, gdata -> 
+			.map { genome_id, speci_old, old_flags, speci, gdata -> 
 				def flags = old_flags.clone()
-				flags.SPECIES_RECOGNITION = (speci != "unknown" && speci != null)
+				flags.SPECIES_RECOGNITION = (speci != null && speci != "unknown")
 				return [ speci, genome_id, flags ]
 			}
-		.mix(
-			handle_input_genomes.out.to_recombinase_scan
-				.map { speci, genome_id, genome_fasta ->
-					def flags = [:]
-					flags.GENOME_ANNOTATION = true
-					flags.SPECIES_RECOGNITION = true
-					return [ speci, genome_id, flags ]
-				}
-		)
+
+	// genome_status_ch = genome_status_ch
+	// 	.mix(
+	// 		handle_input_genomes.out.to_species_recognition
+	// 			.map { genome_id, genome_fasta -> 
+	// 				def flags = [:]
+	// 				flags.GENOME_ANNOTATION = true
+	// 				return [ "unknown", genome_id, flags ]
+	// 			}
+	// 	)
+	// 	.join(species_recognition.out.genomes, by: 1, remainder: true)
+	// 		.map { genome_id, old_speci, old_flags, speci, gdata -> 
+	// 			def flags = old_flags.clone()
+	// 			flags.SPECIES_RECOGNITION = (speci != "unknown" && speci != null)
+	// 			return [ speci, genome_id, flags ]
+	// 		}
+	// 	.mix(
+	// 		handle_input_genomes.out.to_recombinase_scan
+	// 			.map { speci, genome_id, genome_fasta ->
+	// 				def flags = [:]
+	// 				flags.GENOME_ANNOTATION = true
+	// 				flags.SPECIES_RECOGNITION = true
+	// 				return [ speci, genome_id, flags ]
+	// 			}
+	// 	)
 
 	// prodigal output channels
 	genomes_ch = genome_annotation.out.genomes
@@ -97,12 +114,20 @@ workflow full_annotation {
 
 	genome_status_ch = genome_status_ch
 		.join(recombinase_annotation.out.genomes, by: [0, 1], remainder: true)
-		.map { speci, genome_id, old_flags, gdata ->
-			def flags = old_flags.clone()
-			flags.RECOMBINASE_SCAN = (gdata != null)
-			// flags.FUNCTIONAL_ANNOTATION = gdata.emapper != null
-			return [ speci, genome_id, flags ]
-		}
+			.map { speci, genome_id, old_flags, gdata -> 
+				def flags = old_flags.clone()
+				flags.RECOMBINASE_SCAN = (gdata != null)
+				return [ speci, genome_id, flags ]
+			}
+
+	// genome_status_ch = genome_status_ch
+	// 	.join(recombinase_annotation.out.genomes, by: [0, 1], remainder: true)
+	// 	.map { speci, genome_id, old_flags, gdata ->
+	// 		def flags = old_flags.clone()
+	// 		flags.RECOMBINASE_SCAN = (gdata != null)
+	// 		// flags.FUNCTIONAL_ANNOTATION = gdata.emapper != null
+	// 		return [ speci, genome_id, flags ]
+	// 	}
 
 	/* STEP 2b: Filter by recombinase presence */
 	with_speci_and_recombinase_ch = recombinase_annotation.out.genomes
@@ -122,11 +147,19 @@ workflow full_annotation {
 
 	genome_status_ch = genome_status_ch
 		.join(with_functional_annotation_ch, by: [0, 1], remainder: true)
-		.map { speci, genome_id, old_flags, gdata ->
-			def flags = old_flags.clone()
-			flags.FUNCTIONAL_ANNOTATION = (gdata != null)
-			return [ speci, genome_id, flags ]
-		}
+			.map { speci, genome_id, old_flags, gdata -> 
+				def flags = old_flags.clone()
+				flags.FUNCTIONAL_ANNOTATION = (gdata != null)
+				return [ speci, genome_id, flags ]
+			}
+
+	// genome_status_ch = genome_status_ch
+	// 	.join(with_functional_annotation_ch, by: [0, 1], remainder: true)
+	// 	.map { speci, genome_id, old_flags, gdata ->
+	// 		def flags = old_flags.clone()
+	// 		flags.FUNCTIONAL_ANNOTATION = (gdata != null)
+	// 		return [ speci, genome_id, flags ]
+	// 	}
 
 	/* STEP 2c: Obtain speci reference gene sequences */
 	speci_seqs_ch = with_functional_annotation_ch
@@ -169,11 +202,19 @@ workflow full_annotation {
 
 	genome_status_ch = genome_status_ch
 		.join(pangenome_analysis.out.genomes, by: [0, 1], remainder: true)
-		.map { speci, genome_id, old_flags, gdata ->
-			def flags = old_flags.clone()
-			flags.PANGENOME_ESTIMATION = (gdata != null)
-			return [ speci, genome_id, flags ]
-		}
+			.map { speci, genome_id, old_flags, gdata -> 
+				def flags = old_flags.clone()
+				flags.PANGENOME_ESTIMATION = (gdata != null)
+				return [ speci, genome_id, flags ]
+			}
+
+	// genome_status_ch = genome_status_ch
+	// 	.join(pangenome_analysis.out.genomes, by: [0, 1], remainder: true)
+	// 	.map { speci, genome_id, old_flags, gdata ->
+	// 		def flags = old_flags.clone()
+	// 		flags.PANGENOME_ESTIMATION = (gdata != null)
+	// 		return [ speci, genome_id, flags ]
+	// 	}
 
 	/* STEP 4 Protein annotation - phage signals and secretion systems */
 	// secretion_annotation(with_cluster_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotations[0] ] })
@@ -197,12 +238,20 @@ workflow full_annotation {
 	}
 	
 	genome_status_ch = genome_status_ch
-		.join(secretion_ch, by: [0, 1], remainder: true)
-		.map { speci, genome_id, old_flags, gdata ->
-			def flags = old_flags.clone()
-			flags.SECRETION_ANNOTATION = (gdata != null && gdata.secretion_data != null && gdata.secretion_data.text.strip() != "")
-			return [ speci, genome_id, flags ]
-		}
+		.join(secretion_annotation.out.genomes, by: [0, 1], remainder: true)
+			.map { speci, genome_id, old_flags, gdata -> 
+				def flags = old_flags.clone()
+				flags.SECRETION_ANNOTATION = (gdata != null && gdata.secretion_data != null && gdata.secretion_data.text.strip() != "")
+				return [ speci, genome_id, flags ]
+			}
+
+	// genome_status_ch = genome_status_ch
+	// 	.join(secretion_ch, by: [0, 1], remainder: true)
+	// 	.map { speci, genome_id, old_flags, gdata ->
+	// 		def flags = old_flags.clone()
+	// 		flags.SECRETION_ANNOTATION = (gdata != null && gdata.secretion_data != null && gdata.secretion_data.text.strip() != "")
+	// 		return [ speci, genome_id, flags ]
+	// 	}
 
 
 	/* STEP 5 Annotate the genomes with island data and assign mges */
@@ -223,17 +272,25 @@ workflow full_annotation {
 
 	genome_status_ch = genome_status_ch
 		.join(mgexpose.out.gff, by: [0, 1], remainder: true)
-		.map { speci, genome_id, old_flags, gdata ->
-			def flags = old_flags.clone()
-			flags.MGE_ANNOTATION = (gdata != null)
-			return [ speci, genome_id, flags ]
-		}
+			.map { speci, genome_id, old_flags, gdata -> 
+				def flags = old_flags.clone()
+				flags.MGE_ANNOTATION = (gdata != null)
+				return [ speci, genome_id, flags ]
+			}
 
-	Channel.of(["#species", "genome", "has_genes", "has_species", "has_recombinases", "has_functional", "has_secretion", "species_valid", "has_pangenome", "has_mges"])
+	// genome_status_ch = genome_status_ch
+	// 	.join(mgexpose.out.gff, by: [0, 1], remainder: true)
+	// 	.map { speci, genome_id, old_flags, gdata ->
+	// 		def flags = old_flags.clone()
+	// 		flags.MGE_ANNOTATION = (gdata != null)
+	// 		return [ speci, genome_id, flags ]
+	// 	}
+
+	Channel.of(["#species", "genome", "has_genes", "has_species", "species_valid", "has_recombinases", "has_functional", "has_secretion", "has_pangenome", "has_mges"])
 		.concat(
 			genome_status_ch
 				.map { speci, genome_id, flags -> [
-						speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.SECRETION_ANNOTATION, flags.SPECI_CLUSTER_SEQS, flags.PANGENOME_ESTIMATION, flags.MGE_ANNOTATION
+						speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.SECRETION_ANNOTATION, flags.PANGENOME_ESTIMATION, flags.MGE_ANNOTATION
 					]
 				}
 		)
