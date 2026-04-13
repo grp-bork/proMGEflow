@@ -142,7 +142,7 @@ workflow full_annotation {
 
 	genome_status_ch = genome_status_ch
 		.join(
-			genome_status
+			genome_status_ch
 				.map { speci, genome_id, flags -> [ speci, genome_id ] }
 				.combine(speci_refseqs_ch, by: 0),
 			by: [0, 1], remainder: true
