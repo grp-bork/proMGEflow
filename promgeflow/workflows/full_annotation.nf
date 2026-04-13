@@ -216,10 +216,10 @@ workflow full_annotation {
 			return [ speci, genome_id, flags ]
 		}
 
-	genome_status_ch.collectFile(name: "genome_status.txt", newLine: true) {
+	genome_status_ch.collectFile(name: "genome_status.txt", newLine: true, sort: true) {
 		speci, genome_id, flags -> [
 			speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.SECRETION_ANNOTATION, flags.SPECI_CLUSTER_SEQS, flags.PANGENOME_ESTIMATION, flags.MGE_ANNOTATION
-		].join("\t") + "\n"
+		].join("\t")
 
 	}
 
