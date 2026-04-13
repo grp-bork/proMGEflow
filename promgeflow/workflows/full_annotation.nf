@@ -42,16 +42,49 @@ workflow full_annotation {
 
 	handle_input_genomes()
 
+	genome_status_ch = Channel.empty()
+
 	/* STEP 1A: genome annotation via prodigal for genomes with known speci */
 	genome_annotation(handle_input_genomes.out.to_genome_annotation)
+
+	genome_status_ch = genome_status_ch
+		.mix(
+			handle_input_genomes.out.to_genome_annotation
+				.join(genome_annotation.out.genomes, by: [0, 1], remainder: true)
+				.map { speci, genome_id, genome_fasta, gdata -> 
+					def flags = [:]
+					flags.GENOME_ANNOTATION = (gdata != null)
+					return [ speci, genome_id, flags ]
+				}
+		)
+
 	/* STEP 1B: specI assignment via reCOGnise otherwise */
 	species_recognition(handle_input_genomes.out.to_species_recognition)
 
-	// potentially no longer needed
-	xgenomes_ch = handle_input_genomes.out.to_genome_annotation
-		.mix(handle_input_genomes.out.to_species_recognition)
-		.mix(handle_input_genomes.out.to_recombinase_scan)
-	xgenomes_ch.dump(pretty: true, tag: "xgenomes_ch")
+	genome_status_ch = genome_status_ch
+		.mix(
+			handle_input_genomes.out.to_species_recognition
+				.map { speci, genome_id, genome_fasta -> 
+					def flags = [:]
+					flags.GENOME_ANNOTATION = true
+					return [ speci, genome_id, flags ]
+				}
+		)
+		.join(species_recognition.out.genomes, by: 1, remainder: true)
+			.map { genome_id, old_speci, old_flags, speci, gdata -> 
+				def flags = old_flags.clone()
+				flags.SPECIES_RECOGNITION = (speci != "unknown" && speci != null)
+				return [ speci, genome_id, flags ]
+			}
+		.mix(
+			handle_input_genomes.out.to_recombinase_scan
+				.map { speci, genome_id, genome_fasta ->
+					def flags = [:]
+					flags.GENOME_ANNOTATION = true
+					flags.SPECIES_RECOGNITION = true
+					return [ speci, genome_id, flags ]
+				}
+		)
 
 	// prodigal output channels
 	genomes_ch = genome_annotation.out.genomes
@@ -62,6 +95,14 @@ workflow full_annotation {
 	/* STEP 2: Run recombinase annotation */
 	recombinase_annotation(genomes_ch)
 
+	genome_status_ch = genome_status_ch
+		.join(recombinase_annotation.out.genomes, by: [0, 1], remainder: true)
+		.map { speci, genome_id, old_flags, gdata ->
+			def flags = old_flags.clone()
+			flags.RECOMBINASE_SCAN = (gdata != null)
+			// flags.FUNCTIONAL_ANNOTATION = gdata.emapper != null
+			return [ speci, genome_id, flags ]
+		}
 
 	/* STEP 2b: Filter by recombinase presence */
 	with_speci_and_recombinase_ch = recombinase_annotation.out.genomes
@@ -79,6 +120,14 @@ workflow full_annotation {
 	with_functional_annotation_ch = emapper_input_ch.has_emapper
 		.mix(functional_annotation.out.genomes)
 
+	genome_status_ch = genome_status_ch
+		.join(with_functional_annotation_ch, by: [0, 1], remainder: true)
+		.map { speci, genome_id, old_flags, gdata ->
+			def flags = old_flags.clone()
+			flags.FUNCTIONAL_ANNOTATION = (gdata != null)
+			return [ speci, genome_id, flags ]
+		}
+
 	/* STEP 2c: Obtain speci reference gene sequences */
 	speci_seqs_ch = with_functional_annotation_ch
 		.map { speci, genome_id, gdata -> speci }
@@ -91,11 +140,27 @@ workflow full_annotation {
 		.join(get_db_seqs.out.done_sentinel, by: 0)
 		.map { speci, sequences, sentinel -> [ speci, sequences ] }
 
+	genome_status_ch = genome_status_ch
+		.join(speci_refseqs_ch, by: 0, remainder: true)
+		.map { speci, genome_id, old_flags, sequences ->
+			def flags = old_flags.clone()
+			flags.SPECI_CLUSTER_SEQS = (sequences != null)
+			return [ speci, genome_id, flags ]
+		}
+
 	/* STEP 3 Perform gene clustering */
 	pangenome_analysis(
 		with_functional_annotation_ch,
 		speci_refseqs_ch
 	)
+
+	genome_status_ch = genome_status_ch
+		.join(pangenome_analysis.out.genomes, by: [0, 1], remainder: true)
+		.map { speci, genome_id, old_flags, gdata ->
+			def flags = old_flags.clone()
+			flags.PANGENOME_ESTIMATION = (gdata != null)
+			return [ speci, genome_id, flags ]
+		}
 
 	/* STEP 4 Protein annotation - phage signals and secretion systems */
 	// secretion_annotation(with_cluster_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotations[0] ] })
@@ -118,6 +183,15 @@ workflow full_annotation {
 		secretion_ch = secretion_ch.mix(forced_secretion_ch)
 	}
 	
+	genome_status_ch = genome_status_ch
+		.join(secretion_ch, by: [0, 1], remainder: true)
+		.map { speci, genome_id, old_flags, gdata ->
+			def flags = old_flags.clone()
+			flags.SECRETION_ANNOTATION = (gdata != null && gdata.secretion_data != null && gdata.secretion_data.text.strip() != "")
+			return [ speci, genome_id, flags ]
+		}
+
+
 	/* STEP 5 Annotate the genomes with island data and assign mges */
 	// tuple val(speci), val(genome_id), path(gff), path(secretion), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
 
@@ -133,6 +207,16 @@ workflow full_annotation {
 		"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt",
 		params.simple_output
 	)
+
+	genome_status_ch = genome_status_ch
+		.join(mgexpose.out.gff, by: [0, 1], remainder: true)
+		.map { speci, genome_id, old_flags, gdata ->
+			def flags = old_flags.clone()
+			flags.MGE_ANNOTATION = (gdata != null)
+			return [ speci, genome_id, flags ]
+		}
+
+	genome_status_ch.collectFile(name: "genome_status.txt", newLine: true, sort: true)
 
 	/* STEP 6 Generate a pangenome report for the input genomes with identifed specI */
 
