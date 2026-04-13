@@ -217,7 +217,7 @@ workflow full_annotation {
 		}
 
 	genome_status_ch.collectFile(name: "genome_status.txt", newLine: true) {
-		speci, genome_id, flags -> "${speci}\\t${genome_id}\\t${flags}\\n"
+		speci, genome_id, flags -> "${speci}\t${genome_id}\t${flags.toMapString()}\\n"
 	}
 
 	/* STEP 6 Generate a pangenome report for the input genomes with identifed specI */
