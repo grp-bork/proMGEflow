@@ -216,7 +216,9 @@ workflow full_annotation {
 			return [ speci, genome_id, flags ]
 		}
 
-	genome_status_ch.collectFile(name: "genome_status.txt", newLine: true) //, sort: true)
+	genome_status_ch.collectFile(name: "genome_status.txt", newLine: true) {
+		speci, genome_id, flags -> "${speci}\\t${genome_id}\\t${flags}\\n"
+	}
 
 	/* STEP 6 Generate a pangenome report for the input genomes with identifed specI */
 
