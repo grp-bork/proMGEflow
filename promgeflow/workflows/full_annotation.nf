@@ -64,10 +64,10 @@ workflow full_annotation {
 	genome_status_ch = genome_status_ch
 		.mix(
 			handle_input_genomes.out.to_species_recognition
-				.map { speci, genome_id, genome_fasta -> 
+				.map { genome_id, genome_fasta -> 
 					def flags = [:]
 					flags.GENOME_ANNOTATION = true
-					return [ speci, genome_id, flags ]
+					return [ "unknown", genome_id, flags ]
 				}
 		)
 		.join(species_recognition.out.genomes, by: 1, remainder: true)
