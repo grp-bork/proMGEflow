@@ -74,6 +74,7 @@ workflow full_annotation {
 		.join(species_recognition.out.genomes, by: 1, remainder: true)
 			.map { genome_id, speci_old, old_flags, speci, gdata -> 
 				def flags = old_flags.clone()
+				flags.GENOME_ANNOTATION = (gdata != null && gdata.genes != null && gdata.proteins != null && gdata.gff != null)
 				flags.SPECIES_RECOGNITION = (speci != null && speci != "unknown")
 				return [ speci, genome_id, flags ]
 			}
