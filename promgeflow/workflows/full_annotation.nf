@@ -46,7 +46,7 @@ workflow full_annotation {
 
 	/* STEP 1A: genome annotation via prodigal for genomes with known speci */
 	genome_annotation(handle_input_genomes.out.to_genome_annotation)
-	genome_status_ch = genome_status_ch.mix(genome_annotation.out.status)
+	// genome_status_ch = genome_status_ch.mix(genome_annotation.out.status)
 
 	genome_status_ch = genome_status_ch
 		.join(genome_annotation.out.genomes, by: [0, 1], remainder: true)
