@@ -229,7 +229,7 @@ workflow full_annotation {
 			return [ speci, genome_id, flags ]
 		}
 
-	Channel.of(["species", "genome", "has_genes", "has_species", "has_recombinases", "has_functional", "has_secretion", "species_valid", "has_pangenome", "has_mges"])
+	Channel.of(["#species", "genome", "has_genes", "has_species", "has_recombinases", "has_functional", "has_secretion", "species_valid", "has_pangenome", "has_mges"])
 		.concat(
 			genome_status_ch
 				.map { speci, genome_id, flags -> [
