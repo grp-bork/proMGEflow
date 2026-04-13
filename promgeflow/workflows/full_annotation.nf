@@ -141,7 +141,7 @@ workflow full_annotation {
 		.map { speci, sequences, sentinel -> [ speci, sequences ] }
 
 	genome_status_ch = genome_status_ch
-		.join(speci_refseqs_ch, by: 0, remainder: true)
+		.combine(speci_refseqs_ch, by: 0, remainder: true)
 		.map { speci, genome_id, old_flags, sequences ->
 			def flags = old_flags.clone()
 			flags.SPECI_CLUSTER_SEQS = (sequences != null)
