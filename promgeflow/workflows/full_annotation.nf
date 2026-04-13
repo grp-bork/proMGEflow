@@ -231,10 +231,12 @@ workflow full_annotation {
 
 	Channel.of("speci", "genome", "has_genes", "has_species", "has_recombinases", "has_functional", "has_secretion", "species_valid", "has_pangenome", "has_mges")
 		.mix(genome_status_ch)
-			.collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${params.output_dir}") {
-				speci, genome_id, flags -> [
+			.map { speci, genome_id, flags -> [
 					speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.SECRETION_ANNOTATION, flags.SPECI_CLUSTER_SEQS, flags.PANGENOME_ESTIMATION, flags.MGE_ANNOTATION
-				].join("\t")
+				]
+			}
+			.collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${params.output_dir}") {
+				item -> item.join("\t")
 			}
 
 	/* STEP 6 Generate a pangenome report for the input genomes with identifed specI */
