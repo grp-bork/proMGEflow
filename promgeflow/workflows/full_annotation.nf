@@ -141,12 +141,25 @@ workflow full_annotation {
 		.map { speci, sequences, sentinel -> [ speci, sequences ] }
 
 	genome_status_ch = genome_status_ch
-		.combine(speci_refseqs_ch, by: 0, remainder: true)
-		.map { speci, genome_id, old_flags, sequences ->
+		.join(
+			genome_status
+				.map { speci, genome_id, flags -> [ speci, genome_id ] }
+				.combine(speci_refseqs_ch, by: 0),
+			by: [0, 1], remainder: true
+		)
+		.map { speci, genome_id, old_flags, sequences -> 
 			def flags = old_flags.clone()
 			flags.SPECI_CLUSTER_SEQS = (sequences != null)
 			return [ speci, genome_id, flags ]
 		}
+
+	// genome_status_ch = genome_status_ch
+	// 	.combine(speci_refseqs_ch, by: 0, remainder: true)
+	// 	.map { speci, genome_id, old_flags, sequences ->
+	// 		def flags = old_flags.clone()
+	// 		flags.SPECI_CLUSTER_SEQS = (sequences != null)
+	// 		return [ speci, genome_id, flags ]
+	// 	}
 
 	/* STEP 3 Perform gene clustering */
 	pangenome_analysis(
