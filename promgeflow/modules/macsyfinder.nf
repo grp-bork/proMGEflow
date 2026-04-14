@@ -27,7 +27,14 @@ process macsyfinder {
 	fi
 
 	macsyfinder -vvv -w ${task.cpus} --models CONJ all --models-dir ${models} -o ${prefix} --db-type unordered --multi-loci all --sequence-db macsy.faa
-	cp -v ${prefix}/all_systems.tsv ${prefix}/${genome_id}.all_systems.tsv || touch ${prefix}/${genome_id}.all_systems.tsv
+	
+	touch ${prefix}/all_systems.tsv
+
+	if [[ ! -z \$(grep -v "^#" ${prefix}/all_systems.tsv) ]]; then
+		cp -v ${prefix}/all_systems.tsv ${prefix}/${genome_id}.all_systems.tsv
+	else
+		touch ${prefix}/${genome_id}.all_systems.tsv
+	fi
 
 	rm -vf macsy.faa
 	"""

@@ -75,20 +75,8 @@ workflow species_recognition {
 				gdata.speci = speci			
 				return [ speci, genome_id, gdata ]
 			}
-		
-
-
-			// // .join(genome_speci_ch, by: 0)
-			// .join(recognise_input_ch.unannotated, by: 0, )
-			// .map { genome_id, annotations, speci -> [speci, genome_id, annotations] }
-
-		// pgenomes_ch = genome_speci_ch
-		// 	.join(genomes_ch, by: 0)
-		// 	.map { genome_id, speci, genome_fasta -> [speci, genome_id, genome_fasta] }
 
 	emit:
 		genomes = recognise_output_ch
-		// annotations = annotations_ch
-		// genomes = pgenomes_ch
 
 }
