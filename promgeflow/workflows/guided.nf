@@ -71,13 +71,13 @@ process collate_recombinase_contig_stats {
 	path(files)
 
 	output:
-	path("recombinase_stats.tsv")
+	path("recombinase_contigs_stats.tsv")
 
 	script:
 	"""
-	printf "genome\\tn_contigs\\tn_rcontigs\\tfr_rcontigs\\tlen_contigs\\tlen_rcontigs\\tfr_len_rcontigs\\n" > recombinase_stats.tsv
+	printf "genome\\tn_contigs\\tn_rcontigs\\tfr_rcontigs\\tlen_contigs\\tlen_rcontigs\\tfr_len_rcontigs\\n" > recombinase_contigs_stats.tsv
 
-	awk -v OFS='\\t' '{ print gensub(/\\.RECOMBINASE_CONTIGS\\.DONE\$/, "", "g", FILENAME),\$1,\$2,\$2/\$1,\$3,\$4,\$4/\$3}' ${files} | sort -k1,1 >> recombinase_stats.tsv
+	awk -v OFS='\\t' '{ print gensub(/\\.RECOMBINASE_CONTIGS\\.DONE\$/, "", "g", FILENAME),\$1,\$2,\$2/\$1,\$3,\$4,\$4/\$3}' ${files} | sort -k1,1 >> recombinase_contigs_stats.tsv
 
 	"""
 	// awk -v OFS='\\t' 'BEGIN { print "n_contigs","with_recombinase"; } {print FILENAME,\$0}' ${files} > recombinase_stats.tsv
