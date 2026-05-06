@@ -34,17 +34,31 @@ process extract_recombinase_contigs {
 
 	script:
 	"""
-	seqtk subseq ${fasta} <(grep -v "^#" ${gff} | cut -f 1 | uniq | sort -u) | gzip -c - > ${genome_id}.recombinase_contigs.fa.gz
+	seqtk subseq ${fasta} <(grep -v "^#" ${gff} | cut -f 1 | uniq | sort -u) > ${genome_id}.recombinase_contigs.fa
 
-	if [[ -z \$(zcat ${genome_id}.recombinase_contigs.fa.gz | head -n 1) ]]; then 
-		rm -fv ${genome_id}.recombinase_contigs.fa.gz;
-		printf "%s\\t0\\n" "\$(zgrep -c '^>' ${fasta})" > ${genome_id}.RECOMBINASE_CONTIGS.DONE
+	zcat ${fasta} > CONTIGS.fa
+
+	n_contigs=\$(grep -c '^>' CONTIGS.fa)
+	s_contigs=\$(grep -v '^>' CONTIGS.fa | tr -d "\\n" | wc -c)
+
+	rm -fv CONTIGS.fa
+
+	if [[ ! -s ${genome_id}.recombinase_contigs.fa ]]; then 
+		n_rec_contigs=0
+		s_rec_contigs=0
+		rm -fv ${genome_id}.recombinase_contigs.fa
 	else
-		printf "%s\\t%s\\n" "\$(zgrep -c '^>' ${fasta})" "\$(zgrep -c '^>' ${genome_id}.recombinase_contigs.fa.gz)" > ${genome_id}.RECOMBINASE_CONTIGS.DONE
+		n_rec_contigs=\$(grep -c '^>' ${genome_id}.recombinase_contigs.fa)
+		s_rec_contigs=\$(grep -v '^>' ${genome_id}.recombinase_contigs.fa | tr -d "\\n" | wc -c)
+		gzip -v ${genome_id}.recombinase_contigs.fa
 	fi
+	
+	printf "%s\\t%s\\t%s\\t%s\\n" "\$n_contigs" "\$n_rec_contigs" "\$s_contigs" "\$s_rec_contigs" > ${genome_id}.RECOMBINASE_CONTIGS.DONE
 
 	"""
 	// seqtk subseq ${sample.id}_1.fastq chimeras.txt >> chimeras.fastq
+
+
 
 }
 
@@ -61,8 +75,15 @@ process collate_recombinase_contig_stats {
 
 	script:
 	"""
-	awk -v OFS='\\t' 'BEGIN { print "n_contigs","with_recombinase"; } {print FILENAME,\$0}' > recombinase_stats.tsv
+	printf "genome\\tn_contigs\\tn_rcontigs\\tfr_rcontigs\\tlen_contigs\\tlen_rcontigs\\tfr_len_rcontigs\\n" > recombinase_stats.tsv
+
+	awk -v OFS='\\t' '{ print gensub(/\.RECOMBINASE_CONTIGS\.DONE$/, "", "g", FILENAME),\$1,\$2,\$2/\$1,\$3,\$4,\$4/\$3}' | sort -k1,1 >> recombinase_stats.tsv
+
 	"""
+	// awk -v OFS='\\t' 'BEGIN { print "n_contigs","with_recombinase"; } {print FILENAME,\$0}' ${files} > recombinase_stats.tsv
+
+	// "genome\tn_contigs\tn_rcontigs\tfr_rcontigs\tlen_contigs\tlen_rcontigs\tfr_len_rcontigs\n"
+	// awk -F : -v OFS='\t' 'BEGIN {sample=""; count=0;} {if (sample==$1) { frac=$2; if (count<frac) { frac=count; count=$2; }; print sample,count,frac,frac/count; sample=""; count=0; } else { if (sample=="") { sample=$1; count=$2; } else { print sample,count,0.0; } };}'
 }
 
 params.mgedb = "/scratch/schudoma/databases/mge/mge_sequences_unique.fa"
