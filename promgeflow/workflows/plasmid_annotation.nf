@@ -29,7 +29,7 @@ workflow plasmid_annotation {
 	genome_annotation(genomes_ch)	
 
 	// prodigal output channels
-	annotations_ch = genome_annotation.out.genomes
+		annotations_ch = genome_annotation.out.genomes
 
 	annotations_ch.dump(pretty: true, tag: "annotations_ch")
 
@@ -76,7 +76,7 @@ workflow plasmid_annotation {
 	// 	tuple val(speci), val(genome_id), path(gff), path(txsscan), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
 
 	annotation_data_ch = secretion_ch
-		.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.gff, gdata.secretion_data, gdata.emapper, gdata.gene_clusters, gdata.recombinases, gdata.genome ] }
+		.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.region_id, gdata.gff, gdata.secretion_data, gdata.emapper, gdata.recombinases, gdata.genome ] }
 
 	// annotation_data_ch = filtered_gff_ch
 	// 	.join( secretion_annotation.out.txsscan, by: [0, 1] )

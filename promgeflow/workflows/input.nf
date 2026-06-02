@@ -30,6 +30,7 @@ workflow handle_input_plasmids {
 			def gdata = [:]
 			gdata.speci = "plasmid"
 			gdata.genome_id = genome_id
+			gdata.region_id = region_id
 			gdata.genome = fasta
 			return [ gdata.speci, gdata.genome_id, gdata ]
 		}

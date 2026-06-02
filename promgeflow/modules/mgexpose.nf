@@ -91,7 +91,7 @@ process mgexpose_region {
 	tag "${speci}/${genome_id}"
 
 	input:
-	tuple val(speci), val(genome_id), path(gff), path(conjscan), path(emapper), val(region_id), path(recombinases), path(genome_fa)
+	tuple val(speci), val(genome_id), val(region_id), path(gff), path(conjscan), path(emapper), path(recombinases), path(genome_fa)
 	path(mge_rules)
 	path(conjscan_rules)
 	path(phage_filter_terms)
