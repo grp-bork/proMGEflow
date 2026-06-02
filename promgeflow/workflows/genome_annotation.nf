@@ -73,7 +73,7 @@ workflow genome_annotation {
 				def gdata = gdata_old.clone()
 				gdata.proteins = files[0]
 				gdata.genes = files[1]
-				gdata.gff = files[3]
+				gdata.gff = files[2]
 				return [ speci, genome_id, gdata ]
 			}
 
