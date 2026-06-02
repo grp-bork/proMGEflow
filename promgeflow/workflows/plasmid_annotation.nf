@@ -29,14 +29,14 @@ workflow plasmid_annotation {
 	genome_annotation(genomes_ch)	
 
 	// prodigal output channels
-	annotations_ch = genome_annotation.out.annotations
+	annotations_ch = genome_annotation.out.genomes
 
 	annotations_ch.dump(pretty: true, tag: "annotations_ch")
 
 	/* STEP 2: Run recombinase annotation */
 	recombinase_annotation(
 		annotations_ch
-			.map { it -> [it[0], it[1], it[2][0]] }
+		//	.map { it -> [it[0], it[1], it[2][0]] }
 	)
 
 	with_recombinase_ch = recombinase_annotation.out.genomes
