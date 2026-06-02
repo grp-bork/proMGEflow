@@ -53,7 +53,7 @@ workflow plasmid_annotation {
 	with_functional_annotation_ch = emapper_input_ch.has_emapper
 		.mix(functional_annotation.out.genomes)
 
-	secretion_annotation(with_functional_annotation_ch.out.genomes)
+	secretion_annotation(with_functional_annotation_ch)
 	secretion_ch = secretion_annotation.out.genomes
 	if (params.force_secretion_analysis) {
 		// in certain situations, we want to annotate the secretion system 
