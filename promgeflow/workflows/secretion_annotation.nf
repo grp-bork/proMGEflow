@@ -2,7 +2,7 @@ include { macsyfinder } from "../modules/macsyfinder"
 
 // phasing out nested parameters
 params.txsscan = [:]
-params.txsscan.db = null
+params.txsscan.db = params.txsscan_db
 params.conjscan_models = params.txsscan.db
 
 
