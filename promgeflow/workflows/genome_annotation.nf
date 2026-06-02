@@ -68,11 +68,12 @@ workflow genome_annotation {
 
 		prodigal_output_ch = genomes_ch
 			.join(annotations_ch, by: [0, 1])
-			.map { speci, genome_id, gdata_old, proteins, genes, gff ->
+			// .map { speci, genome_id, gdata_old, proteins, genes, gff ->
+			.map { speci, genome_id, gdata_old, files ->
 				def gdata = gdata_old.clone()
-				gdata.proteins = proteins
-				gdata.genes = genes
-				gdata.gff = gff
+				gdata.proteins = files[0]
+				gdata.genes = files[1]
+				gdata.gff = files[3]
 				return [ speci, genome_id, gdata ]
 			}
 
