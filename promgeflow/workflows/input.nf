@@ -26,8 +26,14 @@ workflow handle_input_plasmids {
 
 		plasmids_ch.dump(pretty: true, tag: "plasmids_ch")
 
-		genomes_ch = plasmids_ch.map { genome_id, contig_id, region_id, file -> [ "plasmid", genome_id, file ] }
-		regions_ch = plasmids_ch.map { genome_id, contig_id, region_id, file -> [ "plasmid", genome_id, region_id ] }
+		genomes_ch = plasmids_ch.map { genome_id, contig_id, region_id, fasta -> 
+			def gdata = [:]
+			gdata.speci = "plasmid"
+			gdata.genome_id = genome_id
+			gdata.genome = fasta
+			return [ gdata.speci, gdata.genome_id, gdata ]
+		}
+		regions_ch = plasmids_ch.map { genome_id, contig_id, region_id, fasta -> [ "plasmid", genome_id, region_id ] }
 
 	emit:
 		genomes = genomes_ch
