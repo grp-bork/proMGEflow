@@ -201,7 +201,6 @@ workflow full_annotation {
 		speci_refseqs_ch
 	)
 
-<<<<<<< HEAD
 	genome_status_ch = genome_status_ch
 		.join(pangenome_analysis.out.genomes, by: [0, 1], remainder: true)
 			.map { speci, genome_id, old_flags, gdata -> 
@@ -218,20 +217,12 @@ workflow full_annotation {
 	// 		return [ speci, genome_id, flags ]
 	// 	}
 
-	/* STEP 4 Protein annotation - phage signals and secretion systems */
-	// secretion_annotation(with_cluster_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotations[0] ] })
-	secretion_annotation(pangenome_analysis.out.genomes)
-	secretion_ch = secretion_annotation.out.genomes
-	if (params.force_secretion_analysis) {
-		// in certain situations, we want to annotate the secretion system 
-=======
 	/* STEP 4 Protein annotation - phage signals and conjugation systems */
 	// conjugation_system_annotation(with_cluster_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotations[0] ] })
 	conjugation_system_annotation(pangenome_analysis.out.genomes)
 	conjugation_system_ch = conjugation_system_annotation.out.genomes
 	if (params.force_conjugation_system_analysis) {
 		// in certain situations, we want to annotate conjugation systems
->>>>>>> main
 		// on genomes without pangenome
 		// e.g. bulk annotation with preliminary pangenome data
 		dummy_clusters = file('DUMMY_CLUSTERS.txt')
