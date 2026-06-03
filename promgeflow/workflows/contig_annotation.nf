@@ -7,7 +7,7 @@ include { publish_gene_annotations; publish_recombinase_scan } from "../modules/
 
 include { genome_annotation } from "./genome_annotation"
 include { recombinase_annotation } from "./recombinase_annotation"
-include { secretion_annotation } from "./secretion_annotation"
+include { conjugation_system_annotation } from "./conjugation_system_annotation"
 include { functional_annotation } from "./functional_annotation"
 
 include { handle_input_contigs } from "./input"
@@ -50,13 +50,13 @@ workflow contig_annotation {
 	with_functional_annotation_ch = emapper_input_ch.has_emapper
 		.mix(functional_annotation.out.genomes)
 
-	secretion_annotation(with_functional_annotation_ch)
-	secretion_ch = secretion_annotation.out.genomes
+	conjugation_system_annotation(with_functional_annotation_ch)
+	conjugation_system_ch = conjugation_system_annotation.out.genomes
 
 	/* STEP 5 Annotate the genomes with island data and assign mges */
 
-	annotation_data_ch = secretion_ch
-		.map { speci, genome_id, gdata -> [ speci, genome_id, "dummy_region", gdata.gff, gdata.secretion_data, gdata.emapper, gdata.recombinases, gdata.genome ] }
+	annotation_data_ch = conjugation_system_ch
+		.map { speci, genome_id, gdata -> [ speci, genome_id, "dummy_region", gdata.gff, gdata.conjugation_system_data, gdata.emapper, gdata.recombinases, gdata.genome ] }
 
 	annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
 
@@ -71,7 +71,7 @@ workflow contig_annotation {
 	/* STEP X Publish gene annotations of input genomes that were not pre-annotated */
 
 	publish_gene_annotations(
-		secretion_annotation.out.genomes
+		conjugation_system_annotation.out.genomes
 			.join(mgexpose_region.out.gff, by: [0, 1])
 			.join(genomes_ch, by: [0, 1])
 			.map { speci, genome_id, gdata, mge_gff, gdata_raw -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] },

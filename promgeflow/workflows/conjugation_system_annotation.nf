@@ -6,7 +6,7 @@ params.txsscan.db = params.txsscan_db
 params.conjscan_models = params.txsscan.db
 
 
-workflow secretion_annotation {
+workflow conjugation_system_annotation {
 
 	take:
 		genomes_ch
@@ -17,9 +17,9 @@ workflow secretion_annotation {
 		macsyfinder(filtered_proteins_ch, params.conjscan_models)
 		macsy_reports_ch = genomes_ch
 			.join(macsyfinder.out.macsy_report, by: [0, 1])
-			.map { speci, genome_id, gdata_old, secretion ->
+			.map { speci, genome_id, gdata_old, conjugation_system ->
 				def gdata = gdata_old.clone()
-				gdata.secretion_data = secretion
+				gdata.conjugation_system_data = conjugation_system
 				return [ speci, genome_id, gdata ]
 			}
 
