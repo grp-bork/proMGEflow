@@ -27,7 +27,7 @@ workflow genome_annotation {
 			genome_map = genome_data_ch 
 				.map { speci, genome_id, genome_fasta ->
 					// [ genome_fasta.replaceAll(/.+\//, ""), genome_id ]
-					[ genome_fasta.getName(), genome_id ]
+					[ (genome_fasta instanceof String ? genome_fasta.replaceAll(/.+\//, "") : genome_fasta.getName()), genome_id ]
 				}
 
 			genome_map.dump(pretty: true, tag: "genome_map")
@@ -68,11 +68,12 @@ workflow genome_annotation {
 
 		prodigal_output_ch = genomes_ch
 			.join(annotations_ch, by: [0, 1])
-			.map { speci, genome_id, gdata_old, proteins, genes, gff ->
+			// .map { speci, genome_id, gdata_old, proteins, genes, gff ->
+			.map { speci, genome_id, gdata_old, files ->
 				def gdata = gdata_old.clone()
-				gdata.proteins = proteins
-				gdata.genes = genes
-				gdata.gff = gff
+				gdata.proteins = files[0]
+				gdata.genes = files[1]
+				gdata.gff = files[2]
 				return [ speci, genome_id, gdata ]
 			}
 

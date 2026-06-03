@@ -70,17 +70,27 @@ Installation
 Usage
 -----
 
-```
-nextflow run grp-bork/promgeflow --input_dir /path/to/input/genome/fasta/files --output_dir /path/to/output
-```
+### Run Modes
+
+#### `deNovo`: pangenome-based MGE annotation in isolate genomes and binned metagenomes
+
+This is the default mode.
 
 ### Input
 
 #### Via input directory
 
+```
+nextflow run grp-bork/promgeflow --input_dir /path/to/input/genome/fasta/files --output_dir /path/to/output
+```
+
 `proMGEflow` takes as input a set of input genome fasta files. The input files must be stored / linked into a directory, which can be supplied to the workflow via the `--input_dir` parameter. Input genome files can be gzipped and should have a common file ending (supported are `.fa`, `.fasta`, and `.fna`, with or without `.gz` suffix).
 
 #### Via samplesheet
+
+```
+nextflow run grp-bork/promgeflow --input_sheet /path/to/input-sheet.tsv --output_dir /path/to/output
+```
 
 Alternatively, you can supply a samplesheet via the `--input_sheet` parameter. This must be a tab-separated text file with the following columns (without headers):
 
@@ -98,9 +108,20 @@ Additionally, precomputed functional annotations can be specified as well:
 
 7. eggnog-mapper output (.tsv)
 
+
+#### `contig`: MGE annotation within contig boundaries
+
+This mode is designed to detect and annotate MGEs on short sequences or small sets of short contigs, such as generated when assembling plasmids. It is activated setting the `--run_mode` parameter to `contig`. It treats input contigs as potential mobile regions and thus requires no pangenome estimation as no islands have to be delineated. Nevertheless, the resulting MGE candidates will only span the region between the outermost genes on the contig.
+
+Input sequences must be provided in one fasta file per genomic unit (e.g. a set of contigs/scaffolds from a plasmid assembly). Sequences can be pre-filtered by length using the `--max_contig_length` parameter.  If a samplesheet is provided, the `specI cluster` column has to be set to `contig` for each input file.
+
+
+
+
 ### Output
 
 Upon successful MGE detection in an input genome `proMGEflow` returns a gff with the annotated MGEs, the extracted sequences of the MGEs as well as a set of gene coordinates, gene and protein sequences as predicted by `prodigal`.
 
 In case the input genome could not undergo pangenome analysis or no MGEs could be found, `proMGEflow` will return a set of predicted recombinases in the input genome.
 
+By default, output is sorted in directory trees of the pattern `<specI>/<genome>/` in order to not flood the output directory with massive numbers of genome-specific directories. If this behaviour is not desired, it can be turned off by setting the `--simple_output` parameter.
