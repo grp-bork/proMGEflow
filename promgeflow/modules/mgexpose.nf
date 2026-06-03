@@ -35,7 +35,9 @@ process mgexpose {
 	fi
 
 
-	echo mgexpose denovo ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
+	echo mgexpose denovo ${genome_id} mgexpose.gff \
+			--recombinase_hits ${recombinases} \
+			--mge_rules ${mge_rules} \
 			--speci ${speci} \
 			--txs_macsy_rules ${conjscan_rules} \
 			--txs_macsy_report ${conjscan} \
@@ -43,14 +45,12 @@ process mgexpose {
 			--phage_filter_terms ${phage_filter_terms} \
 			--cluster_data ${gene_clusters} \
 			--output_dir ${outdir} \
-			--write_gff \
-			--write_genes_to_gff \
-			--add_functional_annotation \
-			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands \
 			${y_cluster_option}
-	mgexpose denovo ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
+	mgexpose denovo ${genome_id} mgexpose.gff \
+			--recombinase_hits ${recombinases} \
+			--mge_rules ${mge_rules} \
 			--speci ${speci} \
 			--txs_macsy_rules ${conjscan_rules} \
 			--txs_macsy_report ${conjscan} \
@@ -58,10 +58,6 @@ process mgexpose {
 			--phage_filter_terms ${phage_filter_terms} \
 			--cluster_data ${gene_clusters} \
 			--output_dir ${outdir} \
-			--write_gff \
-			--write_genes_to_gff \
-			--add_functional_annotation \
-			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands \
 			${y_cluster_option}
