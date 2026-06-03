@@ -27,7 +27,7 @@ workflow genome_annotation {
 			genome_map = genome_data_ch 
 				.map { speci, genome_id, genome_fasta ->
 					// [ genome_fasta.replaceAll(/.+\//, ""), genome_id ]
-					[ genome_fasta.getName(), genome_id ]
+					[ genome_fasta instanceof String ? genome_fasta : genome_fasta.getName(), genome_id ]
 				}
 
 			genome_map.dump(pretty: true, tag: "genome_map")
