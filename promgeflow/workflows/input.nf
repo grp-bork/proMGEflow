@@ -73,7 +73,7 @@ workflow handle_input_genomes {
 				SPECI_CLUSTER_SEQS: false,
 				RECOMBINASE_SCAN: false,
 				FUNCTIONAL_ANNOTATION: (gdata != null && gdata.emapper != null),
-				SECRETION_ANNOTATION: false,
+				CONJUGATION_SYSTEM_ANNOTATION: false,
 				PANGENOME_ESTIMATION: false,
 				MGE_ANNOTATION: false
 			]

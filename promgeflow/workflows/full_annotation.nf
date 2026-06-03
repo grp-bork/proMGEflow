@@ -227,7 +227,6 @@ workflow full_annotation {
 		// e.g. bulk annotation with preliminary pangenome data
 		dummy_clusters = file('DUMMY_CLUSTERS.txt')
 
-
 		forced_conjugation_system_annotation(with_functional_annotation_ch)
 		forced_conjugation_system_ch = forced_conjugation_system_annotation.out.genomes
 			.map { speci, genome_id, gdata_old -> 
@@ -239,18 +238,18 @@ workflow full_annotation {
 	}
 	
 	genome_status_ch = genome_status_ch
-		.join(secretion_annotation.out.genomes, by: [0, 1], remainder: true)
+		.join(conjugation_system_annotation.out.genomes, by: [0, 1], remainder: true)
 			.map { speci, genome_id, old_flags, gdata -> 
 				def flags = old_flags.clone()
-				flags.SECRETION_ANNOTATION = (gdata != null && gdata.secretion_data != null && gdata.secretion_data.text.strip() != "")
+				flags.CONJUGATION_SYSTEM_ANNOTATION = (gdata != null && gdata.conjugation_system_data != null && gdata.conjugation_system_data.text.strip() != "")
 				return [ speci, genome_id, flags ]
 			}
 
 	// genome_status_ch = genome_status_ch
-	// 	.join(secretion_ch, by: [0, 1], remainder: true)
+	// 	.join(conjugation_system_ch, by: [0, 1], remainder: true)
 	// 	.map { speci, genome_id, old_flags, gdata ->
 	// 		def flags = old_flags.clone()
-	// 		flags.SECRETION_ANNOTATION = (gdata != null && gdata.secretion_data != null && gdata.secretion_data.text.strip() != "")
+	// 		flags.CONJUGATION_SYSTEM_ANNOTATION = (gdata != null && gdata.conjugation_system_data != null && gdata.conjugation_system_data.text.strip() != "")
 	// 		return [ speci, genome_id, flags ]
 	// 	}
 
@@ -287,11 +286,11 @@ workflow full_annotation {
 	// 		return [ speci, genome_id, flags ]
 	// 	}
 
-	Channel.of(["#species", "genome", "has_genes", "has_species", "species_valid", "has_recombinases", "has_functional", "has_secretion", "has_pangenome", "has_mges"])
+	Channel.of(["#species", "genome", "has_genes", "has_species", "species_valid", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
 		.concat(
 			genome_status_ch
 				.map { speci, genome_id, flags -> [
-						speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.SECRETION_ANNOTATION, flags.PANGENOME_ESTIMATION, flags.MGE_ANNOTATION
+						speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_ESTIMATION, flags.MGE_ANNOTATION
 					]
 				}
 		)
