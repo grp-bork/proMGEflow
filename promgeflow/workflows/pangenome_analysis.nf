@@ -21,7 +21,7 @@ workflow pangenome_analysis {
 		linclust_clusters_ch = linclust.out.mmseq_cluster
 			.join(linclust.out.done_sentinel, by: [0, 1], remainder: true)
 			.map { speci, genome_id, clusters, sentinel ->
-				[ speci, genome_id, clusters, (sentinel != null) ? clusters : null ]
+				[ speci, genome_id, (sentinel != null) ? clusters : null ]
 			}
 		linclust_clusters_ch = genomes_ch
 			.join(linclust_clusters_ch, by: [0, 1], remainder: true)
