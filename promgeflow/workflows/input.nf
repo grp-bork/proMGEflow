@@ -29,6 +29,19 @@ workflow handle_input_contigs {
 				}
 		}
 
+		genomes_ch = genomes_ch.map { speci, genome_id, gdata ->
+			def flags = [
+				GENOME_ANNOTATION: (gdata != null && gdata.genes != null && gdata.proteins != null && gdata.gff != null),
+				SPECIES_RECOGNITION: (speci != null && speci != "unknown"),
+				SPECI_CLUSTER_SEQS: false,
+				RECOMBINASE_SCAN: false,
+				FUNCTIONAL_ANNOTATION: (gdata != null && gdata.emapper != null),
+				CONJUGATION_SYSTEM_ANNOTATION: false,
+				PANGENOME_ESTIMATION: false,
+				MGE_ANNOTATION: false
+			]
+			return [ speci, genome_id, gdata, flags ]
+
 	emit:
 		genomes = genomes_ch
 }
@@ -66,7 +79,8 @@ workflow handle_input_genomes {
 			speci_ch = Channel.of(speci_tag)
 		}
 
-		status_ch = genomes_ch.map { speci, genome_id, gdata ->
+		// status_ch = genomes_ch.map { speci, genome_id, gdata ->
+		genomes_ch = genomes_ch.map { speci, genome_id, gdata ->
 			def flags = [
 				GENOME_ANNOTATION: (gdata != null && gdata.genes != null && gdata.proteins != null && gdata.gff != null),
 				SPECIES_RECOGNITION: (speci != null && speci != "unknown"),
@@ -77,9 +91,8 @@ workflow handle_input_genomes {
 				PANGENOME_ESTIMATION: false,
 				MGE_ANNOTATION: false
 			]
-			return [ speci, genome_id, flags ]
+			return [ speci, genome_id, gdata, flags ]
 		}
-
 
 		genomes_ch
 			.branch {
@@ -93,9 +106,9 @@ workflow handle_input_genomes {
 		to_recombinase_scan = genomes_speci_ch.speci_annotated
 		to_genome_annotation = genomes_speci_ch.speci_unannotated
 		to_species_recognition = genomes_speci_ch.speci_unknown
-			.map { speci, genome_id, gdata -> [ genome_id, gdata ] }
+			.map { speci, genome_id, gdata, flags -> [ genome_id, gdata, flags ] }
 		speci = speci_ch
-		status = status_ch
+		// status = status_ch
 
 
 }
