@@ -119,7 +119,7 @@ process mgexpose_region {
 			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
 			--phage_filter_terms ${phage_filter_terms} \
-			--precomputed_islands region.txt \
+			--contigs_are_islands \
 			--output_dir ${outdir} \
 			--write_gff \
 			--write_genes_to_gff \
@@ -134,7 +134,7 @@ process mgexpose_region {
 			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
 			--phage_filter_terms ${phage_filter_terms} \
-			--precomputed_islands region.txt \
+			--contigs_are_islands \
 			--output_dir ${outdir} \
 			--write_gff \
 			--write_genes_to_gff \
