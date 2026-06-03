@@ -113,7 +113,9 @@ process mgexpose_region {
 
 	echo ${region_id} > region.txt
 
-	echo mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
+	echo mgexpose denovo ${genome_id} ${gff} \
+			--recombinase_hits ${recombinases} \
+			--mge_rules ${mge_rules} \
 			--speci no_speci \
 			--txs_macsy_rules ${conjscan_rules} \
 			--txs_macsy_report ${conjscan} \
@@ -128,7 +130,9 @@ process mgexpose_region {
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands
 
-	mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
+	mgexpose denovo ${genome_id} ${gff} \
+			--recombinase_hits ${recombinases} \
+			--mge_rules ${mge_rules} \
 			--speci no_speci \
 			--txs_macsy_rules ${conjscan_rules} \
 			--txs_macsy_report ${conjscan} \
