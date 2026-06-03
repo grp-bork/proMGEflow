@@ -41,6 +41,7 @@ workflow handle_input_contigs {
 				MGE_ANNOTATION: false
 			]
 			return [ speci, genome_id, gdata, flags ]
+		}
 
 	emit:
 		genomes = genomes_ch
