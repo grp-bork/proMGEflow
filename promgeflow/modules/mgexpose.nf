@@ -2,6 +2,7 @@
 process mgexpose {
 	label "annotate_genome"
 	label "medium"
+	label "mgexpose"
 	container "ghcr.io/grp-bork/mgexpose:v3.10.0"
 	// executor "local"  -> move to run.config @ EMBL
 	tag "${speci}/${genome_id}"
@@ -82,6 +83,7 @@ process mgexpose {
 
 process mgexpose_region {
 	label "annotate_genome"
+	label "mgexpose"
 	container "ghcr.io/grp-bork/mgexpose:v3.10.0"
 	// executor "local"  -> move to run.config @ EMBL
 	tag "${speci}/${genome_id}"
