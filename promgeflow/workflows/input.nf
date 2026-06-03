@@ -3,7 +3,7 @@
 def speci_tag = params.known_speci ?: "unknown"
 
 
-workflow handle_input_plasmids {
+workflow handle_input_contigs {
 
 	main:
 		genomes_ch = Channel.empty()
@@ -18,10 +18,10 @@ workflow handle_input_plasmids {
 			genomes_ch = Channel.fromPath("${params.input_dir}/**")
 				.filter( ~/.+\.(ffn|fna|fa(s(ta)?)?)(\.gz)?$/ )
 				.map { file -> [ file, file.text.replaceAll(/^>.+$/, "").replaceAll(/\n/, "").length() ] }
-				.filter { file, seqlen -> seqlen < params.max_plasmid_length }
+				.filter { file, seqlen -> seqlen < params.max_contig_length }
 				.map { file, seqlen ->
 					def gdata = [:]
-					gdata.speci = "plasmid"
+					gdata.speci = "contig"
 					// gdata.genome_id = file.name.replaceAll(/\.(fasta|fna|fa|ffn)(\.gz)?$/, "")
 					gdata.genome_id = fasta.name.replaceAll(/\.(ffn|fna|fa(s(ta)?)?)(\.gz)?$/, "")
 					gdata.genome = file

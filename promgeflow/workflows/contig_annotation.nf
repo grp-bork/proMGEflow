@@ -10,18 +10,18 @@ include { recombinase_annotation } from "./recombinase_annotation"
 include { secretion_annotation } from "./secretion_annotation"
 include { functional_annotation } from "./functional_annotation"
 
-include { handle_input_plasmids } from "./input"
+include { handle_input_contigs } from "./input"
 
 
 params.genome_buffer_size = 100
 print "PARAMS:\n" + params
 
 
-workflow plasmid_annotation {
+workflow contig_annotation {
 
-	handle_input_plasmids()
+	handle_input_contigs()
 
-	genomes_ch = handle_input_plasmids.out.genomes
+	genomes_ch = handle_input_contigs.out.genomes
 
 	genomes_ch.dump(pretty: true, tag: "genomes_ch")
 
