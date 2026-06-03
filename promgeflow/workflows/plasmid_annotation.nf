@@ -56,7 +56,7 @@ workflow plasmid_annotation {
 	/* STEP 5 Annotate the genomes with island data and assign mges */
 
 	annotation_data_ch = secretion_ch
-		.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.region_id, gdata.gff, gdata.secretion_data, gdata.emapper, gdata.recombinases, gdata.genome ] }
+		.map { speci, genome_id, gdata -> [ speci, genome_id, "dummy_region", gdata.gff, gdata.secretion_data, gdata.emapper, gdata.recombinases, gdata.genome ] }
 
 	annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
 
