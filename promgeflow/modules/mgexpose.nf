@@ -123,10 +123,6 @@ process mgexpose_region {
 			--phage_filter_terms ${phage_filter_terms} \
 			--contigs_are_islands \
 			--output_dir ${outdir} \
-			--write_gff \
-			--write_genes_to_gff \
-			--add_functional_annotation \
-			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands
 
@@ -140,10 +136,6 @@ process mgexpose_region {
 			--phage_filter_terms ${phage_filter_terms} \
 			--contigs_are_islands \
 			--output_dir ${outdir} \
-			--write_gff \
-			--write_genes_to_gff \
-			--add_functional_annotation \
-			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands
 
