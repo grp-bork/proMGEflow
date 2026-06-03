@@ -1,0 +1,89 @@
+#!/usr/bin/env nextflow
+
+nextflow.enable.dsl=2
+
+include { mgexpose_region } from "../modules/mgexpose"
+include { publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
+
+include { genome_annotation } from "./genome_annotation"
+include { recombinase_annotation } from "./recombinase_annotation"
+include { conjugation_system_annotation } from "./conjugation_system_annotation"
+include { functional_annotation } from "./functional_annotation"
+
+include { handle_input_contigs } from "./input"
+
+
+params.genome_buffer_size = 100
+print "PARAMS:\n" + params
+
+
+workflow contig_annotation {
+
+	handle_input_contigs()
+
+	genomes_ch = handle_input_contigs.out.genomes
+
+	genomes_ch.dump(pretty: true, tag: "genomes_ch")
+
+	/* STEP 1A: genome annotation via prodigal for genomes with known speci */
+	genome_annotation(genomes_ch)	
+
+	// prodigal output channels
+	annotations_ch = genome_annotation.out.genomes
+
+	annotations_ch.dump(pretty: true, tag: "annotations_ch")
+
+	/* STEP 2: Run recombinase annotation */
+	recombinase_annotation(annotations_ch)
+
+	with_recombinase_ch = recombinase_annotation.out.genomes
+
+	with_recombinase_ch
+		.branch {
+			has_emapper: it[2].emapper != null
+			to_emapper: true
+		}
+		.set { emapper_input_ch }
+
+	functional_annotation(emapper_input_ch.to_emapper)
+
+	with_functional_annotation_ch = emapper_input_ch.has_emapper
+		.mix(functional_annotation.out.genomes)
+
+	conjugation_system_annotation(with_functional_annotation_ch)
+	conjugation_system_ch = conjugation_system_annotation.out.genomes
+
+	/* STEP 5 Annotate the genomes with island data and assign mges */
+
+	annotation_data_ch = conjugation_system_ch
+		.map { speci, genome_id, gdata -> [ speci, genome_id, "dummy_region", gdata.gff, gdata.conjugation_system_data, gdata.emapper, gdata.recombinases, gdata.genome ] }
+
+	annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
+
+	mgexpose_region(
+		annotation_data_ch,
+		"${projectDir}/assets/mge_rules_ms.txt",
+		"${projectDir}/assets/conjscan.json",
+		"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt",
+		params.simple_output
+	)
+
+	/* STEP X Publish gene annotations of input genomes that were not pre-annotated */
+
+	publish_gene_annotations(
+		conjugation_system_annotation.out.genomes
+			.join(mgexpose_region.out.gff, by: [0, 1])
+			.join(genomes_ch, by: [0, 1])
+			.map { speci, genome_id, gdata, mge_gff, gdata_raw -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] },
+		params.simple_output
+	)
+
+	/* STEP Y Publish recombinase annotations */
+
+	publish_recombinase_scan(
+		recombinase_annotation.out.genomes
+			.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.recomb_table, gdata.recomb_gff ] },
+		params.simple_output
+	)
+
+}

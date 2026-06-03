@@ -2,7 +2,8 @@
 process mgexpose {
 	label "annotate_genome"
 	label "medium"
-	container "ghcr.io/grp-bork/mgexpose:v3.8.0"
+	label "mgexpose"
+	container "ghcr.io/grp-bork/mgexpose:v3.10.0"
 	// executor "local"  -> move to run.config @ EMBL
 	tag "${speci}/${genome_id}"
 
@@ -35,7 +36,9 @@ process mgexpose {
 	fi
 
 
-	echo mgexpose denovo ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
+	echo mgexpose denovo ${genome_id} mgexpose.gff \
+			--recombinase_hits ${recombinases} \
+			--mge_rules ${mge_rules} \
 			--speci ${speci} \
 			--txs_macsy_rules ${conjscan_rules} \
 			--txs_macsy_report ${conjscan} \
@@ -43,14 +46,12 @@ process mgexpose {
 			--phage_filter_terms ${phage_filter_terms} \
 			--cluster_data ${gene_clusters} \
 			--output_dir ${outdir} \
-			--write_gff \
-			--write_genes_to_gff \
-			--add_functional_annotation \
-			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands \
 			${y_cluster_option}
-	mgexpose denovo ${genome_id} mgexpose.gff ${recombinases} ${mge_rules} \
+	mgexpose denovo ${genome_id} mgexpose.gff \
+			--recombinase_hits ${recombinases} \
+			--mge_rules ${mge_rules} \
 			--speci ${speci} \
 			--txs_macsy_rules ${conjscan_rules} \
 			--txs_macsy_report ${conjscan} \
@@ -58,10 +59,6 @@ process mgexpose {
 			--phage_filter_terms ${phage_filter_terms} \
 			--cluster_data ${gene_clusters} \
 			--output_dir ${outdir} \
-			--write_gff \
-			--write_genes_to_gff \
-			--add_functional_annotation \
-			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands \
 			${y_cluster_option}
@@ -86,15 +83,17 @@ process mgexpose {
 
 process mgexpose_region {
 	label "annotate_genome"
-	container "ghcr.io/cschu/mgexpose:v3.7.6"
+	label "mgexpose"
+	container "ghcr.io/grp-bork/mgexpose:v3.10.0"
 	// executor "local"  -> move to run.config @ EMBL
 	tag "${speci}/${genome_id}"
 
 	input:
-	tuple val(speci), val(genome_id), path(gff), path(conjscan), path(emapper), val(region_id), path(recombinases), path(genome_fa)
+	tuple val(speci), val(genome_id), val(region_id), path(gff), path(conjscan), path(emapper), path(recombinases), path(genome_fa)
 	path(mge_rules)
 	path(conjscan_rules)
 	path(phage_filter_terms)
+	val(simple_output)
 
 	output:
 	tuple val(speci), val(genome_id), path("**/*.mge_islands.gff3"), emit: gff, optional: true
@@ -105,40 +104,36 @@ process mgexpose_region {
 	
 	script:
 	def y_cluster_option = (params.use_y_clusters) ? " --use_y_clusters" : ""
-	def outdir = "${speci}/${genome_id}"
+	def outdir = (simple_output) ? "${genome_id}" : "${speci}/${genome_id}"
 
 	"""
 	mkdir -p ${outdir}
 
 	echo ${region_id} > region.txt
 
-	echo mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
+	echo mgexpose denovo ${genome_id} ${gff} \
+			--recombinase_hits ${recombinases} \
+			--mge_rules ${mge_rules} \
 			--speci no_speci \
 			--txs_macsy_rules ${conjscan_rules} \
 			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
 			--phage_filter_terms ${phage_filter_terms} \
-			--precomputed_islands region.txt \
+			--contigs_are_islands \
 			--output_dir ${outdir} \
-			--write_gff \
-			--write_genes_to_gff \
-			--add_functional_annotation \
-			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands
 
-	mgexpose denovo ${genome_id} ${gff} ${recombinases} ${mge_rules} \
+	mgexpose denovo ${genome_id} ${gff} \
+			--recombinase_hits ${recombinases} \
+			--mge_rules ${mge_rules} \
 			--speci no_speci \
 			--txs_macsy_rules ${conjscan_rules} \
 			--txs_macsy_report ${conjscan} \
 			--phage_eggnog_data ${emapper} \
 			--phage_filter_terms ${phage_filter_terms} \
-			--precomputed_islands region.txt \
+			--contigs_are_islands \
 			--output_dir ${outdir} \
-			--write_gff \
-			--write_genes_to_gff \
-			--add_functional_annotation \
-			--dump_genomic_islands \
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands
 

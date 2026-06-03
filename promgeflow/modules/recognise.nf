@@ -6,7 +6,7 @@ params.recognise_marker_set = params.recognise.marker_set
 
 
 process recognise {
-	container "ghcr.io/grp-bork/recognise:main"
+	container "ghcr.io/grp-bork/recognise:v0.8.0"
 	tag "${genome_id}"
 	label "recognise"
 	label "small"
@@ -54,7 +54,7 @@ process recognise {
 
 
 process recognise_genome {
-	container "ghcr.io/grp-bork/recognise:main"
+	container "ghcr.io/grp-bork/recognise:v0.8.0"
 	tag "${genome_id}"
 	label "recognise"
 	label "small"
@@ -81,7 +81,7 @@ process recognise_genome {
 		ln -sf ${genome} recognise.fna
 	fi
 
-	recognise --marker_set ${params.recognise_marker_set} --genome recognise.fna --cpus ${task.cpus} --with_gff -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
+	recognise --marker_set ${params.recognise_marker_set} --genome recognise.fna --cpus ${task.cpus} --with_sentinels -o recognise/${genome_id} ${genome_id} \$(readlink ${marker_genes_db})
 
 	if [[ -s recognise/${genome_id}/${genome_id}.specI.txt ]]; then 
 		speci=\$(cat recognise/${genome_id}/${genome_id}.specI.txt)

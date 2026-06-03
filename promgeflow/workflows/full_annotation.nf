@@ -10,7 +10,7 @@ include { genome_annotation } from "./genome_annotation"
 include { species_recognition } from "./species_recognition"
 include { recombinase_annotation } from "./recombinase_annotation"
 include { pangenome_analysis } from "./pangenome_analysis"
-include { secretion_annotation; secretion_annotation as forced_secretion_annotation } from "./secretion_annotation"
+include { conjugation_system_annotation; conjugation_system_annotation as forced_conjugation_system_annotation } from "./conjugation_system_annotation"
 include { functional_annotation } from "./functional_annotation"
 
 include { handle_input_genomes } from "./input"
@@ -201,6 +201,7 @@ workflow full_annotation {
 		speci_refseqs_ch
 	)
 
+<<<<<<< HEAD
 	genome_status_ch = genome_status_ch
 		.join(pangenome_analysis.out.genomes, by: [0, 1], remainder: true)
 			.map { speci, genome_id, old_flags, gdata -> 
@@ -223,19 +224,27 @@ workflow full_annotation {
 	secretion_ch = secretion_annotation.out.genomes
 	if (params.force_secretion_analysis) {
 		// in certain situations, we want to annotate the secretion system 
+=======
+	/* STEP 4 Protein annotation - phage signals and conjugation systems */
+	// conjugation_system_annotation(with_cluster_ch.map { speci, genome_id, annotations -> [ speci, genome_id, annotations[0] ] })
+	conjugation_system_annotation(pangenome_analysis.out.genomes)
+	conjugation_system_ch = conjugation_system_annotation.out.genomes
+	if (params.force_conjugation_system_analysis) {
+		// in certain situations, we want to annotate conjugation systems
+>>>>>>> main
 		// on genomes without pangenome
 		// e.g. bulk annotation with preliminary pangenome data
 		dummy_clusters = file('DUMMY_CLUSTERS.txt')
 
 
-		forced_secretion_annotation(with_functional_annotation_ch)
-		forced_secretion_ch = forced_secretion_annotation.out.genomes
+		forced_conjugation_system_annotation(with_functional_annotation_ch)
+		forced_conjugation_system_ch = forced_conjugation_system_annotation.out.genomes
 			.map { speci, genome_id, gdata_old -> 
 				def gdata = gdata_old.clone()
 				gdata.gene_clusters = dummy_clusters
 				return [ speci, genome_id, gdata ]
 			}
-		secretion_ch = secretion_ch.mix(forced_secretion_ch)
+		conjugation_system_ch = conjugation_system_ch.mix(forced_conjugation_system_ch)
 	}
 	
 	genome_status_ch = genome_status_ch
@@ -256,10 +265,10 @@ workflow full_annotation {
 
 
 	/* STEP 5 Annotate the genomes with island data and assign mges */
-	// tuple val(speci), val(genome_id), path(gff), path(secretion), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
+	// tuple val(speci), val(genome_id), path(gff), path(conjugation_system), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
 
-	annotation_data_ch = secretion_ch
-		.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.gff, gdata.secretion_data, gdata.emapper, gdata.gene_clusters, gdata.recombinases, gdata.genome ] }
+	annotation_data_ch = conjugation_system_ch
+		.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.gff, gdata.conjugation_system_data, gdata.emapper, gdata.gene_clusters, gdata.recombinases, gdata.genome ] }
 
 	annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
 
@@ -310,7 +319,7 @@ workflow full_annotation {
 	/* STEP X Publish gene annotations of input genomes that were not pre-annotated */
 
 	publish_gene_annotations(
-		secretion_annotation.out.genomes
+		conjugation_system_annotation.out.genomes
 			.join(mgexpose.out.gff, by: [0, 1])
 			.join(handle_input_genomes.out.to_genome_annotation, by: [0, 1])
 			.map { speci, genome_id, gdata, mge_gff, gdata_raw -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] },

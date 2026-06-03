@@ -146,6 +146,7 @@ def main():
                             "gene",
                             protein["start"],
                             protein["end"],
+                            ".",
                             protein["strand"],
                             ".",
                             ";".join((attribs, protein["attribs"],))
