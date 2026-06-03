@@ -207,7 +207,7 @@ workflow full_annotation {
 		params.simple_output
 	)
 
-	genome_status_ch = conjugation_system
+	genome_status_ch = conjugation_system_ch
 		.map { speci, genome_id, gdata, flags -> [ speci, genome_id, flags ] }
 		.join(mgexpose.out.gff, by: [0, 1], remainder: true)
 			.map { speci, genome_id, old_flags, gdata -> 
