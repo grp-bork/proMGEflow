@@ -2,9 +2,9 @@
 
 nextflow.enable.dsl=2
 
-include { mgexpose } from "../modules/mgexpose"
+include { mgexpose } from "./mgexpose"
 include { get_db_seqs } from "../modules/get_db_seqs"
-include { publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
+// include { publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
 
 include { genome_annotation } from "./genome_annotation"
 include { species_recognition } from "./species_recognition"
@@ -12,30 +12,13 @@ include { recombinase_annotation } from "./recombinase_annotation"
 include { pangenome_analysis } from "./pangenome_analysis"
 include { conjugation_system_annotation; conjugation_system_annotation as forced_conjugation_system_annotation } from "./conjugation_system_annotation"
 include { functional_annotation } from "./functional_annotation"
+include { summarise } from "./summarise"
 
 include { handle_input_genomes } from "./input"
 
 
 params.genome_buffer_size = 100
 print "PARAMS:\n" + params
-
-process pangenome_summary {
-	executor "local"
-
-	input:
-	path(genome_report)
-	path(speci_sizes)
-
-	output:
-	path("pangenome_summary.txt")
-
-	script:
-	"""
-	head -n 1 ${genome_report} | awk -v OFS='\\t' '{ print \$0,"n_genomes"; }' >> pangenome_summary.txt
-	join -1 1 -2 1 <(tail -n +2 ${genome_report} | sort -k1,1) ${speci_sizes} | sort -k1,1 -k2,2 | tr " " "\\t" >> pangenome_summary.txt
-	"""
-}
-
 
 
 workflow full_annotation {
@@ -194,69 +177,76 @@ workflow full_annotation {
 	/* STEP 5 Annotate the genomes with island data and assign mges */
 	// tuple val(speci), val(genome_id), path(gff), path(conjugation_system), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
 
-	annotation_data_ch = conjugation_system_ch
-		.filter { it[3].PANGENOME_ESTIMATION }
-		.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.gff, gdata.conjugation_system_data, gdata.emapper, gdata.gene_clusters, gdata.recombinases, gdata.genome ] }
+	// annotation_data_ch = conjugation_system_ch
+	// 	.filter { it[3].PANGENOME_ESTIMATION }
+	// 	.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.gff, gdata.conjugation_system_data, gdata.emapper, gdata.gene_clusters, gdata.recombinases, gdata.genome ] }
 
-	annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
+	// annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
 
-	mgexpose(
-		annotation_data_ch,
-		"${projectDir}/assets/mge_rules_ms.txt",
-		"${projectDir}/assets/conjscan.json",
-		"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt",
-		params.simple_output
-	)
+	// mgexpose(
+	// 	annotation_data_ch,
+	// 	"${projectDir}/assets/mge_rules_ms.txt",
+	// 	"${projectDir}/assets/conjscan.json",
+	// 	"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt",
+	// 	params.simple_output
+	// )
+	mgexpose(conjugation_system_ch)
 
-	genome_status_ch = conjugation_system_ch
-		.map { speci, genome_id, gdata, flags -> [ speci, genome_id, flags ] }
-		.join(mgexpose.out.gff, by: [0, 1], remainder: true)
-			.map { speci, genome_id, old_flags, gdata -> 
-				def flags = old_flags.clone()
-				flags.MGE_ANNOTATION = (gdata != null)
-				return [ speci, genome_id, flags ]
-			}
+	// genome_status_ch = conjugation_system_ch
+	// 	.map { speci, genome_id, gdata, flags -> [ speci, genome_id, flags ] }
+	// 	.join(mgexpose.out.gff, by: [0, 1], remainder: true)
+	// 		.map { speci, genome_id, old_flags, gdata -> 
+	// 			def flags = old_flags.clone()
+	// 			flags.MGE_ANNOTATION = (gdata != null)
+	// 			return [ speci, genome_id, flags ]
+	// 		}
+	summarise(mgexpose.out.genomes)
+	// genome_status_ch = mgexpose.out.genomes.map { speci, genome_id, gdata, flags -> [ speci, genome_id, flags ] }
 	
-	genome_status_ch.dump(pretty: true, tag: "genome_status_ch")
+	// genome_status_ch.dump(pretty: true, tag: "genome_status_ch")
 
 
 	
-	Channel.of(["#species", "genome", "has_genes", "has_species", "species_valid", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
-		.concat(
-			genome_status_ch
-				.map { speci, genome_id, flags -> [
-						speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_ESTIMATION, flags.MGE_ANNOTATION
-					]
-				}
-		)
-		.collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${params.output_dir}") {
-			item -> item.join("\t")
-		}
+	// Channel.of(["#species", "genome", "has_genes", "has_species", "species_valid", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
+	// 	.concat(
+	// 		genome_status_ch
+	// 			.map { speci, genome_id, flags -> [
+	// 					speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_ESTIMATION, flags.MGE_ANNOTATION
+	// 				]
+	// 			}
+	// 	)
+	// 	.collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${params.output_dir}") {
+	// 		item -> item.join("\t")
+	// 	}
 
-	/* STEP 6 Generate a pangenome report for the input genomes with identifed specI */
+	// /* STEP 6 Generate a pangenome report for the input genomes with identifed specI */
 
-	genome_summary_ch = mgexpose.out.pangenome_info
-		.map { speci, genome_id, file -> file }
-		.collectFile(name: "pangenome_info.txt", skip: 1, keepHeader: true, sort: true)
+	// // genome_summary_ch = mgexpose.out.pangenome_info
+	// genome_summary_ch = mgexpose.out.genomes
+	// 	// .map { speci, genome_id, file -> file }
+	// 	.map { speci, genome_id, gdata, flags -> gdata.pangenome_info }
+	// 	.filter { it != null }
+	// 	.collectFile(name: "${workDir}/pangenome_info.txt", skip: 1, keepHeader: true, sort: true)
 
-	pangenome_summary(genome_summary_ch, "${projectDir}/assets/speci_sizes_pg3.txt")
+	// pangenome_summary(genome_summary_ch, "${projectDir}/assets/speci_sizes_pg3.txt")
 	
 	/* STEP X Publish gene annotations of input genomes that were not pre-annotated */
 
-	publish_gene_annotations(
-		conjugation_system_annotation.out.genomes
-			.join(mgexpose.out.gff, by: [0, 1])
-			.join(handle_input_genomes.out.to_genome_annotation, by: [0, 1])
-			.map { speci, genome_id, gdata, flags, mge_gff, gdata_raw -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] },
-		params.simple_output
-	)
+	// publish_gene_annotations(
+	// 	mgexpose.out.genomes
+	// 	// conjugation_system_annotation.out.genomes
+	// 		// .join(mgexpose.out.gff, by: [0, 1])
+	// 		.join(handle_input_genomes.out.to_genome_annotation, by: [0, 1])
+	// 		.map { speci, genome_id, gdata, flags, mge_gff, gdata_raw -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] },
+	// 	params.simple_output
+	// )
 
 	/* STEP Y Publish recombinase annotations */
 
-	publish_recombinase_scan(
-		recombinase_annotation.out.genomes
-			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.recomb_table, gdata.recomb_gff ] },
-		params.simple_output
-	)
+	// publish_recombinase_scan(
+	// 	recombinase_annotation.out.genomes
+	// 		.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.recomb_table, gdata.recomb_gff ] },
+	// 	params.simple_output
+	// )
 
 }

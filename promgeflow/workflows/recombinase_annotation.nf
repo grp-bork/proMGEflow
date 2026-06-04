@@ -1,4 +1,5 @@
 include { recombinase_scan } from "../modules/recombinase_scan"
+include { publish_recombinase_scan } from "../modules/publish"
 
 // phasing out nested parameters
 params.recombinase_scan = [:]
@@ -12,7 +13,6 @@ workflow recombinase_annotation {
 		genomes_ch
 
 	main:
-
 		genomes_ch.dump(pretty: true, tag: "genomes_ch_in_recombinase_annotation")
 
 		proteins_ch = genomes_ch
@@ -45,6 +45,13 @@ workflow recombinase_annotation {
 				flags.RECOMBINASE_SCAN = (recombinases != null && recomb_table != null && recomb_gff != null)
 				return [ speci, genome_id, gdata, flags ]
 			}
+
+		publish_recombinase_scan(
+			recombinase_output_ch
+				.filter { it[2].recomb_table != null && it[2].recomb_gff != null }
+				.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.recomb_table, gdata.recomb_gff ] },
+			params.simple_output
+		)
 
 	emit:
 		genomes = recombinase_output_ch
