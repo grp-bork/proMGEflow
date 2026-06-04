@@ -215,6 +215,9 @@ workflow full_annotation {
 				flags.MGE_ANNOTATION = (gdata != null)
 				return [ speci, genome_id, flags ]
 			}
+	
+	genome_status_ch.dump(pretty: true, tag: "genome_status_ch")
+
 
 	
 	Channel.of(["#species", "genome", "has_genes", "has_species", "species_valid", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
