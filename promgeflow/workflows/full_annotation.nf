@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl=2
 
-include { mgexpose } from "./mgexpose"
+include { mgexpose_denovo } from "./mgexpose"
 include { get_db_seqs } from "../modules/get_db_seqs"
 // include { publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
 
@@ -190,7 +190,7 @@ workflow full_annotation {
 	// 	"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt",
 	// 	params.simple_output
 	// )
-	mgexpose(conjugation_system_ch)
+	mgexpose_denovo(conjugation_system_ch)
 
 	// genome_status_ch = conjugation_system_ch
 	// 	.map { speci, genome_id, gdata, flags -> [ speci, genome_id, flags ] }
@@ -200,7 +200,7 @@ workflow full_annotation {
 	// 			flags.MGE_ANNOTATION = (gdata != null)
 	// 			return [ speci, genome_id, flags ]
 	// 		}
-	summarise(mgexpose.out.genomes)
+	summarise(mgexpose_denovo.out.genomes)
 	// genome_status_ch = mgexpose.out.genomes.map { speci, genome_id, gdata, flags -> [ speci, genome_id, flags ] }
 	
 	// genome_status_ch.dump(pretty: true, tag: "genome_status_ch")

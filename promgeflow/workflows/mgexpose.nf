@@ -1,7 +1,7 @@
 include { mgexpose } from "../modules/mgexpose"
 include { publish_gene_annotations } from "../modules/publish"
 
-workflow mgexpose {
+workflow mgexpose_denovo {
 	take:
 		genomes_ch
 	main:
