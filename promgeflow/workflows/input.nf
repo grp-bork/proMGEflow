@@ -37,7 +37,7 @@ workflow handle_input_contigs {
 				RECOMBINASE_SCAN: false,
 				FUNCTIONAL_ANNOTATION: (gdata != null && gdata.emapper != null),
 				CONJUGATION_SYSTEM_ANNOTATION: false,
-				PANGENOME_ESTIMATION: false,
+				PANGENOME_CLUSTERING: false,
 				MGE_ANNOTATION: false
 			]
 			return [ speci, genome_id, gdata, flags ]
@@ -89,7 +89,7 @@ workflow handle_input_genomes {
 				RECOMBINASE_SCAN: false,
 				FUNCTIONAL_ANNOTATION: (gdata != null && gdata.emapper != null),
 				CONJUGATION_SYSTEM_ANNOTATION: false,
-				PANGENOME_ESTIMATION: false,
+				PANGENOME_CLUSTERING: false,
 				MGE_ANNOTATION: false
 			]
 			return [ speci, genome_id, gdata, flags ]

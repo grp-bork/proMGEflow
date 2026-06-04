@@ -29,7 +29,7 @@ workflow pangenome_analysis {
 				def gdata = gdata_old.clone()
 				gdata.gene_clusters = clusters
 				def flags = flags_old.clone()
-				flags.PANGENOME_ESTIMATION = (clusters != null)
+				flags.PANGENOME_CLUSTERING = (clusters != null)
 				return [ speci, genome_id, gdata, flags ]
 			}
 

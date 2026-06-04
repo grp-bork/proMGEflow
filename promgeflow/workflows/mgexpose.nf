@@ -6,7 +6,7 @@ workflow mgexpose_denovo {
 		genomes_ch
 	main:
 		annotation_data_ch = genomes_ch
-			.filter { it[3].PANGENOME_ESTIMATION }
+			.filter { it[3].PANGENOME_CLUSTERING }
 			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.gff, gdata.conjugation_system_data, gdata.emapper, gdata.gene_clusters, gdata.recombinases, gdata.genome ] }
 
 		annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")

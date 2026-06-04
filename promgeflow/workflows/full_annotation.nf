@@ -4,7 +4,6 @@ nextflow.enable.dsl=2
 
 include { mgexpose_denovo } from "./mgexpose"
 include { get_db_seqs } from "../modules/get_db_seqs"
-// include { publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
 
 include { genome_annotation } from "./genome_annotation"
 include { species_recognition } from "./species_recognition"
@@ -142,7 +141,7 @@ workflow full_annotation {
 	// 	.join(pangenome_analysis.out.genomes, by: [0, 1], remainder: true)
 	// 		.map { speci, genome_id, old_flags, gdata -> 
 	// 			def flags = old_flags.clone()
-	// 			flags.PANGENOME_ESTIMATION = (gdata != null)
+	// 			flags.PANGENOME_CLUSTERING = (gdata != null)
 	// 			return [ speci, genome_id, flags ]
 	// 		}
 
@@ -178,7 +177,7 @@ workflow full_annotation {
 	// tuple val(speci), val(genome_id), path(gff), path(conjugation_system), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
 
 	// annotation_data_ch = conjugation_system_ch
-	// 	.filter { it[3].PANGENOME_ESTIMATION }
+	// 	.filter { it[3].PANGENOME_CLUSTERING }
 	// 	.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.gff, gdata.conjugation_system_data, gdata.emapper, gdata.gene_clusters, gdata.recombinases, gdata.genome ] }
 
 	// annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
@@ -211,7 +210,7 @@ workflow full_annotation {
 	// 	.concat(
 	// 		genome_status_ch
 	// 			.map { speci, genome_id, flags -> [
-	// 					speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_ESTIMATION, flags.MGE_ANNOTATION
+	// 					speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_CLUSTERING, flags.MGE_ANNOTATION
 	// 				]
 	// 			}
 	// 	)
