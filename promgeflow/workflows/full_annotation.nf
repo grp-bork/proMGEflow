@@ -195,6 +195,7 @@ workflow full_annotation {
 	// tuple val(speci), val(genome_id), path(gff), path(conjugation_system), path(emapper), path(gene_clusters), path(recombinases), path(genome_fa)
 
 	annotation_data_ch = conjugation_system_ch
+		.filter { it[3].PANGENOME_ESTIMATION }
 		.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.gff, gdata.conjugation_system_data, gdata.emapper, gdata.gene_clusters, gdata.recombinases, gdata.genome ] }
 
 	annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
@@ -220,17 +221,17 @@ workflow full_annotation {
 
 
 	
-	// Channel.of(["#species", "genome", "has_genes", "has_species", "species_valid", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
-	// 	.concat(
-	// 		genome_status_ch
-	// 			.map { speci, genome_id, flags -> [
-	// 					speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_ESTIMATION, flags.MGE_ANNOTATION
-	// 				]
-	// 			}
-	// 	)
-	// 	.collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${params.output_dir}") {
-	// 		item -> item.join("\t")
-	// 	}
+	Channel.of(["#species", "genome", "has_genes", "has_species", "species_valid", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
+		.concat(
+			genome_status_ch
+				.map { speci, genome_id, flags -> [
+						speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_ESTIMATION, flags.MGE_ANNOTATION
+					]
+				}
+		)
+		.collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${params.output_dir}") {
+			item -> item.join("\t")
+		}
 
 	/* STEP 6 Generate a pangenome report for the input genomes with identifed specI */
 
