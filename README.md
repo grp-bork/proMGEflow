@@ -120,8 +120,28 @@ Input sequences must be provided in one fasta file per genomic unit (e.g. a set 
 
 ### Output
 
-Upon successful MGE detection in an input genome `proMGEflow` returns a gff with the annotated MGEs, the extracted sequences of the MGEs as well as a set of gene coordinates, gene and protein sequences as predicted by `prodigal`.
+```
+<params.output_dir>/
+├── <specI>
+│   ├── <genome_1>
+│   │   ├── <genome_1>.faa
+│   │   ├── <genome_1>.ffn
+│   │   ├── <genome_1>.gene_info.txt
+│   │   ├── <genome_1>.gff
+│   │   ├── <genome_1>.mge_islands.ffn.gz
+│   │   ├── <genome_1>.mge_islands.gff3
+│   │   └── <genome_1>.predicted_recombinase_mges.gff3
+│   ├── <genome_2>
+...
+├── genome_status.txt
+└── pangenome_summary.txt
+```
 
-In case the input genome could not undergo pangenome analysis or no MGEs could be found, `proMGEflow` will return a set of predicted recombinases in the input genome.
+#### MGE annotation outputs
+
+Upon successful MGE detection in an input genome `proMGEflow` returns a gff with the annotated MGEs (`<genome_id>.mge_islands.gff3`) and the extracted sequences of those MGEs (`<genome_id>.mge_islands.ffn.gz`) as well as a set of gene coordinates (`<genome_id>.gff`), gene (`<genome_id>.ffn`) and protein sequences (`<genome_id>.faa`) as predicted by `prodigal`. In case gene predictions were already provided as inputs (cf. Input via samplesheet), the "`prodigal`" outputs returned by `proMGEflow` are identical to the input data. The `<genome_id>.mge_islands.gff3` contains predicted MGEs as `mobile_genetic_element` records and all genes (as `gene` records) associated to those islands. In addition, the output includes another file with the annotations of all genes contained in the input genome (`<genome_id>.gene_info.txt`).
+
+Furthermore, `proMGEflow` returns a set of predicted recombinases (`<genome_id>.predicted_recombinase_mges.gff3`) in the input genome. In case of an unsuccessful pangenome analysis (and subsequentially a failed island detection), this allows the user to investigate the genomic neighbourhoods of the discovered recombinases and draw their own conclusions.
 
 By default, output is sorted in directory trees of the pattern `<specI>/<genome>/` in order to not flood the output directory with massive numbers of genome-specific directories. If this behaviour is not desired, it can be turned off by setting the `--simple_output` parameter.
+
