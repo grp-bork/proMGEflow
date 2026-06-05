@@ -74,10 +74,9 @@ workflow full_annotation {
 
 	/* STEP 4 Protein annotation - phage signals and conjugation systems */
 	conjugation_system_annotation(pangenome_analysis.out.genomes)
-	conjugation_system_ch = conjugation_system_annotation.out.genomes
 	
 	/* STEP 5 Annotate the genomes with island data and assign mges */
-	mgexpose_denovo(conjugation_system_ch)
+	mgexpose_denovo(conjugation_system_annotation.out.genomes)
 
 	summarise(mgexpose_denovo.out.genomes)
 

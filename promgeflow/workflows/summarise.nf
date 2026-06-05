@@ -39,7 +39,6 @@ workflow summarise {
 			}
 
 		/* Generate a pangenome report for the input genomes with identifed specI */
-
 		genome_summary_ch = genomes_ch
 			.map { speci, genome_id, gdata, flags -> gdata.pangenome_info }
 			.filter { it != null }
