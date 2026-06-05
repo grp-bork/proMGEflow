@@ -38,13 +38,15 @@ workflow summarise {
 				item -> item.join("\t")
 			}
 
-		/* Generate a pangenome report for the input genomes with identifed specI */
-		genome_summary_ch = genomes_ch
-			.map { speci, genome_id, gdata, flags -> gdata.pangenome_info }
-			.filter { it != null }
-			.collectFile(name: "${workDir}/pangenome_info.txt", skip: 1, keepHeader: true, sort: true)
+		if (params.run_mode != "contig" && params.run_mode != "plasmid") {
+			/* Generate a pangenome report for the input genomes with identifed specI */
+			genome_summary_ch = genomes_ch
+				.map { speci, genome_id, gdata, flags -> gdata.pangenome_info }
+				.filter { it != null }
+				.collectFile(name: "${workDir}/pangenome_info.txt", skip: 1, keepHeader: true, sort: true)
 
-		pangenome_summary(genome_summary_ch, "${projectDir}/assets/speci_sizes_pg3.txt")
+			pangenome_summary(genome_summary_ch, "${projectDir}/assets/speci_sizes_pg3.txt")
+		}
 }
 
 
