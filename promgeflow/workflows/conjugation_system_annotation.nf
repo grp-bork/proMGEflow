@@ -5,6 +5,8 @@ params.txsscan = [:]
 params.txsscan.db = params.txsscan_db
 params.conjscan_models = params.txsscan.db
 
+params.force_conjugation_system_analysis = false
+
 
 workflow conjugation_system_annotation {
 
@@ -12,6 +14,8 @@ workflow conjugation_system_annotation {
 		genomes_ch
 
 	main:
+		genomes_ch.dump(pretty: true, tag: "conjugation_system_annotation_input")
+
 		filtered_proteins_ch = genomes_ch
 			// in certain situations, we want to annotate conjugation systems
 			// on genomes without pangenome
