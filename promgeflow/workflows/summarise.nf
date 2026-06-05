@@ -71,6 +71,7 @@ workflow summarise_and_publish {
 		if (params.tarball_output) {
 			results_ch = results_genecalls_ch.mix(results_recombinases_ch).mix(results_mge_ch)
 				.groupTuple(by: [0, 1], size: 3, remainder: true)
+				.map { speci, genome_id, payload -> payload }
 			publish_results(
 				results_ch,
 				params.simple_output,
