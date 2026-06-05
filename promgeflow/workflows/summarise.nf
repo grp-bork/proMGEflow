@@ -42,6 +42,8 @@ workflow summarise_and_publish {
 		// 	.filter { it[2].mge_gff != null && it[2].mge_fasta != null }
 		// 	.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.mge_gff, gdata.mge_fasta ] }
 
+		results_ch = Channel.empty()
+
 		Channel.of(["#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
 			.concat(
 				genome_status_ch
