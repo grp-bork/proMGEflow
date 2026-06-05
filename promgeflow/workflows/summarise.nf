@@ -30,17 +30,17 @@ workflow summarise_and_publish {
 			
 		genome_status_ch.dump(pretty: true, tag: "genome_status_ch")
 
-		results_genecalls_ch = genomes_ch
-			.filter { it[2].mge_gff != null }
-			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.proteins, gdata.genes, gdata.gff ] }
+		// results_genecalls_ch = genomes_ch
+		// 	.filter { it[2].mge_gff != null }
+		// 	.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.proteins, gdata.genes, gdata.gff ] }
 
-		results_recombinases_ch = genomes_ch
-			.filter { it[2].recomb_table != null && it[2].recomb_gff != null && it[2].mge_gff == null }
-			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.recomb_table, gdata.recomb_gff ] }
+		// results_recombinases_ch = genomes_ch
+		// 	.filter { it[2].recomb_table != null && it[2].recomb_gff != null && it[2].mge_gff == null }
+		// 	.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.recomb_table, gdata.recomb_gff ] }
 		
-		results_mge_ch = genomes_ch
-			.filter { it[2].mge_gff != null && it[2].mge_fasta != null }
-			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.mge_gff, gdata.mge_fasta ] }
+		// results_mge_ch = genomes_ch
+		// 	.filter { it[2].mge_gff != null && it[2].mge_fasta != null }
+		// 	.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.mge_gff, gdata.mge_fasta ] }
 
 		Channel.of(["#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
 			.concat(
@@ -68,16 +68,39 @@ workflow summarise_and_publish {
 			// results_ch = results_ch.mix(pangenome_summary.out.pangenome_summary)
 		}
 
+		// results_genecalls_ch = genomes_ch
+		// 	.filter { it[2].mge_gff != null }
+		// 	.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.proteins, gdata.genes, gdata.gff ] }
+
+		results_recombinases_ch = genomes_ch
+			.filter { it[2].recomb_table != null && it[2].recomb_gff != null && it[2].mge_gff == null }
+			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff, gdata.recomb_table, gdata.recomb_gff ] ] }
+		
+		results_mge_ch = genomes_ch
+			.filter { it[2].mge_gff != null && it[2].mge_fasta != null }
+			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff, gdata.mge_gff, gdata.mge_fasta ] ] }
+
+		
+
+
+
 		if (params.tarball_output) {
-			results_ch = results_genecalls_ch
-				.join(results_recombinases_ch, by: [0, 1])
-				.mix(
-					results_genecalls_ch
-						.join(results_mge_ch, by: [0, 1])
-				)
-				// .flatten()
-				// .groupTuple(by: [0, 1]) //, size: 3, remainder: true)
-				// .map { speci, genome_id, payload -> payload.flatten() }
+			results_ch = results_recombinases_ch
+				.mix(results_mge_ch )
+				.map { speci, genome_id, payload -> payload }
+
+
+			// results_ch = results_genecalls_ch
+			// 	.mix()
+			// 	.join(results_recombinases_ch, by: [0, 1])
+			// 	.map { speci, genome_id, }
+			// 	.mix(
+			// 		results_genecalls_ch
+			// 			.join(results_mge_ch, by: [0, 1])
+			// 	)
+			// 	// .flatten()
+			// 	// .groupTuple(by: [0, 1]) //, size: 3, remainder: true)
+			// 	// .map { speci, genome_id, payload -> payload.flatten() }
 			
 			results_ch.dump(pretty: true, tag: "results_ch_sap")
 
