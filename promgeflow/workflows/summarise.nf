@@ -76,7 +76,7 @@ workflow summarise_and_publish {
 				item -> item.join("\t")
 			}
 		
-		status_ch = Channel.fromPath("${workDir}/genome_status.txt")
+		status_ch = Channel.fromPath("${workDir}/genome_status_summary.txt")
 
 		results_ch = results_ch.mix(status_ch)
 
