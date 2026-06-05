@@ -1,4 +1,4 @@
-x	process publish_results {
+process publish_results {
 	label "tiny"
 	tag "${speci}/${genome_id}"
 
