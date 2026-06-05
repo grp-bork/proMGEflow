@@ -12,6 +12,7 @@ workflow functional_annotation {
 		genomes_ch
 
 	main:
+		genomes_ch.dump(pretty: true, tag: "functional_annotation_input")
 
 		filtered_proteins_ch = genomes_ch
 			.filter { it[0] != "unknown" && it[2].emapper == null && it[3].RECOMBINASE_SCAN }

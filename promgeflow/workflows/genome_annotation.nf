@@ -11,6 +11,7 @@ workflow genome_annotation {
 		genomes_ch
 	
 	main:
+		genomes_ch.dump(pretty: true, tag: "genome_annotation_input")
 
 		genome_data_ch = genomes_ch.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.genome ] }
 

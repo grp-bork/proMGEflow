@@ -16,12 +16,12 @@ process pangenome_summary {
 }
 
 
-
-
 workflow summarise {
 	take:
 		genomes_ch
 	main:
+		genomes_ch.dump(pretty: true, tag: "summarise_input")
+
 		genome_status_ch = genomes_ch.map { speci, genome_id, gdata, flags -> [ speci, genome_id, flags ] }
 			
 		genome_status_ch.dump(pretty: true, tag: "genome_status_ch")

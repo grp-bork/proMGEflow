@@ -13,7 +13,7 @@ workflow recombinase_annotation {
 		genomes_ch
 
 	main:
-		genomes_ch.dump(pretty: true, tag: "genomes_ch_in_recombinase_annotation")
+		genomes_ch.dump(pretty: true, tag: "recombinase_annotation_input")
 
 		proteins_ch = genomes_ch
 			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.proteins ] }

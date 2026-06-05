@@ -17,6 +17,8 @@ workflow species_recognition {
 		genomes_ch
 
 	main:
+		genomes_ch.dump(pretty: true, tag: "species_recognition_input")
+	
 		genomes_ch
 			.branch {
 				annotated: it[1].genes != null

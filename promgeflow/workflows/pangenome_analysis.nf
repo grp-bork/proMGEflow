@@ -8,6 +8,7 @@ workflow pangenome_analysis {
 		cluster_reps_ch
 
 	main:
+		genomes_ch.dump(pretty: true, tag: "pangenome_analysis_input")
 
 		genes_ch = genomes_ch
 			.filter { it[3].FUNCTIONAL_ANNOTATION }
