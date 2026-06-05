@@ -32,7 +32,7 @@ workflow summarise_and_publish {
 
 		results_genecalls_ch = genomes_ch
 			.filter { it[2].mge_gff != null }
-			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] }
+			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.proteins, gdata.genes, gdata.gff ] }
 
 		results_recombinases_ch = genomes_ch
 			.filter { it[2].recomb_table != null && it[2].recomb_gff != null && it[2].mge_gff == null }
@@ -71,7 +71,10 @@ workflow summarise_and_publish {
 		if (params.tarball_output) {
 			results_ch = results_genecalls_ch.mix(results_recombinases_ch).mix(results_mge_ch)
 				.groupTuple(by: [0, 1], size: 3, remainder: true)
-				.map { speci, genome_id, payload -> payload.flatten() }
+				// .map { speci, genome_id, payload -> payload.flatten() }
+			
+			results_ch.dump(pretty: true, tag: "results_ch_sap")
+
 			publish_results(
 				results_ch,
 				params.simple_output,
