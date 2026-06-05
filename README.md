@@ -115,7 +115,15 @@ This mode is designed to detect and annotate MGEs on short sequences or small se
 
 Input sequences must be provided in one fasta file per genomic unit (e.g. a set of contigs/scaffolds from a plasmid assembly). Sequences can be pre-filtered by length using the `--max_contig_length` parameter.  If a samplesheet is provided, the `specI cluster` column has to be set to `contig` for each input file.
 
+```
+nextflow run grp-bork/promgeflow --run_mode contig --input_dir /path/to/input/genome/fasta/files --output_dir /path/to/output
+```
 
+or 
+
+```
+nextflow run grp-bork/promgeflow --run_mode contig --input_sheet /path/to/input-sheet.tsv --output_dir /path/to/output
+```
 
 
 ### Output
