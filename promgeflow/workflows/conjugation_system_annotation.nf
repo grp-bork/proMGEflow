@@ -20,7 +20,7 @@ workflow conjugation_system_annotation {
 			// in certain situations, we want to annotate conjugation systems
 			// on genomes without pangenome
 			// e.g. bulk annotation with preliminary pangenome data
-			.filter { it[3].PANGENOME_CLUSTERING || params.force_conjugation_system_analysis }
+			.filter { it[3].PANGENOME_CLUSTERING || params.force_conjugation_system_analysis || params.run_mode == "contig" || params.run_mode == "plasmid" }
 			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.proteins ] }
 
 		macsyfinder(filtered_proteins_ch, params.conjscan_models)
