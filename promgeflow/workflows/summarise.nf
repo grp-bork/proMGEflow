@@ -88,6 +88,7 @@ workflow summarise_and_publish {
 			results_ch = results_recombinases_ch
 				.mix(results_mge_ch )
 				.map { speci, genome_id, payload -> payload }
+				.collect()
 
 
 			// results_ch = results_genecalls_ch
