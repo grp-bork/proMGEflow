@@ -3,6 +3,7 @@ include { publish_results; publish_gene_annotations; publish_recombinase_scan } 
 
 process pangenome_summary {
 	label "tiny"
+	label "summary"
 	executor "local"
 
 	input:
@@ -20,8 +21,9 @@ process pangenome_summary {
 }
 
 
-process status_summary {
+process genome_status_summary {
 	label "tiny"
+	label "summary"
 	executor "local"
 
 	input:
@@ -30,10 +32,10 @@ process status_summary {
 	output:
 	path("genome_status_summary.txt"), emit: "genome_status_summary"
 
-	// script:
-	// """
-	// touch genome_summary.txt
-	// """
+	script:
+	"""
+	wait 1
+	"""
 }
 
 
@@ -123,7 +125,7 @@ workflow summarise_and_publish {
 			)
 		} else {
 
-			status_summary(status_ch)
+			genome_status_summary(status_ch)
 
 			publish_gene_annotations(
 				results_recombinases_ch.mix(results_mge_ch).map { speci, genome_id, payload -> [ speci, genome_id, [ payload[0], payload[1], payload[2] ] ] },
