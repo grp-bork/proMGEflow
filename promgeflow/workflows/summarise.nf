@@ -1,7 +1,8 @@
-include { publish_results, publish_gene_annotations, publish_recombinase_scan } from "../modules/publish"
+include { publish_results; publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
 
 
 process pangenome_summary {
+	label "tiny"
 	executor "local"
 
 	input:
