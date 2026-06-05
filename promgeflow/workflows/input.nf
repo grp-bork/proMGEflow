@@ -29,6 +29,20 @@ workflow handle_input_contigs {
 				}
 		}
 
+		genomes_ch = genomes_ch.map { speci, genome_id, gdata ->
+			def flags = [
+				GENOME_ANNOTATION: (gdata != null && gdata.genes != null && gdata.proteins != null && gdata.gff != null),
+				SPECIES_RECOGNITION: (speci != null && speci != "unknown"),
+				SPECI_CLUSTER_SEQS: false,
+				RECOMBINASE_SCAN: false,
+				FUNCTIONAL_ANNOTATION: (gdata != null && gdata.emapper != null),
+				CONJUGATION_SYSTEM_ANNOTATION: false,
+				PANGENOME_CLUSTERING: false,
+				MGE_ANNOTATION: false
+			]
+			return [ speci, genome_id, gdata, flags ]
+		}
+
 	emit:
 		genomes = genomes_ch
 }
@@ -45,13 +59,10 @@ workflow handle_input_genomes {
 				.fromPath(params.input_sheet)
         		.splitCsv(sep: '\t', header: ["speci", "genome_id", "genome", "proteins", "genes", "gff", "emapper"])
 				.map { gdata -> [gdata.speci, gdata.genome_id, gdata] }
-        		// .map { it -> [it[0], it[1], it[2]] }
         
 			speci_ch = genomes_ch
 				.map { speci, genome_id, gdata -> speci }
-				// .map {speci, genome, file -> speci}
 				.unique()
-				.view()
 						
 		} else {
 			// Input genomes are genomic fasta files (.fa, .fasta, .fna, with or without .gz) in a directory or directory tree
@@ -69,30 +80,36 @@ workflow handle_input_genomes {
 			speci_ch = Channel.of(speci_tag)
 		}
 
+		// status_ch = genomes_ch.map { speci, genome_id, gdata ->
+		genomes_ch = genomes_ch.map { speci, genome_id, gdata ->
+			def flags = [
+				GENOME_ANNOTATION: (gdata != null && gdata.genes != null && gdata.proteins != null && gdata.gff != null),
+				SPECIES_RECOGNITION: (speci != null && speci != "unknown"),
+				SPECI_CLUSTER_SEQS: false,
+				RECOMBINASE_SCAN: false,
+				FUNCTIONAL_ANNOTATION: (gdata != null && gdata.emapper != null),
+				CONJUGATION_SYSTEM_ANNOTATION: false,
+				PANGENOME_CLUSTERING: false,
+				MGE_ANNOTATION: false
+			]
+			return [ speci, genome_id, gdata, flags ]
+		}
+
 		genomes_ch
 			.branch {
-				// speci_known: it[0] != "unknown"
-				// speci_unknown: true
-				speci_annotated: it[0] != "unknown" && it[2].genes != null  // precomputed gene annotation of known species -> recombinase_scan
+				speci_annotated: it[0] != "unknown" && it[2].genes != null && it[2].proteins != null && it[2].gff != null // precomputed gene annotation of known species -> recombinase_scan
 				speci_unannotated: it[0] != "unknown"                       // genome of known species -> gene_annotation(prodigal)
-				speci_unknown: true
-				// will be determined in species_recognition
-				// unknown_annotated: it[2].genes != null                      // precomputed gene annotation of unknown species -> recognise(_genes)
-				// unknown_unannotated: true                                   // genome of unknown species -> recognise_genome
+				speci_unknown: true											// will be determined in species_recognition				
 			}
 			.set { genomes_speci_ch }
-
 
 	emit:
 		to_recombinase_scan = genomes_speci_ch.speci_annotated
 		to_genome_annotation = genomes_speci_ch.speci_unannotated
 		to_species_recognition = genomes_speci_ch.speci_unknown
-			.map { speci, genome_id, gdata -> [ genome_id, gdata ] }
-		// genomes_with_speci = genomes_speci_ch.speci_known
-		// genomes_without_speci = genomes_speci_ch
-		// 	.speci_unknown
-		// 	.map { speci, genome_id, gdata -> [genome_id, gdata] }
+			.map { speci, genome_id, gdata, flags -> [ genome_id, gdata, flags ] }
 		speci = speci_ch
+		// status = status_ch
 
 
 }

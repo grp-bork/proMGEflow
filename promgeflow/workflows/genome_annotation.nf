@@ -11,22 +11,20 @@ workflow genome_annotation {
 		genomes_ch
 	
 	main:
+		genomes_ch.dump(pretty: true, tag: "genome_annotation_input")
 
-		genome_data_ch = genomes_ch.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.genome ] }
+		genome_data_ch = genomes_ch.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.genome ] }
 
 	    if (params.prodigal_batch_size != null && params.prodigal_batch_size > 1) {
 
 			def batch_id = 0
-			// prodigal_input_ch = genomes_ch
 			prodigal_input_ch = genome_data_ch
 				.map { speci, genome_id, genome_fasta -> genome_fasta }					
 				.buffer(size: params.prodigal_batch_size, remainder: true)
 				.map { files -> [ batch_id++, files ] }
 
-			// genome_map = genomes_ch
 			genome_map = genome_data_ch 
 				.map { speci, genome_id, genome_fasta ->
-					// [ genome_fasta.replaceAll(/.+\//, ""), genome_id ]
 					[ (genome_fasta instanceof String ? genome_fasta.replaceAll(/.+\//, "") : genome_fasta.getName()), genome_id ]
 				}
 
@@ -50,15 +48,13 @@ workflow genome_annotation {
 			annotations_ch.dump(pretty: true, tag: "annotations_post_ch")
 			annotations_ch = annotations_ch
 				.join(
-			 		// genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
-					genome_data_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
+			 		genome_data_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
 			 		by: 0
 				)
-			 	.map { genome_id, files, speci -> [speci, genome_id, files] }			
+			 	.map { genome_id, files, speci -> [ speci, genome_id, files ] }			
 
 		} else {
 
-			// prodigal(genomes_ch)
 			prodigal(genome_data_ch)
 			annotations_ch = prodigal.out.proteins
 				.mix(prodigal.out.genes)
@@ -67,19 +63,24 @@ workflow genome_annotation {
 		}
 
 		prodigal_output_ch = genomes_ch
-			.join(annotations_ch, by: [0, 1])
-			// .map { speci, genome_id, gdata_old, proteins, genes, gff ->
-			.map { speci, genome_id, gdata_old, files ->
+			.join(annotations_ch, by: [0, 1], remainder: true)
+			.map { speci, genome_id, gdata_old, flags_old, files ->
 				def gdata = gdata_old.clone()
-				gdata.proteins = files[0]
-				gdata.genes = files[1]
-				gdata.gff = files[2]
-				return [ speci, genome_id, gdata ]
+				def flags = flags_old.clone()
+				if (files == null) {
+					gdata.proteins = null
+					gdata.genes = null
+					gdata.gff = null
+				} else {
+					gdata.proteins = files[0]
+					gdata.genes = files[1]
+					gdata.gff = files[2]
+				}
+				flags.GENOME_ANNOTATION = (files != null)
+				return [ speci, genome_id, gdata, flags ]
 			}
 
 	emit:
-		// annotations = annotations_ch
 		genomes = prodigal_output_ch
-
 
 }	

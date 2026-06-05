@@ -17,6 +17,8 @@ workflow species_recognition {
 		genomes_ch
 
 	main:
+		genomes_ch.dump(pretty: true, tag: "species_recognition_input")
+	
 		genomes_ch
 			.branch {
 				annotated: it[1].genes != null
@@ -25,12 +27,12 @@ workflow species_recognition {
 			.set{ recognise_input_ch }
 
 		recognise(
-			recognise_input_ch.annotated.map { genome_id, gdata -> [ genome_id, gdata.genes, gdata.proteins ] },
+			recognise_input_ch.annotated.map { genome_id, gdata, flags -> [ genome_id, gdata.genes, gdata.proteins ] },
 			params.recognise_marker_db
 		)
 
 		recognise_genome(
-			recognise_input_ch.unannotated.map { genome_id, gdata -> [ genome_id, gdata.genome ] },
+			recognise_input_ch.unannotated.map { genome_id, gdata, flags -> [ genome_id, gdata.genome ] },
 			params.recognise_marker_db
 		)
 
@@ -51,8 +53,6 @@ workflow species_recognition {
 				return [ genome_id, speci ]
 			}
 
-
-
 		annotations_ch = recognise_genome.out.proteins
 			.mix(recognise_genome.out.genes)
 			.mix(recognise_genome.out.gff)
@@ -60,35 +60,26 @@ workflow species_recognition {
 			.map { genome_id, annots -> [genome_id, annots[0], annots[1], annots[2] ] }
 
 		recognise_output_ch = recognise_input_ch.unannotated
-			.join(annotations_ch, by: 0)
-			.map { genome_id, old_gdata, proteins, genes, gff ->
-				def gdata = old_gdata.clone()
+			.join(annotations_ch, by: 0, remainder: true)
+			.map { genome_id, gdata_old, flags, proteins, genes, gff ->
+				def gdata = gdata_old.clone()
 				gdata.proteins = proteins
 				gdata.genes = genes
 				gdata.gff = gff
-				return [ genome_id, gdata ]
+				return [ genome_id, gdata, flags ]
 			}
 			.mix(recognise_input_ch.annotated)
-			.join(genome_speci_ch, by: 0)
-			.map { genome_id, gdata_old, speci -> 
+			.join(genome_speci_ch, by: 0, remainder: true)
+			.map { genome_id, gdata_old, flags_old, speci -> 
 				def gdata = gdata_old.clone()
 				gdata.speci = speci			
-				return [ speci, genome_id, gdata ]
+				def flags = flags_old.clone()
+				flags.GENOME_ANNOTATION = (gdata.genes != null && gdata.proteins != null && gdata.gff != null)
+				flags.SPECIES_RECOGNITION = (gdata.speci != null && gdata.speci != "unknown")
+				return [ speci, genome_id, gdata, flags ]
 			}
-		
-
-
-			// // .join(genome_speci_ch, by: 0)
-			// .join(recognise_input_ch.unannotated, by: 0, )
-			// .map { genome_id, annotations, speci -> [speci, genome_id, annotations] }
-
-		// pgenomes_ch = genome_speci_ch
-		// 	.join(genomes_ch, by: 0)
-		// 	.map { genome_id, speci, genome_fasta -> [speci, genome_id, genome_fasta] }
 
 	emit:
 		genomes = recognise_output_ch
-		// annotations = annotations_ch
-		// genomes = pgenomes_ch
 
 }

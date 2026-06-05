@@ -1,4 +1,5 @@
 include { recombinase_scan } from "../modules/recombinase_scan"
+include { publish_recombinase_scan } from "../modules/publish"
 
 // phasing out nested parameters
 params.recombinase_scan = [:]
@@ -9,15 +10,14 @@ params.recombinase_scan_db = params.recombinase_scan.db
 workflow recombinase_annotation {
 
 	take:
-		// pproteins_ch
 		genomes_ch
 
 	main:
-
-		genomes_ch.dump(pretty: true, tag: "genomes_ch_in_recombinase_annotation")
+		genomes_ch.dump(pretty: true, tag: "recombinase_annotation_input")
 
 		proteins_ch = genomes_ch
-			.map { speci, genome_id, gdata -> [ speci, genome_id, gdata.proteins ] }
+			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.proteins ] }
+			.filter { it[2] != null }
 
 		proteins_ch.dump(pretty: true, tag: "proteins_ch_in_recombinase_annotation")
 
@@ -35,18 +35,25 @@ workflow recombinase_annotation {
 				return [ speci, genome_id, recombinases, recomb_table, recomb_gff ]
 			}
 		recombinase_output_ch = genomes_ch
-			.join(recombinase_output_ch, by: [0, 1])
-			.map { speci, genome_id, old_gdata, recombinases, recomb_table, recomb_gff ->
-				def gdata = old_gdata.clone()
+			.join(recombinase_output_ch, by: [0, 1], remainder: true)
+			.map { speci, genome_id, gdata_old, flags_old, recombinases, recomb_table, recomb_gff ->
+				def gdata = gdata_old.clone()
 				gdata.recombinases = recombinases
 				gdata.recomb_table = recomb_table
 				gdata.recomb_gff = recomb_gff
-				return [ speci, genome_id, gdata ]
+				def flags = flags_old.clone()
+				flags.RECOMBINASE_SCAN = (recombinases != null && recomb_table != null && recomb_gff != null)
+				return [ speci, genome_id, gdata, flags ]
 			}
-		
+
+		publish_recombinase_scan(
+			recombinase_output_ch
+				.filter { it[2].recomb_table != null && it[2].recomb_gff != null }
+				.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.recomb_table, gdata.recomb_gff ] },
+			params.simple_output
+		)
+
 	emit:
 		genomes = recombinase_output_ch
-		// recombinases = annotated_recombinases_ch
-		// mge_predictions = mge_predictions_ch
-		// mge_predictions_gff = mge_predictions_gff_ch
+
 }

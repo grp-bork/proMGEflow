@@ -103,7 +103,6 @@ process mgexpose_region {
 	path("**/*.gene_info.txt"), emit: gene_info, optional: true
 	
 	script:
-	def y_cluster_option = (params.use_y_clusters) ? " --use_y_clusters" : ""
 	def outdir = (simple_output) ? "${genome_id}" : "${speci}/${genome_id}"
 
 	"""
