@@ -100,7 +100,7 @@ workflow summarise_and_publish {
 		} else {
 
 			publish_gene_annotations(
-				results_recombinases.mix(results_mge_ch).map { speci, genome_id, payload -> [ speci, genome_id, [ payload[0], payload[1], payload[2] ] ] },
+				results_recombinases_ch.mix(results_mge_ch).map { speci, genome_id, payload -> [ speci, genome_id, [ payload[0], payload[1], payload[2] ] ] },
 				params.simple_output
 			)
 
