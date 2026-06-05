@@ -34,15 +34,15 @@ workflow summarise_and_publish {
 			.filter { it[2].mge_gff != null }
 			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.proteins, gdata.genes, gdata.gff ] }
 
-		results_recombinases = genomes_ch
+		results_recombinases_ch = genomes_ch
 			.filter { it[2].recomb_table != null && it[2].recomb_gff != null && it[2].mge_gff == null }
 			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.recomb_table, gdata.recomb_gff ] }
 		
-		results_mge = genomes_ch
+		results_mge_ch = genomes_ch
 			.filter { it[2].mge_gff != null && it[2].mge_fasta != null }
 			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.mge_gff, gdata.mge_fasta ] }
 
-		results_ch = results_gene_calls.mix(results_recombinases).mix(results_mge)
+		results_ch = results_genecalls_ch.mix(results_recombinases_ch).mix(results_mge_ch)
 			.groupTuple(by: [0, 1], size: 3, remainder: true)
 
 		Channel.of(["#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
