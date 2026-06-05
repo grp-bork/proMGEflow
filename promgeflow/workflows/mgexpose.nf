@@ -5,6 +5,7 @@ workflow mgexpose_denovo {
 	take:
 		genomes_ch
 	main:
+		genomes_ch.dump(pretty: true, tag: "mgexpose_denovo_input")
 
 		mge_ch = genomes_ch
 		if (params.run_mode == "contig" || params.run_mode == "plasmid") {
