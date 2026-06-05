@@ -53,11 +53,11 @@ workflow summarise_and_publish {
 						]
 					}
 			)
-			.collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${workDir}") {
+			.collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${params.output_dir}") {
 				item -> item.join("\t")
 			}
 		
-		results_ch = results_ch.mix(Channel.fromPath("${workDir}/genome_status.txt"))
+		// results_ch = results_ch.mix(Channel.fromPath("${workDir}/genome_status.txt"))
 
 		if (params.run_mode != "contig" && params.run_mode != "plasmid") {
 			/* Generate a pangenome report for the input genomes with identifed specI */
@@ -68,7 +68,7 @@ workflow summarise_and_publish {
 
 			pangenome_summary(genome_summary_ch, "${projectDir}/assets/speci_sizes_pg3.txt")
 
-			results_ch = results_ch.mix(pangenome_summary.out.pangenome_summary)
+			// results_ch = results_ch.mix(pangenome_summary.out.pangenome_summary)
 		}
 
 		publish_results(
