@@ -40,6 +40,7 @@ workflow contig_annotation {
 	/* STEP 5 Annotate the genomes with island data and assign mges */
 	mgexpose_denovo(conjugation_system_annotation.out.genomes)
 
+	summarise(mgexpose_denovo.out.genomes)
 
 	// annotation_data_ch = conjugation_system_annotation.out.genomes
 	// 	.map { speci, genome_id, gdata -> [ speci, genome_id, "dummy_region", gdata.gff, gdata.conjugation_system_data, gdata.emapper, gdata.recombinases, gdata.genome ] }
