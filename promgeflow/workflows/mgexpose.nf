@@ -21,7 +21,7 @@ workflow mgexpose_denovo {
 			)
 
 			mge_ch = mge_ch
-				.join(mgexpose.out.gff, by: [0, 1], remainder: true)
+				.join(mgexpose_region.out.gff, by: [0, 1], remainder: true)
 				.map { speci, genome_id, gdata, flags, mge_gff -> [ speci, genome_id, gdata, flags, mge_gff, null ] }
 
 		} else {
