@@ -6,7 +6,7 @@ workflow mgexpose_denovo {
 		genomes_ch
 	main:
 
-		mge_ch = genomes_ch()
+		mge_ch = genomes_ch
 		if (params.run_mode == "contig" || params.run_mode == "plasmid") {
 			annotation_data_ch = genomes_ch
 				.map { speci, genome_id, gdata -> [ speci, genome_id, "dummy_region", gdata.gff, gdata.conjugation_system_data, gdata.emapper, gdata.recombinases, gdata.genome ] }
