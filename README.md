@@ -156,3 +156,7 @@ Furthermore, `proMGEflow` returns a set of predicted recombinases (`<genome_id>.
 
 By default, output is sorted in directory trees of the pattern `<specI>/<genome>/` in order to not flood the output directory with massive numbers of genome-specific directories. If this behaviour is not desired, it can be turned off by setting the `--simple_output` parameter.
 
+##### Summaries
+
+ccc
+
