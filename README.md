@@ -150,13 +150,94 @@ nextflow run grp-bork/promgeflow --run_mode contig --input_sheet /path/to/input-
 
 #### MGE annotation outputs
 
+##### Per Genome
+
 Upon successful MGE detection in an input genome `proMGEflow` returns a gff with the annotated MGEs (`<genome_id>.mge_islands.gff3`) and the extracted sequences of those MGEs (`<genome_id>.mge_islands.ffn.gz`) as well as a set of gene coordinates (`<genome_id>.gff`), gene (`<genome_id>.ffn`) and protein sequences (`<genome_id>.faa`) as predicted by `prodigal`. In case gene predictions were already provided as inputs (cf. [Input via samplesheet](#via-samplesheet)), the "`prodigal`" outputs returned by `proMGEflow` are identical to the input data. The `<genome_id>.mge_islands.gff3` contains predicted MGEs as `mobile_genetic_element` records and all genes (as `gene` records) associated to those islands. In addition, the output includes another file with the annotations of all genes contained in the input genome (`<genome_id>.gene_info.txt`).
 
 Furthermore, `proMGEflow` returns a set of predicted recombinases (`<genome_id>.predicted_recombinase_mges.gff3`) in the input genome. In case of an unsuccessful pangenome analysis (and subsequentially a failed island detection), this allows the user to investigate the genomic neighbourhoods of the discovered recombinases and draw their own conclusions.
 
 By default, output is sorted in directory trees of the pattern `<specI>/<genome>/` in order to not flood the output directory with massive numbers of genome-specific directories. If this behaviour is not desired, it can be turned off by setting the `--simple_output` parameter.
 
-##### Summaries
+##### Run summaries
 
-ccc
+* Genome status
+
+The file`genome_status.txt` contains a tab-separated table providing information of each input record through the workflow. The columns are:
+
+1. species
+
+The specI_v4 cluster id assigned to the input record, or `contig` or `unknown`
+
+2. genome
+
+The genome_id of the input record
+
+3. has_genes
+
+`true` if prodigal-based gene predictions were successful or if gene predictions were provided as input
+
+4. has_species
+
+`true` if the assigned specI_v4 cluster is not `unknown`
+
+5. has_ref_clusters
+
+`true` if the assigned specI_v4 cluster has a reference gene cluster in the gene cluster database, thus enabling pangenome analysis
+
+6. has_recombinases
+
+`true` if MGE recombinase signals were found
+
+7. has_functional
+
+`true` if eggnog-mapper annotation was successful, leading to cargo data and, potentially, detection of phage structural signals
+
+8. has_conjugation
+
+`true` if macsyfinder was able to find matches to the conjscan models
+
+9. has_pangenome
+
+`true` if pangenome gene clustering was successful
+
+10. has_mges
+
+`true` if mge annotation with mgexpose was successful
+
+
+* Pangenome summary
+
+The file `pangenome_summary.txt` contains information from the pangenome estimation analysis. This file is not produced in `contig` mode or if the pangenome clustering was not successful for all input records (`has_pangenome = false`). The file is a tab-separated table with the following columns:
+
+1. specI
+
+The specI_v4 cluster id assigned to the input record
+
+2. genome
+
+The genome_id of the input record
+
+3. n_genes
+
+The number of genes called in the input record
+
+4. n_accessory
+
+The number of genes in the input record identified as "accessory" 
+
+5. n_core
+
+The number of genes in the input record identified as "core" 
+
+6. %acc
+
+Percentage of accessory genes in the input record
+
+7. n_genomes
+
+Number of genomes contributing to the specI_v4 reference cluster
+
+
+
+
 

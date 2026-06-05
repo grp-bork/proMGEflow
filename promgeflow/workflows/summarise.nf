@@ -26,7 +26,7 @@ workflow summarise {
 			
 		genome_status_ch.dump(pretty: true, tag: "genome_status_ch")
 
-		Channel.of(["#species", "genome", "has_genes", "has_species", "has_rep_cluster", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
+		Channel.of(["#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
 			.concat(
 				genome_status_ch
 					.map { speci, genome_id, flags -> [
