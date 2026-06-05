@@ -160,6 +160,8 @@ By default, output is sorted in directory trees of the pattern `<specI>/<genome>
 
 ##### Run summaries
 
+For each run, `proMGEflow` produces up to two run summaries.
+
 * Genome status
 
 The file`genome_status.txt` contains a tab-separated table providing information of each input record through the workflow. The columns are:
@@ -207,31 +209,31 @@ The genome_id of the input record
 
 * Pangenome summary
 
-The file `pangenome_summary.txt` contains information from the pangenome estimation analysis. This file is not produced in `contig` mode or if the pangenome clustering was not successful for all input records (`has_pangenome = false`). The file is a tab-separated table with the following columns:
+The file `pangenome_summary.txt` contains information from the pangenome estimation analysis. This file is not produced in `contig` mode or if the pangenome clustering was not successful for all input genomes (`has_pangenome = false`). The file is a tab-separated table with the following columns:
 
 1. specI
 
-The specI_v4 cluster id assigned to the input record
+The specI_v4 cluster id assigned to the input genome
 
 2. genome
 
-The genome_id of the input record
+The genome_id of the input genome
 
 3. n_genes
 
-The number of genes called in the input record
+The number of genes called in the input genome
 
 4. n_accessory
 
-The number of genes in the input record identified as "accessory" 
+The number of genes in the input genome identified as "accessory" 
 
 5. n_core
 
-The number of genes in the input record identified as "core" 
+The number of genes in the input genome identified as "core" 
 
 6. %acc
 
-Percentage of accessory genes in the input record
+Percentage of accessory genes in the input genome
 
 7. n_genomes
 
