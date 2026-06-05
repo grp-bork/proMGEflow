@@ -3,36 +3,48 @@
 def speci_tag = params.known_speci ?: "unknown"
 
 
-workflow handle_input_plasmids {
+workflow handle_input_contigs {
 
 	main:
-		def reg_ctr = 0
-    	plasmids_ch = Channel
-			.fromPath(params.input_fasta)
-			.splitFasta(by: 1, file: true)
-			.map { file -> [ file, file.text.replaceAll(/^>.+$/, "").replaceAll(/\n/, "").length() ] }
-			.filter { file, seqlen -> seqlen < params.max_plasmid_length }
-			.map { file, seqlen ->
-				def genome = file.name.replaceAll(/\.[0-9]+\.(fasta|fna|fa|ffn)(\.[2a-z]+)?$/, "")
-				def contig = file.text.split("\n")[0].split(" ")[0].substring(1) //replaceAll(/^>([^ ]+).+/, "\1")
-				def region_id = "${reg_ctr++}_CP_100.${contig}.1-${seqlen}.${contig}"
-				[ genome, contig, region_id, file ]
-			}
-			// .map { file, seqlen ->
-			// 	def contig = file.name.replaceAll(/\.[0-9]+\.(fasta|fna|fa|ffn)(\.[2a-z]+)?$/, "")
-			// 	def region_id = "${reg_ctr++}_CP_100.${contig}.1-${seqlen}.${contig}"
-			// 	[ contig, region_id, file ]
-			// }
+		genomes_ch = Channel.empty()
 
-		plasmids_ch.dump(pretty: true, tag: "plasmids_ch")
+		if (params.input_sheet) {
+			genomes_ch = Channel
+				.fromPath(params.input_sheet)
+        		.splitCsv(sep: '\t', header: ["speci", "genome_id", "genome", "proteins", "genes", "gff", "emapper"])
+				.map { gdata -> [gdata.speci, gdata.genome_id, gdata] }
 
-		genomes_ch = plasmids_ch.map { genome_id, contig_id, region_id, file -> [ "plasmid", genome_id, file ] }
-		regions_ch = plasmids_ch.map { genome_id, contig_id, region_id, file -> [ "plasmid", genome_id, region_id ] }
+		} else {
+			genomes_ch = Channel.fromPath("${params.input_dir}/**")
+				.filter( ~/.+\.(ffn|fna|fa(s(ta)?)?)(\.gz)?$/ )
+				.map { file -> [ file, file.text.replaceAll(/^>.+$/, "").replaceAll(/\n/, "").length() ] }
+				.filter { file, seqlen -> seqlen < params.max_contig_length }
+				.map { file, seqlen ->
+					def gdata = [:]
+					gdata.speci = "contig"
+					// gdata.genome_id = file.name.replaceAll(/\.(fasta|fna|fa|ffn)(\.gz)?$/, "")
+					gdata.genome_id = fasta.name.replaceAll(/\.(ffn|fna|fa(s(ta)?)?)(\.gz)?$/, "")
+					gdata.genome = file
+					return [ gdata.speci, gdata.genome_id, gdata ]
+				}
+		}
+
+		genomes_ch = genomes_ch.map { speci, genome_id, gdata ->
+			def flags = [
+				GENOME_ANNOTATION: (gdata != null && gdata.genes != null && gdata.proteins != null && gdata.gff != null),
+				SPECIES_RECOGNITION: (speci != null && speci != "unknown"),
+				SPECI_CLUSTER_SEQS: false,
+				RECOMBINASE_SCAN: false,
+				FUNCTIONAL_ANNOTATION: (gdata != null && gdata.emapper != null),
+				CONJUGATION_SYSTEM_ANNOTATION: false,
+				PANGENOME_CLUSTERING: false,
+				MGE_ANNOTATION: false
+			]
+			return [ speci, genome_id, gdata, flags ]
+		}
 
 	emit:
 		genomes = genomes_ch
-		regions = regions_ch
-
 }
 
 
@@ -45,38 +57,59 @@ workflow handle_input_genomes {
 		if (params.input_sheet) {
 			genomes_ch = Channel
 				.fromPath(params.input_sheet)
-        		.splitCsv(sep: '\t', header: false)
-        		.map { it -> [it[0], it[1], it[2]] }
+        		.splitCsv(sep: '\t', header: ["speci", "genome_id", "genome", "proteins", "genes", "gff", "emapper"])
+				.map { gdata -> [gdata.speci, gdata.genome_id, gdata] }
         
 			speci_ch = genomes_ch
-				.map {speci, genome, file -> speci}
+				.map { speci, genome_id, gdata -> speci }
 				.unique()
-				.view()
 						
 		} else {
 			// Input genomes are genomic fasta files (.fa, .fasta, .fna, with or without .gz) in a directory or directory tree
 			// genomes_ch emits tuples (specI, genome_id, genome_fasta)	
 			genomes_ch = Channel.fromPath("${params.input_dir}/**")
 				.filter( ~/.+\.(fna|fa(sta)?)(\.gz)?$/ )
-				.map { fasta -> [ speci_tag, fasta.name.replaceAll(/\.(fna|fa(sta)?)(\.gz)?$/, ""), fasta ] }
+				.map { fasta -> 
+					def gdata = [:]
+					gdata.speci = speci_tag
+					gdata.genome_id = fasta.name.replaceAll(/\.(fna|fa(sta)?)(\.gz)?$/, "")
+					gdata.genome = fasta
+					return [ gdata.speci, gdata.genome_id, gdata ]
+				}
 
 			speci_ch = Channel.of(speci_tag)
 		}
 
+		// status_ch = genomes_ch.map { speci, genome_id, gdata ->
+		genomes_ch = genomes_ch.map { speci, genome_id, gdata ->
+			def flags = [
+				GENOME_ANNOTATION: (gdata != null && gdata.genes != null && gdata.proteins != null && gdata.gff != null),
+				SPECIES_RECOGNITION: (speci != null && speci != "unknown"),
+				SPECI_CLUSTER_SEQS: false,
+				RECOMBINASE_SCAN: false,
+				FUNCTIONAL_ANNOTATION: (gdata != null && gdata.emapper != null),
+				CONJUGATION_SYSTEM_ANNOTATION: false,
+				PANGENOME_CLUSTERING: false,
+				MGE_ANNOTATION: false
+			]
+			return [ speci, genome_id, gdata, flags ]
+		}
+
 		genomes_ch
 			.branch {
-				speci_known: it[0] != "unknown"
-				speci_unknown: true
+				speci_annotated: it[0] != "unknown" && it[2].genes != null && it[2].proteins != null && it[2].gff != null // precomputed gene annotation of known species -> recombinase_scan
+				speci_unannotated: it[0] != "unknown"                       // genome of known species -> gene_annotation(prodigal)
+				speci_unknown: true											// will be determined in species_recognition				
 			}
 			.set { genomes_speci_ch }
 
-
 	emit:
-		genomes_with_speci = genomes_speci_ch.speci_known
-		genomes_without_speci = genomes_speci_ch
-			.speci_unknown
-			.map { speci, genome_id, genome_fasta -> [genome_id, genome_fasta] }
+		to_recombinase_scan = genomes_speci_ch.speci_annotated
+		to_genome_annotation = genomes_speci_ch.speci_unannotated
+		to_species_recognition = genomes_speci_ch.speci_unknown
+			.map { speci, genome_id, gdata, flags -> [ genome_id, gdata, flags ] }
 		speci = speci_ch
+		// status = status_ch
 
 
 }

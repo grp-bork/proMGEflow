@@ -19,6 +19,7 @@ process prodigal {
 	"""
 	mkdir -p ${genome_id}
 	${gunzip_cmd}
+
 	prodigal -i \$(basename ${genome_fna} .gz) -f gff -o ${genome_id}/${genome_id}.gff -a ${genome_id}/${genome_id}.faa -d ${genome_id}/${genome_id}.ffn
 	"""
 }
