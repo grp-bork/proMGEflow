@@ -4,10 +4,6 @@ nextflow.enable.dsl=2
 
 include { mgexpose_denovo } from "./mgexpose"
 include { get_db_seqs } from "../modules/get_db_seqs"
-<<<<<<< HEAD
-include { publish_gene_annotations; publish_recombinase_scan; publish_results } from "../modules/publish"
-=======
->>>>>>> main
 
 include { genome_annotation } from "./genome_annotation"
 include { species_recognition } from "./species_recognition"
@@ -15,7 +11,7 @@ include { recombinase_annotation } from "./recombinase_annotation"
 include { pangenome_analysis } from "./pangenome_analysis"
 include { conjugation_system_annotation; conjugation_system_annotation as forced_conjugation_system_annotation } from "./conjugation_system_annotation"
 include { functional_annotation } from "./functional_annotation"
-include { summarise } from "./summarise"
+include { summarise_and_publish } from "./summarise"
 
 include { handle_input_genomes } from "./input"
 
@@ -82,6 +78,7 @@ workflow full_annotation {
 	/* STEP 5 Annotate the genomes with island data and assign mges */
 	mgexpose_denovo(conjugation_system_annotation.out.genomes)
 
+	summarise_and_publish(mgexpose_denovo.out.genomes)
 
 	// if (true) {
 
@@ -113,6 +110,5 @@ workflow full_annotation {
 
 	// }
 
-	summarise(mgexpose_denovo.out.genomes)
 
 }

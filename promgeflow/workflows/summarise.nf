@@ -9,7 +9,7 @@ process pangenome_summary {
 	path(speci_sizes)
 
 	output:
-	path("pangenome_summary.txt")
+	path("pangenome_summary.txt"), emit: "pangenome_summary"
 
 	script:
 	"""
@@ -29,28 +29,6 @@ workflow summarise_and_publish {
 			
 		genome_status_ch.dump(pretty: true, tag: "genome_status_ch")
 
-		Channel.of(["#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
-			.concat(
-				genome_status_ch
-					.map { speci, genome_id, flags -> [
-							speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_CLUSTERING, flags.MGE_ANNOTATION
-						]
-					}
-			)
-			.collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${params.output_dir}") {
-				item -> item.join("\t")
-			}
-
-		if (params.run_mode != "contig" && params.run_mode != "plasmid") {
-			/* Generate a pangenome report for the input genomes with identifed specI */
-			genome_summary_ch = genomes_ch
-				.map { speci, genome_id, gdata, flags -> gdata.pangenome_info }
-				.filter { it != null }
-				.collectFile(name: "${workDir}/pangenome_info.txt", skip: 1, keepHeader: true, sort: true)
-
-			pangenome_summary(genome_summary_ch, "${projectDir}/assets/speci_sizes_pg3.txt")
-		}
-
 		results_genecalls_ch = genomes_ch
 			.filter { it[2].mge_gff != null }
 			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.proteins, gdata.genes, gdata.gff ] }
@@ -65,6 +43,32 @@ workflow summarise_and_publish {
 
 		results_ch = results_gene_calls.mix(results_recombinases).mix(results_mge)
 			.groupTuple(by: [0, 1], size: 3, remainder: true)
+
+		Channel.of(["#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
+			.concat(
+				genome_status_ch
+					.map { speci, genome_id, flags -> [
+							speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_CLUSTERING, flags.MGE_ANNOTATION
+						]
+					}
+			)
+			.collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${workDir}") {
+				item -> item.join("\t")
+			}
+		
+		results_ch = results_ch.mix(Channel.fromPath("${workDir}/genome_status.txt"))
+
+		if (params.run_mode != "contig" && params.run_mode != "plasmid") {
+			/* Generate a pangenome report for the input genomes with identifed specI */
+			genome_summary_ch = genomes_ch
+				.map { speci, genome_id, gdata, flags -> gdata.pangenome_info }
+				.filter { it != null }
+				.collectFile(name: "${workDir}/pangenome_info.txt", skip: 1, keepHeader: true, sort: true)
+
+			pangenome_summary(genome_summary_ch, "${projectDir}/assets/speci_sizes_pg3.txt")
+
+			results_ch = results_ch.mix(pangenome_summary.out.pangenome_summary)
+		}
 
 		publish_results(
 			results_ch,

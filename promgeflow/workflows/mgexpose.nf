@@ -24,7 +24,8 @@ workflow mgexpose_denovo {
 			mge_ch = mge_ch
 				.join(mgexpose_region.out.gff, by: [0, 1], remainder: true)
 				.join(mgexpose_region.out.fasta, by: [0, 1], remainder: true)
-				.map { speci, genome_id, gdata, flags, mge_gff, mge_fasta -> [ speci, genome_id, gdata, flags, mge_gff, mge_fasta, null ] } // null: no pangenome info!
+				.join(mgexpose_region.out.gene_info, by: [0, 1], remainder: true)
+				.map { speci, genome_id, gdata, flags, mge_gff, mge_fasta, gene_info -> [ speci, genome_id, gdata, flags, mge_gff, mge_fasta, gene_info, null ] } // null: no pangenome info!
 
 		} else {
 			annotation_data_ch = genomes_ch
@@ -42,16 +43,18 @@ workflow mgexpose_denovo {
 
 			mge_ch = mge_ch
 				.join(mgexpose.out.gff, by: [0, 1], remainder: true)
-				.join(mgexpose_region.out.fasta, by: [0, 1], remainder: true)
+				.join(mgexpose.out.fasta, by: [0, 1], remainder: true)
+				.join(mgexpose.out.gene_info, by: [0, 1], remainder: true)
 				.join(mgexpose.out.pangenome_info, by: [0, 1], remainder: true)
 
 		} 
 
 		mge_ch = mge_ch
-			.map { speci, genome_id, gdata_old, flags_old, mge_gff, mge_fasta, pangenome_info -> 
+			.map { speci, genome_id, gdata_old, flags_old, mge_gff, mge_fasta, gene_info, pangenome_info -> 
 				def gdata = gdata_old.clone()
 				gdata.mge_gff = mge_gff
 				gdata.mge_fasta = mge_fasta
+				gdata.gene_info = gene_info
 				gdata.pangenome_info = pangenome_info
 				def flags = flags_old.clone()
 				flags.MGE_ANNOTATION = (mge_gff != null)

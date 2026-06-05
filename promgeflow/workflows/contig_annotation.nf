@@ -3,14 +3,13 @@
 nextflow.enable.dsl=2
 
 include { mgexpose_region } from "../modules/mgexpose"
-include { publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
 
 include { mgexpose_denovo } from "./mgexpose"
 include { genome_annotation } from "./genome_annotation"
 include { recombinase_annotation } from "./recombinase_annotation"
 include { conjugation_system_annotation } from "./conjugation_system_annotation"
 include { functional_annotation } from "./functional_annotation"
-include { summarise } from "./summarise"
+include { summarise_and_publish } from "./summarise"
 include { handle_input_contigs } from "./input"
 
 
@@ -40,7 +39,7 @@ workflow contig_annotation {
 	/* STEP 5 Annotate the genomes with island data and assign mges */
 	mgexpose_denovo(conjugation_system_annotation.out.genomes)
 
-	summarise(mgexpose_denovo.out.genomes)
+	summarise_and_publish(mgexpose_denovo.out.genomes)
 
 	// annotation_data_ch = conjugation_system_annotation.out.genomes
 	// 	.map { speci, genome_id, gdata -> [ speci, genome_id, "dummy_region", gdata.gff, gdata.conjugation_system_data, gdata.emapper, gdata.recombinases, gdata.genome ] }
