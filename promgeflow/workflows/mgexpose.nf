@@ -45,9 +45,6 @@ workflow mgexpose_denovo {
 
 		} 
 
-		// mge_ch = genomes_ch
-		// 	.join(mgexpose.out.gff, by: [0, 1], remainder: true)
-		// 	.join(mgexpose.out.pangenome_info, by: [0, 1], remainder: true)
 		mge_ch = mge_ch
 			.map { speci, genome_id, gdata_old, flags_old, mge_gff, pangenome_info -> 
 				def gdata = gdata_old.clone()
