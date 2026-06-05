@@ -1,9 +1,11 @@
 process publish_results {
 	label "tiny"
-	tag "${speci}/${genome_id}"
+	// tag "${speci}/${genome_id}"
+	tag "Publishing results..."
 
 	input:
-	tuple val(speci), val(genome_id), path("promgeflow_results/*")
+	// tuple val(speci), val(genome_id), path("promgeflow_results/*")
+	path("promgeflow_results/*")
 	val(simple_output)
 	val(as_tarball)
 
@@ -11,25 +13,25 @@ process publish_results {
 	path("**.*")
 
 	script:
-	def outdir = "${speci}/${genome_id}"
+	// def outdir = "${speci}/${genome_id}"
 	def lvlup = "../.."
 
 	if (as_tarball) {
-		def tarball_prefix = (as_tarball == true) ? "${genome_id}" : "${as_tarball}"
+		def tarball_prefix = (as_tarball && as_tarball?.trim()) ? "${as_tarball}" : "promgeflow"
 		"""
-		tar cvzf ${tarball_prefix}.promgeflow.tar.gz promgeflow_results/ 
+		tar cvzf ${tarball_prefix}.tar.gz promgeflow_results/ 
 		"""
-		// tar cvzf ${genome_id}.promgeflow.tar.gz promgeflow_results/ 
-	} else {
-		if (simple_output) {
-			outdir = "${genome_id}"
-			lvlup = ".."
-		}
-		"""
-		mkdir ${outdir} && cd ${outdir}
-		find ${lvlup} -type l -exec ln -s {} \\;
-		"""
-	}
+	} 
+	// else {
+	// 	if (simple_output) {
+	// 		outdir = "${genome_id}"
+	// 		lvlup = ".."
+	// 	}
+	// 	"""
+	// 	mkdir ${outdir} && cd ${outdir}
+	// 	find ${lvlup} -type l -exec ln -s {} \\;
+	// 	"""
+	// }
 		
 }
 
