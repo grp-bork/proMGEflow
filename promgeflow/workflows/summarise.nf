@@ -89,19 +89,6 @@ workflow summarise_and_publish {
 				.mix(results_mge_ch )
 				.map { speci, genome_id, payload -> payload }
 				.collect()
-
-
-			// results_ch = results_genecalls_ch
-			// 	.mix()
-			// 	.join(results_recombinases_ch, by: [0, 1])
-			// 	.map { speci, genome_id, }
-			// 	.mix(
-			// 		results_genecalls_ch
-			// 			.join(results_mge_ch, by: [0, 1])
-			// 	)
-			// 	// .flatten()
-			// 	// .groupTuple(by: [0, 1]) //, size: 3, remainder: true)
-			// 	// .map { speci, genome_id, payload -> payload.flatten() }
 			
 			results_ch.dump(pretty: true, tag: "results_ch_sap")
 
@@ -113,12 +100,12 @@ workflow summarise_and_publish {
 		} else {
 
 			publish_gene_annotations(
-				results_genecalls_ch,
+				results_genecalls_ch.map { speci, genome_id, payload -> [ speci, genome_id, payload[3:] ] },
 				params.simple_output
 			)
 
 			publish_recombinase_scan(
-				results_recombinases_ch,
+				results_recombinases_ch.map { speci, genome_id, payload -> [ speci, genome_id, payload[3], payload[4] ] },
 				params.simple_output
 			)
 
