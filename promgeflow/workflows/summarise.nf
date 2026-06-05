@@ -34,7 +34,7 @@ process genome_status_summary {
 
 	script:
 	"""
-	wait 1
+	sleep 1
 	"""
 }
 
