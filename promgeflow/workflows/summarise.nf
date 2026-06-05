@@ -20,6 +20,23 @@ process pangenome_summary {
 }
 
 
+process status_summary {
+	label "tiny"
+	executor "local"
+
+	input:
+	path(summary)
+
+	output:
+	path("genome_summary.txt"), emit: "genome_status_summary"
+
+	script:
+	"""
+	touch genome_summary.txt
+	"""
+}
+
+
 workflow summarise_and_publish {
 	take:
 		genomes_ch
@@ -52,12 +69,14 @@ workflow summarise_and_publish {
 						]
 					}
 			)
-			// .collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${params.output_dir}") {
 			.collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${workDir}") {
+			// .collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${workDir}") {
 				item -> item.join("\t")
 			}
 		
-		results_ch = results_ch.mix(Channel.fromPath("${workDir}/genome_status.txt"))
+		status_ch = Channel.fromPath("${workDir}/genome_status.txt")
+
+		results_ch = results_ch.mix(status_ch)
 
 		if (params.run_mode != "contig" && params.run_mode != "plasmid") {
 			/* Generate a pangenome report for the input genomes with identifed specI */
@@ -103,6 +122,8 @@ workflow summarise_and_publish {
 				params.tarball_output
 			)
 		} else {
+
+			status_summary(status_ch)
 
 			publish_gene_annotations(
 				results_recombinases_ch.mix(results_mge_ch).map { speci, genome_id, payload -> [ speci, genome_id, [ payload[0], payload[1], payload[2] ] ] },
