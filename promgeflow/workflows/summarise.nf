@@ -100,7 +100,7 @@ workflow summarise_and_publish {
 		} else {
 
 			publish_gene_annotations(
-				results_genecalls_ch.map { speci, genome_id, payload -> [ speci, genome_id, payload[3:] ] },
+				results_genecalls_ch.map { speci, genome_id, payload -> [ speci, genome_id, [ payload[3], payload[4] ] ] },
 				params.simple_output
 			)
 
