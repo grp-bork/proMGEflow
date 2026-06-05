@@ -28,12 +28,12 @@ process status_summary {
 	path(summary)
 
 	output:
-	path("genome_summary.txt"), emit: "genome_status_summary"
+	path("genome_status_summary.txt"), emit: "genome_status_summary"
 
-	script:
-	"""
-	touch genome_summary.txt
-	"""
+	// script:
+	// """
+	// touch genome_summary.txt
+	// """
 }
 
 
@@ -69,7 +69,7 @@ workflow summarise_and_publish {
 						]
 					}
 			)
-			.collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${workDir}") {
+			.collectFile(name: "genome_status_summary.txt", newLine: true, sort: true, storeDir: "${workDir}") {
 			// .collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${workDir}") {
 				item -> item.join("\t")
 			}
