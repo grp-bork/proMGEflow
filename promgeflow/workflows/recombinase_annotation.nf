@@ -45,13 +45,6 @@ workflow recombinase_annotation {
 				return [ speci, genome_id, gdata, flags ]
 			}
 
-		// publish_recombinase_scan(
-		// 	recombinase_output_ch
-		// 		.filter { it[2].recomb_table != null && it[2].recomb_gff != null }
-		// 		.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.recomb_table, gdata.recomb_gff ] },
-		// 	params.simple_output
-		// )
-
 	emit:
 		genomes = recombinase_output_ch
 
