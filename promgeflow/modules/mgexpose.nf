@@ -16,10 +16,10 @@ process mgexpose {
 
 	output:
 	tuple val(speci), val(genome_id), path("**/*.mge_islands.gff3"), emit: gff, optional: true
-	path("**/*.unannotated_islands.gff3"), emit: genomic_islands, optional: true
-	path("**/*.NO_MGE"), emit: no_mge, optional: true
-	path("**/*.mge_islands.ffn.gz"), emit: fasta, optional: true
-	path("**/*.gene_info.txt"), emit: gene_info, optional: true
+	tuple val(speci), val(genome_id), path("**/*.unannotated_islands.gff3"), emit: genomic_islands, optional: true
+	tuple val(speci), val(genome_id), path("**/*.NO_MGE"), emit: no_mge, optional: true
+	tuple val(speci), val(genome_id), path("**/*.mge_islands.ffn.gz"), emit: fasta, optional: true
+	tuple val(speci), val(genome_id), path("**/*.gene_info.txt"), emit: gene_info, optional: true
 	tuple val(speci), val(genome_id), path("${genome_id}.pangenome.txt"), emit: pangenome_info, optional: true
 	
 	script:
@@ -97,10 +97,10 @@ process mgexpose_region {
 
 	output:
 	tuple val(speci), val(genome_id), path("**/*.mge_islands.gff3"), emit: gff, optional: true
-	path("**/*.unannotated_islands.gff3"), emit: genomic_islands, optional: true
-	path("**/*.NO_MGE"), emit: no_mge, optional: true
-	path("**/*.mge_islands.ffn.gz"), emit: fasta, optional: true
-	path("**/*.gene_info.txt"), emit: gene_info, optional: true
+	tuple val(speci), val(genome_id), path("**/*.unannotated_islands.gff3"), emit: genomic_islands, optional: true
+	tuple val(speci), val(genome_id), path("**/*.NO_MGE"), emit: no_mge, optional: true
+	tuple val(speci), val(genome_id), path("**/*.mge_islands.ffn.gz"), emit: fasta, optional: true
+	tuple val(speci), val(genome_id), path("**/*.gene_info.txt"), emit: gene_info, optional: true
 	
 	script:
 	def outdir = (simple_output) ? "${genome_id}" : "${speci}/${genome_id}"

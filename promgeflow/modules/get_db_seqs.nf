@@ -1,6 +1,6 @@
 process get_db_seqs {
     tag "${speci}"
-    executor "local"
+    // executor "local"  -> move to run.config @ EMBL
     label "tiny"
     cpus 1
 

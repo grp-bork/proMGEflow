@@ -11,7 +11,7 @@ include { recombinase_annotation } from "./recombinase_annotation"
 include { pangenome_analysis } from "./pangenome_analysis"
 include { conjugation_system_annotation; conjugation_system_annotation as forced_conjugation_system_annotation } from "./conjugation_system_annotation"
 include { functional_annotation } from "./functional_annotation"
-include { summarise } from "./summarise"
+include { summarise_and_publish } from "./summarise"
 
 include { handle_input_genomes } from "./input"
 
@@ -78,6 +78,6 @@ workflow full_annotation {
 	/* STEP 5 Annotate the genomes with island data and assign mges */
 	mgexpose_denovo(conjugation_system_annotation.out.genomes)
 
-	summarise(mgexpose_denovo.out.genomes)
+	summarise_and_publish(mgexpose_denovo.out.genomes)
 
 }

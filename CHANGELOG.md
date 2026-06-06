@@ -1,3 +1,21 @@
+v3.16.0
+-------
+
+* added tarball output for interoperation with promge
+
+v3.15.0 (no clowm)
+-------
+
+* added genome status tracking
+
+v3.14.0 (no clowm)
+-------
+
+* fixed contig / plasmid mode
+* renamed secretion_annotation subworkflow to conjugation_system_annotation
+* fixed output channel issue in genome_annotation subworkflow
+* updated mgexpose to v3.10.0
+
 v3.13.5
 -------
 

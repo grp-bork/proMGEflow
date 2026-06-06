@@ -137,10 +137,11 @@ nextflow run grp-bork/promgeflow --run_mode contig --input_sheet /path/to/input-
 │   ├── <genome_1>
 │   │   ├── <genome_1>.faa
 │   │   ├── <genome_1>.ffn
-│   │   ├── <genome_1>.gene_info.txt
 │   │   ├── <genome_1>.gff
+│   │   ├── <genome_1>.gene_info.txt
 │   │   ├── <genome_1>.mge_islands.ffn.gz
 │   │   ├── <genome_1>.mge_islands.gff3
+|   |  -OR-
 │   │   └── <genome_1>.predicted_recombinase_mges.gff3
 │   ├── <genome_2>
 ...
@@ -154,7 +155,7 @@ nextflow run grp-bork/promgeflow --run_mode contig --input_sheet /path/to/input-
 
 Upon successful MGE detection in an input genome `proMGEflow` returns a gff with the annotated MGEs (`<genome_id>.mge_islands.gff3`) and the extracted sequences of those MGEs (`<genome_id>.mge_islands.ffn.gz`) as well as a set of gene coordinates (`<genome_id>.gff`), gene (`<genome_id>.ffn`) and protein sequences (`<genome_id>.faa`) as predicted by `prodigal`. In case gene predictions were already provided as inputs (cf. [Input via samplesheet](#via-samplesheet)), the "`prodigal`" outputs returned by `proMGEflow` are identical to the input data. The `<genome_id>.mge_islands.gff3` contains predicted MGEs as `mobile_genetic_element` records and all genes (as `gene` records) associated to those islands. In addition, the output includes another file with the annotations of all genes contained in the input genome (`<genome_id>.gene_info.txt`).
 
-Furthermore, `proMGEflow` returns a set of predicted recombinases (`<genome_id>.predicted_recombinase_mges.gff3`) in the input genome. In case of an unsuccessful pangenome analysis (and subsequentially a failed island detection), this allows the user to investigate the genomic neighbourhoods of the discovered recombinases and draw their own conclusions.
+In case of an unsuccessful pangenome analysis (and subsequentially a failed island detection), `proMGEflow` may still return a set of predicted MGE recombinases (`<genome_id>.predicted_recombinase_mges.gff3`) in the input genome, given any are found. This allows the user to investigate the genomic neighbourhoods of the discovered recombinases and draw their own conclusions.
 
 By default, output is sorted in directory trees of the pattern `<specI>/<genome>/` in order to not flood the output directory with massive numbers of genome-specific directories. If this behaviour is not desired, it can be turned off by setting the `--simple_output` parameter.
 
@@ -238,8 +239,6 @@ Percentage of accessory genes in the input genome
 7. n_genomes
 
 Number of genomes contributing to the specI_v4 reference cluster
-
-
 
 
 

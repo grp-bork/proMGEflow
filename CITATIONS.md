@@ -1,0 +1,3 @@
+```
+Supriya Khedkar, Georgy Smyshlyaev, Ivica Letunic, Oleksandr M Maistrenko, Luis Pedro Coelho, Askarbek Orakov, Sofia K Forslund, Falk Hildebrand, Mechthild Luetge, Thomas S B Schmidt, Orsolya Barabas, Peer Bork, Landscape of mobile genetic elements and their antibiotic resistance cargo in prokaryotic genomes, Nucleic Acids Research, Volume 50, Issue 6, 8 April 2022, Pages 3155–3168, https://doi.org/10.1093/nar/gkac163
+```

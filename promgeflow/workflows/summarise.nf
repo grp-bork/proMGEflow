@@ -1,4 +1,9 @@
+include { publish_tarball; publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
+
+
 process pangenome_summary {
+	label "tiny"
+	label "summary"
 	executor "local"
 
 	input:
@@ -6,7 +11,7 @@ process pangenome_summary {
 	path(speci_sizes)
 
 	output:
-	path("pangenome_summary.txt")
+	path("pangenome_summary.txt"), emit: "pangenome_summary"
 
 	script:
 	"""
@@ -16,7 +21,25 @@ process pangenome_summary {
 }
 
 
-workflow summarise {
+process genome_status_summary {
+	label "tiny"
+	label "summary"
+	executor "local"
+
+	input:
+	path(summary)
+
+	output:
+	path("genome_status_summary.txt"), emit: "genome_status_summary"
+
+	script:
+	"""
+	sleep 1
+	"""
+}
+
+
+workflow summarise_and_publish {
 	take:
 		genomes_ch
 	main:
@@ -26,6 +49,8 @@ workflow summarise {
 			
 		genome_status_ch.dump(pretty: true, tag: "genome_status_ch")
 
+		results_ch = Channel.empty()
+
 		Channel.of(["#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
 			.concat(
 				genome_status_ch
@@ -34,9 +59,13 @@ workflow summarise {
 						]
 					}
 			)
-			.collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${params.output_dir}") {
+			.collectFile(name: "genome_status_summary.txt", newLine: true, sort: true, storeDir: "${workDir}") {
 				item -> item.join("\t")
 			}
+		
+		status_ch = Channel.fromPath("${workDir}/genome_status_summary.txt")
+
+		results_ch = results_ch.mix(status_ch)
 
 		if (params.run_mode != "contig" && params.run_mode != "plasmid") {
 			/* Generate a pangenome report for the input genomes with identifed specI */
@@ -46,9 +75,43 @@ workflow summarise {
 				.collectFile(name: "${workDir}/pangenome_info.txt", skip: 1, keepHeader: true, sort: true)
 
 			pangenome_summary(genome_summary_ch, "${projectDir}/assets/speci_sizes_pg3.txt")
+
+			results_ch = results_ch.mix(pangenome_summary.out.pangenome_summary)
+		}
+
+		results_recombinases_ch = genomes_ch
+			.filter { it[2].recomb_table != null && it[2].recomb_gff != null && it[2].mge_gff == null }
+			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff, gdata.recomb_table, gdata.recomb_gff ] ] }
+		
+		results_mge_ch = genomes_ch
+			.filter { it[2].mge_gff != null && it[2].mge_fasta != null }
+			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff, gdata.mge_gff, gdata.mge_fasta ] ] }
+
+		if (params.tarball_output) {
+			results_ch = results_ch.mix(
+				results_recombinases_ch
+					.mix(results_mge_ch )
+					.map { speci, genome_id, payload -> payload }
+			)
+			.collect()
+			
+			results_ch.dump(pretty: true, tag: "results_ch_sap")
+
+			publish_tarball(results_ch, params.tarball_output)
+			
+		} else {
+
+			genome_status_summary(status_ch)
+
+			publish_gene_annotations(
+				results_recombinases_ch.mix(results_mge_ch).map { speci, genome_id, payload -> [ speci, genome_id, [ payload[0], payload[1], payload[2] ] ] },
+				params.simple_output
+			)
+
+			publish_recombinase_scan(
+				results_recombinases_ch.map { speci, genome_id, payload -> [ speci, genome_id, payload[3], payload[4] ] },
+				params.simple_output
+			)
+
 		}
 }
-
-
-
-	
