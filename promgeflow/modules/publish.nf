@@ -30,7 +30,7 @@ process publish_tarball {
 
 		find promgeflow_results_raw -name '*.txt' -exec ln -sf ../{} ${tarball_prefix}/ \\;
 
-		find ${tarball_prefix} -name '*.fna.???' | xargs -I{} sh -c 't=\$(ls {} | sed "s/\\.fna\\.\\(faa\\|ffn\\|gff\\)")/\\1/); mv -v {} \$t;'
+		find ${tarball_prefix} -name '*.fna.???' | xargs -I{} sh -c 't=\$(ls {} | sed "s/\\.fna\\.\\(faa\\|ffn\\|gff\\)/\\1/"); mv -v {} \$t;'
 
 		tar chvzf ${tarball_prefix}.tar.gz ${tarball_prefix}/ 
 		"""
