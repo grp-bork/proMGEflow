@@ -18,14 +18,14 @@ process publish_tarball {
 	def lvlup = "../.."
 
 	if (true) {
-		def tarball_prefix = (as_tarball && as_tarball?.trim()) ? "${as_tarball}" : "promgeflow"
+		def tarball_prefix = (as_tarball && as_tarball?.trim()) ? "${as_tarball}" : "promgeflow_results"
 		"""
-		mkdir -p promgeflow_results/
+		mkdir -p ${tarball_prefix}/
 
 		for f in \$(find promgeflow_results_raw -name '*.gff3'); do
 			s=\$(basename \$f | sed "s/\\.\\(mge_islands\\|predicted_recombinase_mges\\)\\.gff3//");
-			mkdir -p promgeflow_results/\$s;
-			find promgeflow_results_raw -name "\$s*" -exec ln -sf ../../{} promgeflow_results/\$s \\;
+			mkdir -p ${tarball_prefix}/\$s;
+			find promgeflow_results_raw -name "\$s*" -exec ln -sf ../../{} ${tarball_prefix}/\$s \\;
 		done
 
 		tar chvzf ${tarball_prefix}.tar.gz promgeflow_results/ 
