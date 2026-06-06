@@ -4,13 +4,13 @@ process publish_tarball {
 
 	input:
 	path("promgeflow_results_raw/*")
-	val(as_tarball)
+	val(tarball_prefix)
 
 	output:
 	path("*.tar.gz")
 
 	script:
-	def tarball_prefix = (as_tarball && as_tarball?.trim()) ? "${as_tarball}" : "promgeflow_results"
+	// def tarball_prefix = (as_tarball && as_tarball?.trim()) ? "${as_tarball}" : "promgeflow_results"
 	"""
 	mkdir -p ${tarball_prefix}/
 
