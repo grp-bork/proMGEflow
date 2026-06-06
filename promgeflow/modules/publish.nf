@@ -28,7 +28,9 @@ process publish_tarball {
 			find promgeflow_results_raw -name "\$s*" -exec ln -sf ../../{} ${tarball_prefix}/\$s \\;
 		done
 
-		tar chvzf ${tarball_prefix}.tar.gz ${tarball_prefix} 
+		find promgeflow_results_raw -name '*.txt' -exec ln -sf ../{} ${tarball_prefix}/ \\;
+
+		tar chvzf ${tarball_prefix}.tar.gz ${tarball_prefix}/ 
 		"""
 		//  | xargs -I sh -c 's=\$(basename {} | sed "s/\\.\\(mge_islands\\|predicted_recombinase_mges\\)\\.gff3//""); mkdir -p promgeflow_results/\$s; ln -sf ../../promgeflow_results_raw/\$s* promgeflow_results/\$s/'
 	} 
