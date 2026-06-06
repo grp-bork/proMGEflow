@@ -1,51 +1,31 @@
 process publish_tarball {
 	label "tiny"
-	// tag "${speci}/${genome_id}"
 	tag "Publishing results..."
 
 	input:
-	// tuple val(speci), val(genome_id), path("promgeflow_results/*")
 	path("promgeflow_results_raw/*")
-	// val(simple_output)
 	val(as_tarball)
 
 	output:
-	// path("**.*")
 	path("*.tar.gz")
 
 	script:
-	// def outdir = "${speci}/${genome_id}"
-	def lvlup = "../.."
+	def tarball_prefix = (as_tarball && as_tarball?.trim()) ? "${as_tarball}" : "promgeflow_results"
+	"""
+	mkdir -p ${tarball_prefix}/
 
-	if (true) {
-		def tarball_prefix = (as_tarball && as_tarball?.trim()) ? "${as_tarball}" : "promgeflow_results"
-		"""
-		mkdir -p ${tarball_prefix}/
+	for f in \$(find promgeflow_results_raw -name '*.gff3'); do
+		s=\$(basename \$f | sed "s/\\.\\(mge_islands\\|predicted_recombinase_mges\\)\\.gff3//");
+		mkdir -p ${tarball_prefix}/\$s;
+		find promgeflow_results_raw -name "\$s*" -exec ln -sf ../../{} ${tarball_prefix}/\$s \\;
+	done
 
-		for f in \$(find promgeflow_results_raw -name '*.gff3'); do
-			s=\$(basename \$f | sed "s/\\.\\(mge_islands\\|predicted_recombinase_mges\\)\\.gff3//");
-			mkdir -p ${tarball_prefix}/\$s;
-			find promgeflow_results_raw -name "\$s*" -exec ln -sf ../../{} ${tarball_prefix}/\$s \\;
-		done
+	find promgeflow_results_raw -name '*.txt' -exec ln -sf ../{} ${tarball_prefix}/ \\;
 
-		find promgeflow_results_raw -name '*.txt' -exec ln -sf ../{} ${tarball_prefix}/ \\;
+	find ${tarball_prefix} -name '*.fna.???' | xargs -I{} sh -c 't=\$(ls {} | sed "s/\\.fna\\.\\(faa\\|ffn\\|gff\\)/.\\1/"); mv -v {} \$t;'
 
-		find ${tarball_prefix} -name '*.fna.???' | xargs -I{} sh -c 't=\$(ls {} | sed "s/\\.fna\\.\\(faa\\|ffn\\|gff\\)/.\\1/"); mv -v {} \$t;'
-
-		tar chvzf ${tarball_prefix}.tar.gz ${tarball_prefix}/ 
-		"""
-		//  | xargs -I sh -c 's=\$(basename {} | sed "s/\\.\\(mge_islands\\|predicted_recombinase_mges\\)\\.gff3//""); mkdir -p promgeflow_results/\$s; ln -sf ../../promgeflow_results_raw/\$s* promgeflow_results/\$s/'
-	} 
-	// else {
-	// 	if (simple_output) {
-	// 		outdir = "${genome_id}"
-	// 		lvlup = ".."
-	// 	}
-	// 	"""
-	// 	mkdir ${outdir} && cd ${outdir}
-	// 	find ${lvlup} -type l -exec ln -s {} \\;
-	// 	"""
-	// }
+	tar chvzf ${tarball_prefix}.tar.gz ${tarball_prefix}/ 
+	"""
 		
 }
 

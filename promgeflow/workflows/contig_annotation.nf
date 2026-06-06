@@ -41,17 +41,4 @@ workflow contig_annotation {
 
 	summarise_and_publish(mgexpose_denovo.out.genomes)
 
-	// annotation_data_ch = conjugation_system_annotation.out.genomes
-	// 	.map { speci, genome_id, gdata -> [ speci, genome_id, "dummy_region", gdata.gff, gdata.conjugation_system_data, gdata.emapper, gdata.recombinases, gdata.genome ] }
-
-	// annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
-
-	// mgexpose_region(
-	// 	annotation_data_ch,
-	// 	"${projectDir}/assets/mge_rules_ms.txt",
-	// 	"${projectDir}/assets/conjscan.json",
-	// 	"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt",
-	// 	params.simple_output
-	// )
-
 }

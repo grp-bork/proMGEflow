@@ -80,35 +80,4 @@ workflow full_annotation {
 
 	summarise_and_publish(mgexpose_denovo.out.genomes)
 
-	// if (true) {
-
-	// 	pub_recombinases_ch = recombinase_annotation.out.mge_predictions
-	// 		.mix(recombinase_annotation.out.mge_predictions_gff)
-	// 		.groupTuple(by: [0, 1], size: 2)
-
-	// 	pub_recombinases_nospeci_ch = pub_recombinases_ch
-	// 		.filter { it[0] == "unknown" }
-
-	// 	pub_recombinases_nomge_ch = pub_recombinases_ch
-	// 		.filter { it[0] != "unknown" }
-	// 		.join(mgexpose.out.gff, by: [0, 1], remainder: true)
-	// 		.filter { it[3] == null }			
-	// 		.map { speci, genome_id, recombinases, no_mge -> [speci, genome_id, recombinases ] }
-
-	// 	publish_ch = annotations_ch
-	// 		.join(
-	// 			mgexpose.out.gff.mix(mgexpose.out.fasta).groupTuple(by: [0, 1], size: 2),
-	// 			by: [0, 1]
-	// 		)
-	// 		.map { speci, genome_id, annotations, mges -> [ speci, genome_id, [ annotations[0], annotations[1], annotations[2], mges[0], mges[1] ] ] }
-	// 		.mix(pub_recombinases_nospeci_ch)
-	// 		.mix(pub_recombinases_nomge_ch)
-
-	// 	publish_ch.dump(pretty: true, tag: "publish_ch")
-
-	// 	publish_results(publish_ch, params.simple_output, params.tarball_output)
-
-	// }
-
-
 }

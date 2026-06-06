@@ -49,18 +49,6 @@ workflow summarise_and_publish {
 			
 		genome_status_ch.dump(pretty: true, tag: "genome_status_ch")
 
-		// results_genecalls_ch = genomes_ch
-		// 	.filter { it[2].mge_gff != null }
-		// 	.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.proteins, gdata.genes, gdata.gff ] }
-
-		// results_recombinases_ch = genomes_ch
-		// 	.filter { it[2].recomb_table != null && it[2].recomb_gff != null && it[2].mge_gff == null }
-		// 	.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.recomb_table, gdata.recomb_gff ] }
-		
-		// results_mge_ch = genomes_ch
-		// 	.filter { it[2].mge_gff != null && it[2].mge_fasta != null }
-		// 	.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.mge_gff, gdata.mge_fasta ] }
-
 		results_ch = Channel.empty()
 
 		Channel.of(["#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
@@ -72,7 +60,6 @@ workflow summarise_and_publish {
 					}
 			)
 			.collectFile(name: "genome_status_summary.txt", newLine: true, sort: true, storeDir: "${workDir}") {
-			// .collectFile(name: "genome_status.txt", newLine: true, sort: true, storeDir: "${workDir}") {
 				item -> item.join("\t")
 			}
 		
@@ -92,10 +79,6 @@ workflow summarise_and_publish {
 			results_ch = results_ch.mix(pangenome_summary.out.pangenome_summary)
 		}
 
-		// results_genecalls_ch = genomes_ch
-		// 	.filter { it[2].mge_gff != null }
-		// 	.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.proteins, gdata.genes, gdata.gff ] }
-
 		results_recombinases_ch = genomes_ch
 			.filter { it[2].recomb_table != null && it[2].recomb_gff != null && it[2].mge_gff == null }
 			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff, gdata.recomb_table, gdata.recomb_gff ] ] }
@@ -103,10 +86,6 @@ workflow summarise_and_publish {
 		results_mge_ch = genomes_ch
 			.filter { it[2].mge_gff != null && it[2].mge_fasta != null }
 			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff, gdata.mge_gff, gdata.mge_fasta ] ] }
-
-		
-
-
 
 		if (params.tarball_output) {
 			results_ch = results_ch.mix(
@@ -119,10 +98,7 @@ workflow summarise_and_publish {
 			results_ch.dump(pretty: true, tag: "results_ch_sap")
 
 			publish_tarball(results_ch, params.tarball_output)
-			// 	results_ch,
-			// 	params.simple_output,
-			// 	params.tarball_output
-			// )
+			
 		} else {
 
 			genome_status_summary(status_ch)
@@ -138,9 +114,4 @@ workflow summarise_and_publish {
 			)
 
 		}
-
 }
-
-
-
-	
