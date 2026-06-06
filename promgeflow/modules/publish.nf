@@ -25,7 +25,7 @@ process publish_tarball {
 		for f in \$(find promgeflow_results_raw -name '*.gff3'); do
 			s=\$(basename \$f | sed "s/\\.\\(mge_islands\\|predicted_recombinase_mges\\)\\.gff3//");
 			mkdir -p promgeflow_results/\$s;
-			find promgeflow_results_raw -name '\$s*' -exec ln -sf ../../{} promgeflow_results/\$s \\;
+			find promgeflow_results_raw -name "\$s*" -exec ln -sf ../../{} promgeflow_results/\$s \\;
 		done
 
 		tar chvzf ${tarball_prefix}.tar.gz promgeflow_results/ 
