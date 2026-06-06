@@ -137,10 +137,11 @@ nextflow run grp-bork/promgeflow --run_mode contig --input_sheet /path/to/input-
 │   ├── <genome_1>
 │   │   ├── <genome_1>.faa
 │   │   ├── <genome_1>.ffn
-│   │   ├── <genome_1>.gene_info.txt
 │   │   ├── <genome_1>.gff
+│   │   ├── <genome_1>.gene_info.txt
 │   │   ├── <genome_1>.mge_islands.ffn.gz
 │   │   ├── <genome_1>.mge_islands.gff3
+|   |  -OR-
 │   │   └── <genome_1>.predicted_recombinase_mges.gff3
 │   ├── <genome_2>
 ...

@@ -1,5 +1,4 @@
 include { recombinase_scan } from "../modules/recombinase_scan"
-// include { publish_recombinase_scan } from "../modules/publish"
 
 // phasing out nested parameters
 params.recombinase_scan = [:]

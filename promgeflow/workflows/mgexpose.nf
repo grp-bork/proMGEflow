@@ -1,5 +1,5 @@
 include { mgexpose; mgexpose_region } from "../modules/mgexpose"
-// include { publish_gene_annotations } from "../modules/publish"
+
 
 workflow mgexpose_denovo {
 	take:
