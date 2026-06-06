@@ -1,26 +1,36 @@
-process publish_results {
+process publish_tarball {
 	label "tiny"
 	// tag "${speci}/${genome_id}"
 	tag "Publishing results..."
 
 	input:
 	// tuple val(speci), val(genome_id), path("promgeflow_results/*")
-	path("promgeflow_results/*")
-	val(simple_output)
+	path("promgeflow_results_raw/*")
+	// val(simple_output)
 	val(as_tarball)
 
 	output:
-	path("**.*")
+	// path("**.*")
+	path("*.tar.gz")
 
 	script:
 	// def outdir = "${speci}/${genome_id}"
 	def lvlup = "../.."
 
-	if (as_tarball) {
+	if (true) {
 		def tarball_prefix = (as_tarball && as_tarball?.trim()) ? "${as_tarball}" : "promgeflow"
 		"""
-		tar cvzf ${tarball_prefix}.tar.gz promgeflow_results/ 
+		mkdir -p promgeflow_results/
+
+		for f in \$(find promgeflow_results_raw -name '*.gff3'); do
+			s=\$(basename {} | sed "s/\\.\\(mge_islands\\|predicted_recombinase_mges\\)\\.gff3//"");
+			mkdir -p promgeflow_results/\$s;
+			find promgeflow_results_raw -name '\$s*' -exec ln -sf ../../{} promgeflow_results/\$s \\;
+		done
+
+		tar chvzf ${tarball_prefix}.tar.gz promgeflow_results/ 
 		"""
+		//  | xargs -I sh -c 's=\$(basename {} | sed "s/\\.\\(mge_islands\\|predicted_recombinase_mges\\)\\.gff3//""); mkdir -p promgeflow_results/\$s; ln -sf ../../promgeflow_results_raw/\$s* promgeflow_results/\$s/'
 	} 
 	// else {
 	// 	if (simple_output) {

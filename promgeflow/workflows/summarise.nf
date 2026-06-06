@@ -1,4 +1,4 @@
-include { publish_results; publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
+include { publish_tarball; publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
 
 
 process pangenome_summary {
@@ -118,11 +118,11 @@ workflow summarise_and_publish {
 			
 			results_ch.dump(pretty: true, tag: "results_ch_sap")
 
-			publish_results(
-				results_ch,
-				params.simple_output,
-				params.tarball_output
-			)
+			publish_tarball(results_ch, params.tarball_output)
+			// 	results_ch,
+			// 	params.simple_output,
+			// 	params.tarball_output
+			// )
 		} else {
 
 			genome_status_summary(status_ch)
