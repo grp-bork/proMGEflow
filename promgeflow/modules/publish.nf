@@ -30,6 +30,8 @@ process publish_tarball {
 
 		find promgeflow_results_raw -name '*.txt' -exec ln -sf ../{} ${tarball_prefix}/ \\;
 
+		find ${tarball_prefix} -name '*.fna.???' | xargs -I{} sh -c 't=\$(ls {} | sed "s/\\.fna\\.\\(faa\\|ffn\\|gff\\)")/\\1/); mv -v {} \$t;'
+
 		tar chvzf ${tarball_prefix}.tar.gz ${tarball_prefix}/ 
 		"""
 		//  | xargs -I sh -c 's=\$(basename {} | sed "s/\\.\\(mge_islands\\|predicted_recombinase_mges\\)\\.gff3//""); mkdir -p promgeflow_results/\$s; ln -sf ../../promgeflow_results_raw/\$s* promgeflow_results/\$s/'
