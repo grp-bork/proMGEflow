@@ -29,7 +29,7 @@ process genome_status_summary {
 	executor "local"
 
 	input:
-	path(genome_data)
+	val(genome_data)
 
 	output:
 	path("genome_status_summary.txt"), emit: summary
