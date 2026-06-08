@@ -5,7 +5,7 @@ process pangenome_summary {
 	publishDir path: "${params.output_dir}", mode: "copy", enabled: !params.tarball_output
 	label "tiny"
 	label "summary"
-	executor "local"
+	// executor "local"
 
 	input:
 	path(genome_report)
@@ -26,7 +26,7 @@ process genome_status_summary {
 	publishDir path: "${params.output_dir}", mode: "copy", enabled: !params.tarball_output
 	label "tiny"
 	label "summary"
-	executor "local"
+	// executor "local"
 
 	input:
 	path(genome_data)
@@ -54,24 +54,6 @@ workflow summarise_and_publish {
 		genome_status_ch.dump(pretty: true, tag: "genome_status_ch")
 
 		results_ch = Channel.empty()
-
-		genome_status_ch 
-
-		// Channel.of(["#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
-		// 	.concat(
-		// 		genome_status_ch
-		// 			.map { speci, genome_id, flags -> [
-		// 					speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_CLUSTERING, flags.MGE_ANNOTATION
-		// 				]
-		// 			}
-		// 	)
-		// 	.collectFile(name: "genome_status_summary.txt", newLine: true, sort: true, storeDir: "${workDir}") {
-		// 		item -> item.join("\t")
-		// 	}
-		
-		// status_ch = Channel.fromPath("${workDir}/genome_status_summary.txt")
-
-		// results_ch = results_ch.mix(status_ch)
 
 		if (params.run_mode != "contig" && params.run_mode != "plasmid") {
 			/* Generate a pangenome report for the input genomes with identifed specI */
@@ -109,10 +91,6 @@ workflow summarise_and_publish {
 
 			genome_status_summary(genome_status_ch
 				.map { speci, genome_id, flags -> ([speci, genome_id] + flags.values().collect { it -> String.valueOf(it) }).join("\t") }
-				// [
-				// 	speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_CLUSTERING, flags.MGE_ANNOTATION
-				// 	]
-				// }
 				.collectFile(name: "genome_status_summary.txt.raw", newLine: true, sort: true, storeDir: "${workDir}" )
 			)
 			results_ch = results_ch.mix(genome_status_summary.out.summary)
