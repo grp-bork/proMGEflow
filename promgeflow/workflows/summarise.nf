@@ -29,14 +29,17 @@ process genome_status_summary {
 	executor "local"
 
 	input:
-	path(summary)
+	path(genome_data)
 
 	output:
-	path("genome_status_summary.txt"), emit: "genome_status_summary"
+	path("genome_status_summary.txt"), emit: summary
 
 	script:
 	"""
-	sleep 1
+	awk -v OFS='\\t' '{ print "#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges" }' > genome_status_summary.txt
+
+	echo -e ${genome_data} >> genome_status_summary.txt
+	
 	"""
 }
 
@@ -53,21 +56,21 @@ workflow summarise_and_publish {
 
 		results_ch = Channel.empty()
 
-		Channel.of(["#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
-			.concat(
-				genome_status_ch
-					.map { speci, genome_id, flags -> [
-							speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_CLUSTERING, flags.MGE_ANNOTATION
-						]
-					}
-			)
-			.collectFile(name: "genome_status_summary.txt", newLine: true, sort: true, storeDir: "${workDir}") {
-				item -> item.join("\t")
-			}
+		// Channel.of(["#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
+		// 	.concat(
+		// 		genome_status_ch
+		// 			.map { speci, genome_id, flags -> [
+		// 					speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_CLUSTERING, flags.MGE_ANNOTATION
+		// 				]
+		// 			}
+		// 	)
+		// 	.collectFile(name: "genome_status_summary.txt", newLine: true, sort: true, storeDir: "${workDir}") {
+		// 		item -> item.join("\t")
+		// 	}
 		
-		status_ch = Channel.fromPath("${workDir}/genome_status_summary.txt")
+		// status_ch = Channel.fromPath("${workDir}/genome_status_summary.txt")
 
-		results_ch = results_ch.mix(status_ch)
+		// results_ch = results_ch.mix(status_ch)
 
 		if (params.run_mode != "contig" && params.run_mode != "plasmid") {
 			/* Generate a pangenome report for the input genomes with identifed specI */
@@ -103,7 +106,14 @@ workflow summarise_and_publish {
 			
 		} else {
 
-			genome_status_summary(status_ch)
+			genome_status_summary(genome_status_ch
+				.map { speci, genome_id, flags -> [
+					speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_CLUSTERING, flags.MGE_ANNOTATION
+					]
+				}
+				.collect()
+			)
+			results_ch = results_ch.mix(genome_status_summary.out.summary)
 
 			publish_gene_annotations(
 				results_recombinases_ch.mix(results_mge_ch).map { speci, genome_id, payload -> [ speci, genome_id, [ payload[0], payload[1], payload[2] ] ] },
