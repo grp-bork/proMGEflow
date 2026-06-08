@@ -38,7 +38,7 @@ process genome_status_summary {
 	"""
 	awk -v OFS='\\t' \\
 		'BEGIN { print "#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges" }' \\
-		'{ print $0 }' ${genome_data} > genome_status_summary.txt
+		'{ print; }' ${genome_data} > genome_status_summary.txt
 	"""
 }
 
