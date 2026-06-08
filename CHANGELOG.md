@@ -1,3 +1,8 @@
+v3.16.3
+-------
+
+* fixed summary publishing
+
 v3.16.0
 -------
 
