@@ -108,11 +108,12 @@ workflow summarise_and_publish {
 		} else {
 
 			genome_status_summary(genome_status_ch
-				.map { speci, genome_id, flags -> [
-					speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_CLUSTERING, flags.MGE_ANNOTATION
-					]
-				}
-				.collectFile(name: "genome_status_summary.txt.raw", newLine: true, storeDir: "${workDir}" )
+				.map { speci, genome_id, flags -> ([speci, genome_id] + flags.values().collect { it -> String.valueOf(it) }).join("\t") }
+				// [
+				// 	speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_CLUSTERING, flags.MGE_ANNOTATION
+				// 	]
+				// }
+				.collectFile(name: "genome_status_summary.txt.raw", newLine: true, sort: true, storeDir: "${workDir}" )
 			)
 			results_ch = results_ch.mix(genome_status_summary.out.summary)
 
