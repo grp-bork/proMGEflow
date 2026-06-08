@@ -49,45 +49,7 @@ Installation
 
 `proMGEflow` requires the following databases:
 
-1. eggnog-mapper database (48GB)
-	```
-	mkdir -p /path/to/emapper_db && cd /path/to/emapper_db
-	wget http://eggnog6.embl.de/download/emapperdb-5.0.2/eggnog.db.gz
-	wget http://eggnog6.embl.de/download/emapperdb-5.0.2/eggnog_proteins.dmnd.gz
-	wget http://eggnog6.embl.de/download/emapperdb-5.0.2/eggnog.taxa.tar.gz
-	gunzip eggnog.db.gz
-	gunzip eggnog_proteins.dmnd.gz
-	tar xvzf eggnog.taxa.tar.gz
-	```
-
-2. conjscan models (50MB)
-	```
-	mkdir -p /path/to/conjscan_models && cd /path/to/conjscan_models
-	git clone https://github.com/macsy-models/CONJScan.git CONJ
-	cd CONJ
-	git checkout d5fc1e3724362cb14c03a6e2f6de879bbdf3f64e
-	# ignore the "detached" head message
-	```
-
-3. recombinase HMMs (1.7MB)
-	```
-	mkdir -p /path/to/recombinase_models && /path/to/recombinase_models
-	wget https://zenodo.org/records/15829523/files/promge_v1_recombinase_models.hmm.gz
-	```
-
-4. recognise marker set (1GB)
-	```
-	mkdir -p /path/to/recognise_markers && cd /path/to/recognise_markers
-	wget https://zenodo.org/records/17916463/files/recognise_markers.tar.gz
-	tar cvzf recognise_markers.tar.gz
-	```
-
-5. pangenome cluster reference sequences (38.9GB)
-	```
-	mkdir -p /path/to/cluster_ref_seqs && cd /path/to/cluster_ref_seqs
-	wget https://zenodo.org/records/17704403/files/sp095_refdb_v1ypg3.tar
-	# Do not untar the .tar file!
-	```
+[tbd]
 
 Usage
 -----
