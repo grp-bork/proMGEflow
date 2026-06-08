@@ -1,5 +1,8 @@
 // [speci, bin_id, gene_coords, conjscan, emapper, clusters, recombinases, genome_fa]
 process mgexpose {
+	publishDir path: params.output_dir, mode: "copy", pattern: "**.mge_islands.gff3", enabled: !params.tarball_output
+	publishDir path: params.output_dir, mode: "copy", pattern: "**.mge_islands.ffn.gz", enabled: !params.tarball_output
+	publishDir path: params.output_dir, mode: "copy", pattern: "**.gene_info.txt", enabled: !params.tarball_output
 	label "annotate_genome"
 	label "medium"
 	label "mgexpose"

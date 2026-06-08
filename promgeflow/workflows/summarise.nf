@@ -2,6 +2,7 @@ include { publish_tarball; publish_gene_annotations; publish_recombinase_scan } 
 
 
 process pangenome_summary {
+	publishDir path: "${params.output_dir}", mode: "copy", enabled: !params.tarball_output
 	label "tiny"
 	label "summary"
 	executor "local"
@@ -22,6 +23,7 @@ process pangenome_summary {
 
 
 process genome_status_summary {
+	publishDir path: "${params.output_dir}", mode: "copy", enabled: !params.tarball_output
 	label "tiny"
 	label "summary"
 	executor "local"
