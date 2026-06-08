@@ -29,20 +29,23 @@ workflow recombinase_annotation {
 		recombinase_output_ch = recombinase_scan.out.done_sentinel
 			.join(recombinase_scan.out.recombinases, by: [0, 1])
 			// .join(recombinase_scan.out.recomb_table, by: [0, 1])
-			.join(recombinase_scan.out.mge_pred_gff, by: [0, 1])
-			.map { speci, genome_id, sentinel, recombinases, recomb_table, recomb_gff -> 
-				return [ speci, genome_id, recombinases, recomb_table, recomb_gff ]
+			// .join(recombinase_scan.out.mge_pred_gff, by: [0, 1])
+			// .map { speci, genome_id, sentinel, recombinases, recomb_table, recomb_gff -> 
+			.map { speci, genome_id, sentinel, recombinases -> }
+				// return [ speci, genome_id, recombinases, recomb_table, recomb_gff ]
+				return [ speci, genome_id, recombinases ]
 			}
 		recombinase_output_ch = genomes_ch
 			.join(recombinase_output_ch, by: [0, 1], remainder: true)
-			.map { speci, genome_id, gdata_old, flags_old, recombinases, recomb_table, recomb_gff ->
+			// .map { speci, genome_id, gdata_old, flags_old, recombinases, recomb_table, recomb_gff ->
+			.map { speci, genome_id, gdata_old, flags_old, recombinases ->
 				def gdata = gdata_old.clone()
 				gdata.recombinases = recombinases
 				// gdata.recomb_table = recomb_table
-				gdata.recomb_gff = recomb_gff
+				// gdata.recomb_gff = recomb_gff
 				def flags = flags_old.clone()
 				// flags.RECOMBINASE_SCAN = (recombinases != null && recomb_table != null && recomb_gff != null)
-				flags.RECOMBINASE_SCAN = (recombinases != null && recomb_gff != null)
+				flags.RECOMBINASE_SCAN = recombinases != null
 				return [ speci, genome_id, gdata, flags ]
 			}
 
