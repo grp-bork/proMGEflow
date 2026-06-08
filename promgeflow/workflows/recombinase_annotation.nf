@@ -31,7 +31,7 @@ workflow recombinase_annotation {
 			// .join(recombinase_scan.out.recomb_table, by: [0, 1])
 			// .join(recombinase_scan.out.mge_pred_gff, by: [0, 1])
 			// .map { speci, genome_id, sentinel, recombinases, recomb_table, recomb_gff -> 
-			.map { speci, genome_id, sentinel, recombinases -> }
+			.map { speci, genome_id, sentinel, recombinases -> 
 				// return [ speci, genome_id, recombinases, recomb_table, recomb_gff ]
 				return [ speci, genome_id, recombinases ]
 			}
