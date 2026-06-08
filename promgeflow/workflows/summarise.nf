@@ -68,8 +68,10 @@ workflow summarise_and_publish {
 		}
 
 		results_recombinases_ch = genomes_ch
-			.filter { it[2].recomb_table != null && it[2].recomb_gff != null && it[2].mge_gff == null }
-			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff, gdata.recomb_table, gdata.recomb_gff ] ] }
+			// .filter { it[2].recomb_table != null && it[2].recomb_gff != null && it[2].mge_gff == null }
+			.filter { it[2].recomb_gff != null && it[2].mge_gff == null }
+			// .map { speci, genome_id, gdata, flags -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff, gdata.recomb_table, gdata.recomb_gff ] ] }
+			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff, gdata.recomb_gff ] ] }
 		
 		results_mge_ch = genomes_ch
 			.filter { it[2].mge_gff != null && it[2].mge_fasta != null }
