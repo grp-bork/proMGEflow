@@ -113,7 +113,12 @@ Additionally, precomputed functional annotations can be specified as well:
 
 This mode is designed to detect and annotate MGEs on short sequences or small sets of short contigs, such as generated when assembling plasmids. It is activated setting the `--run_mode` parameter to `contig`. It treats input contigs as potential mobile regions and thus requires no pangenome estimation as no islands have to be delineated. Nevertheless, the resulting MGE candidates will only span the region between the outermost genes on the contig.
 
-Input sequences must be provided in one fasta file per genomic unit (e.g. a set of contigs/scaffolds from a plasmid assembly). Sequences can be pre-filtered by length using the `--max_contig_length` parameter.  If a samplesheet is provided, the `specI cluster` column has to be set to `contig` for each input file.
+Input sequences must be provided in one fasta file per genomic unit (e.g. a set of contigs/scaffolds from a plasmid assembly). Sequences can be pre-filtered by length using the `--max_contig_length` parameter.  If a samplesheet is provided, the `specI cluster` column has to be set to `contig` for each input file:
+
+```
+contig  <genome_1>   /path/to_fasta/with_contigs/of_genome_1
+contig  <genome_2> /path/to/fasta_with_contigs_of_genome_2
+```
 
 
 * Running in contig-mode via input directory
@@ -163,7 +168,14 @@ By default, output is sorted in directory trees of the pattern `<specI>/<genome>
 
 For each run, `proMGEflow` produces up to two run summaries.
 
-* Genome status
+* Genome status summary
+
+```
+#species	genome	has_genes	has_species	has_ref_clusters	has_recombinases	has_functional	has_conjugation	has_pangenome	has_mges
+specI_v4_00271	GCA_000007065.1	true	true	true	true	true	false	true	true
+specI_v4_01172	GCA_000007005.1	true	true	true	true	true	false	true	true
+specI_v4_02779	GCA_000007225.1	true	true	true	true	true	false	true	true
+```
 
 The file`genome_status.txt` contains a tab-separated table providing information of each input record through the workflow. The columns are:
 
@@ -209,6 +221,13 @@ The genome_id of the input record
 
 
 * Pangenome summary
+
+```
+#species	genome	n_genes	n_accessory	n_core	%acc	n_genomes
+specI_v4_00271	GCA_000007065.1	3477	1669	1808	48.00	73
+specI_v4_01172	GCA_000007005.1	3281	1678	1603	51.14	14
+specI_v4_02779	GCA_000007225.1	2631	16	2615	0.61	6
+```
 
 The file `pangenome_summary.txt` contains information from the pangenome estimation analysis. This file is not produced in `contig` mode or if the pangenome clustering was not successful for all input genomes (`has_pangenome = false`). The file is a tab-separated table with the following columns:
 
