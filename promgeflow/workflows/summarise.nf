@@ -29,17 +29,16 @@ process genome_status_summary {
 	executor "local"
 
 	input:
-	val(genome_data)
+	path(genome_data)
 
 	output:
 	path("genome_status_summary.txt"), emit: summary
 
 	script:
 	"""
-	awk -v OFS='\\t' '{ print "#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges" }' > genome_status_summary.txt
-
-	echo -e ${genome_data} >> genome_status_summary.txt
-	
+	awk -v OFS='\\t' \
+		'BEGIN { print "#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges" }' \
+		'{ print $0 }' ${genome_data} > genome_status_summary.txt
 	"""
 }
 
@@ -55,6 +54,8 @@ workflow summarise_and_publish {
 		genome_status_ch.dump(pretty: true, tag: "genome_status_ch")
 
 		results_ch = Channel.empty()
+
+		genome_status_ch 
 
 		// Channel.of(["#species", "genome", "has_genes", "has_species", "has_ref_clusters", "has_recombinases", "has_functional", "has_conjugation", "has_pangenome", "has_mges"])
 		// 	.concat(
@@ -111,7 +112,7 @@ workflow summarise_and_publish {
 					speci, genome_id, flags.GENOME_ANNOTATION, flags.SPECIES_RECOGNITION, flags.SPECI_CLUSTER_SEQS, flags.RECOMBINASE_SCAN, flags.FUNCTIONAL_ANNOTATION, flags.CONJUGATION_SYSTEM_ANNOTATION, flags.PANGENOME_CLUSTERING, flags.MGE_ANNOTATION
 					]
 				}
-				.collect()
+				.collectFile(name: "genome_status_summary.txt.raw", newLine: true, sort: true, storeDir: "${workDir}" )
 			)
 			results_ch = results_ch.mix(genome_status_summary.out.summary)
 
