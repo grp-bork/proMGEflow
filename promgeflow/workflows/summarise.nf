@@ -78,7 +78,7 @@ workflow summarise_and_publish {
 		if (params.tarball_output) {
 			results_ch = results_ch.mix(
 				results_recombinases_ch
-					.mix(results_mge_ch )
+					.mix(results_mge_ch)
 					.map { speci, genome_id, payload -> payload }
 			)
 			.collect()
