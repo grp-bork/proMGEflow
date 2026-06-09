@@ -107,7 +107,8 @@ workflow summarise_and_publish {
 			results_recombinases_ch.dump(pretty: true, tag: "results_recombinases_ch")
 
 			publish_recombinase_scan(
-				results_recombinases_ch.map { speci, genome_id, payload -> [ speci, genome_id, payload[3], payload[4] ] },
+				// results_recombinases_ch.map { speci, genome_id, payload -> [ speci, genome_id, payload[3], payload[4] ] },
+				results_recombinases_ch.map { speci, genome_id, payload -> [ speci, genome_id, payload[3] ] },
 				params.simple_output
 			)
 

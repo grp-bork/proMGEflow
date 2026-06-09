@@ -70,11 +70,13 @@ process publish_recombinase_scan {
 	tag "${speci}/${genome_id}"
 
 	input:
-	tuple val(speci), val(genome_id), path(mge_table), path(mge_gff)
+	// tuple val(speci), val(genome_id), path(mge_table), path(mge_gff)
+	tuple val(speci), val(genome_id), path(mge_gff)
 	val(simple_output)
 
 	output:
-	path("**/*.{tsv,gff3}")
+	// path("**/*.{tsv,gff3}")
+	path("**/*.gff3")
 
 	script:
 	def outdir = "${speci}/${genome_id}"
@@ -87,7 +89,7 @@ process publish_recombinase_scan {
 	"""
 	mkdir -p ${outdir}/ && cd ${outdir}
 
-	ln -s ${lvlup}/*.tsv
+	# ln -s ${lvlup}/*.tsv
 	ln -s ${lvlup}/*.gff3
 	"""
 }
