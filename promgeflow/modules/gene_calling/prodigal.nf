@@ -35,6 +35,7 @@ process buffered_prodigal {
 
 	input:
 	tuple val(batch_id), path(genomes)
+	val(batch_size)
 
 	output:
 	path("prodigal/**.*"), emit: annotations

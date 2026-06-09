@@ -1,4 +1,5 @@
-include { recombinase_scan } from "../modules/recombinase_scan"
+//include { recombinase_scan } from "../modules/recombinase_scan/recombinase_scan"
+include { mgexpose_recombinase_scan as recombinase_scan } from "../modules/recombinase_scan/mgexpose"
 
 // phasing out nested parameters
 params.recombinase_scan = [:]
