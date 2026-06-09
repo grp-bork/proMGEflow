@@ -1,5 +1,5 @@
 process mgexpose_call_genes {
-	tag (batch_size > 1) ? "batch_${batch_id}" : genomes[0]
+	tag "batch_${batch_id}"
 	label "small"
 	label "mgexpose"
 	container "ghcr.io/grp-bork/mgexpose:v3.10.0"
