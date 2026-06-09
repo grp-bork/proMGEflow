@@ -39,7 +39,8 @@ process mgexpose {
 	fi
 
 
-	echo mgexpose denovo ${genome_id} mgexpose.gff \
+	echo mgexpose denovo ${genome_id} 
+			--input_genes mgexpose.gff \
 			--recombinase_hits ${recombinases} \
 			--mge_rules ${mge_rules} \
 			--speci ${speci} \
@@ -52,7 +53,8 @@ process mgexpose {
 			--extract_islands ${genome_fa} \
 			--output_suffix mge_islands \
 			${y_cluster_option}
-	mgexpose denovo ${genome_id} mgexpose.gff \
+	mgexpose denovo ${genome_id} \
+			--input_genes mgexpose.gff \
 			--recombinase_hits ${recombinases} \
 			--mge_rules ${mge_rules} \
 			--speci ${speci} \
