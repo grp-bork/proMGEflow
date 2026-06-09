@@ -32,9 +32,8 @@ process recombinase_scan {
 	mv -v ${speci}/${genome_id}/${genome_id}.recombinase_scan.gff3 ${speci}/${genome_id}/${genome_id}.predicted_recombinase_mges.gff3 
 
 	touch ${speci}.${genome_id}.recombinase_sentinel
-
-	parse_hmmsearch.py --proteins recombinase_scan.faa --mge_rules ${mge_rules} --prefix ${speci}/${genome_id}/${genome_id} ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.out
 	"""
+	// parse_hmmsearch.py --proteins recombinase_scan.faa --mge_rules ${mge_rules} --prefix ${speci}/${genome_id}/${genome_id} ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.out
 }
 
 
