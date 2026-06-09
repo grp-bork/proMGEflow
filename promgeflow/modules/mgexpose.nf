@@ -39,7 +39,7 @@ process mgexpose {
 	fi
 
 
-	echo mgexpose denovo ${genome_id} 
+	echo mgexpose denovo ${genome_id} \
 			--input_genes mgexpose.gff \
 			--recombinase_hits ${recombinases} \
 			--mge_rules ${mge_rules} \
