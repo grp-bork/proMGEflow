@@ -23,7 +23,7 @@ process recombinase_scan {
 	"""
 	mkdir -p ${speci}/${genome_id}/
 
-	mgexpose recombinase_scan -o ${speci}/${genome_id}/ -t ${task.cpus} ${proteins} ${gff} ${recombinase_hmm_db} ${mge_rules} ${genome_id}
+	mgexpose recombinase_scan -o ${speci}/${genome_id}/ -t ${task.cpus} ${proteins} ${gff} ${recombinase_hmm_db} ${genome_id}
 
 	if [[ ! -s ${speci}/${genome_id}/${genome_id}.recombinase_hmmsearch.out ]]; then 
 		rm -rvf ${speci}/${genome_id}/*		
