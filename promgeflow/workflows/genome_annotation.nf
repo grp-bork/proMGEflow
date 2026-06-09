@@ -1,5 +1,6 @@
-// include { prodigal; buffered_prodigal } from "../modules/prodigal/gene_calling"
-include { buffered_prodigal as call_genes } from "../modules/prodigal/gene_calling"
+// include { prodigal; buffered_prodigal } from "../modules/gene_calling/prodigal"
+// include { buffered_prodigal as call_genes } from "../modules/gene_calling/prodigal"
+include { mgexpose_call_genes as call_genes } from "../modules/gene_calling/mgexpose"
 
 // phasing out prodigal_buffer_size
 params.prodigal_buffer_size = 1
