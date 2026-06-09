@@ -1,6 +1,7 @@
 process publish_tarball {
 	publishDir path: "${params.output_dir}", mode: "copy"
 	label "tiny"
+	label "publish"
 	tag "Publishing results..."
 
 	input:
@@ -35,6 +36,7 @@ process publish_gene_annotations {
 	publishDir path: "${params.output_dir}", mode: "copy", enabled: !params.tarball_output
 	// executor "local"  -> move to run.config @ EMBL
 	label "tiny"
+	label "publish"
 	tag "${speci}/${genome_id}"
 
 	input:
@@ -67,6 +69,7 @@ process publish_recombinase_scan {
 	publishDir path: "${params.output_dir}", mode: "copy", enabled: !params.tarball_output
 	// executor "local"  -> move to run.config @ EMBL
 	label "tiny"
+	label "publish"
 	tag "${speci}/${genome_id}"
 
 	input:
