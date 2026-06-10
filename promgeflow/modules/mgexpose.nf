@@ -87,6 +87,9 @@ process mgexpose {
 
 
 process mgexpose_region {
+	publishDir path: params.output_dir, mode: "copy", pattern: "**.mge_islands.gff3", enabled: !params.tarball_output
+	publishDir path: params.output_dir, mode: "copy", pattern: "**.mge_islands.ffn.gz", enabled: !params.tarball_output
+	publishDir path: params.output_dir, mode: "copy", pattern: "**.gene_info.txt", enabled: !params.tarball_output
 	label "annotate_genome"
 	label "mgexpose"
 	container "ghcr.io/grp-bork/mgexpose:v3.10.0"
