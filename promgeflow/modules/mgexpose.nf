@@ -40,32 +40,24 @@ process mgexpose {
 
 
 	echo mgexpose denovo ${genome_id} \
-			--input_genes mgexpose.gff \
-			--recombinase_hits ${recombinases} \
-			--mge_rules ${mge_rules} \
+			--input_genes ${gff} \
+			--recombinases ${recombinases} \
 			--speci ${speci} \
-			--txs_macsy_rules ${conjscan_rules} \
-			--txs_macsy_report ${conjscan} \
-			--phage_eggnog_data ${emapper} \
-			--phage_filter_terms ${phage_filter_terms} \
+			--conjugation_data ${conjscan} \
+			--phage_and_cargo_data ${emapper} \
 			--cluster_data ${gene_clusters} \
 			--output_dir ${outdir} \
-			--extract_islands ${genome_fa} \
-			--output_suffix mge_islands \
+			--genome_fasta ${genome_fa} \
 			${y_cluster_option}
 	mgexpose denovo ${genome_id} \
-			--input_genes mgexpose.gff \
-			--recombinase_hits ${recombinases} \
-			--mge_rules ${mge_rules} \
+			--input_genes ${gff} \
+			--recombinases ${recombinases} \
 			--speci ${speci} \
-			--txs_macsy_rules ${conjscan_rules} \
-			--txs_macsy_report ${conjscan} \
-			--phage_eggnog_data ${emapper} \
-			--phage_filter_terms ${phage_filter_terms} \
+			--conjugation_data ${conjscan} \
+			--phage_and_cargo_data ${emapper} \
 			--cluster_data ${gene_clusters} \
 			--output_dir ${outdir} \
-			--extract_islands ${genome_fa} \
-			--output_suffix mge_islands \
+			--genome_fasta ${genome_fa} \
 			${y_cluster_option}
 
 	islands_gff=${outdir}/${genome_id}.mge_islands.gff3
@@ -120,31 +112,23 @@ process mgexpose_region {
 
 	echo mgexpose denovo ${genome_id} \
 			--input_genes ${gff} \
-			--recombinase_hits ${recombinases} \
-			--mge_rules ${mge_rules} \
+			--recombinases ${recombinases} \
 			--speci no_speci \
-			--txs_macsy_rules ${conjscan_rules} \
-			--txs_macsy_report ${conjscan} \
-			--phage_eggnog_data ${emapper} \
-			--phage_filter_terms ${phage_filter_terms} \
+			--conjugation_data ${conjscan} \
+			--phage_and_cargo_data ${emapper} \
 			--contigs_are_islands \
 			--output_dir ${outdir} \
-			--extract_islands ${genome_fa} \
-			--output_suffix mge_islands
+			--genome_fasta ${genome_fa}
 
 	mgexpose denovo ${genome_id} \
 			--input_genes ${gff} \
-			--recombinase_hits ${recombinases} \
-			--mge_rules ${mge_rules} \
+			--recombinases ${recombinases} \
 			--speci no_speci \
-			--txs_macsy_rules ${conjscan_rules} \
-			--txs_macsy_report ${conjscan} \
-			--phage_eggnog_data ${emapper} \
-			--phage_filter_terms ${phage_filter_terms} \
+			--conjugation_data ${conjscan} \
+			--phage_and_cargo_data ${emapper} \
 			--contigs_are_islands \
 			--output_dir ${outdir} \
-			--extract_islands ${genome_fa} \
-			--output_suffix mge_islands
+			--genome_fasta ${genome_fa}
 
 	islands_gff=${outdir}/${genome_id}.mge_islands.gff3
 	(grep mobile_genetic_element \${islands_gff} | grep -v mge= > ${genome_id}.NO_MGE) || true
