@@ -15,7 +15,7 @@ process mgexpose {
 	path(mge_rules)
 	path(conjscan_rules)
 	path(phage_filter_terms)
-	val(simple_output)
+	val(bulk_output)
 
 	output:
 	tuple val(speci), val(genome_id), path("**/*.mge_islands.gff3"), emit: gff, optional: true
@@ -27,17 +27,10 @@ process mgexpose {
 	
 	script:
 	def y_cluster_option = (params.use_y_clusters) ? " --use_y_clusters --core_threshold -1" : ""
-	def outdir = (simple_output) ? "${genome_id}" : "${speci}/${genome_id}"
+	def outdir = (bulk_output) ? "${speci}/${genome_id}" : "${genome_id}"
 
 	"""
 	mkdir -p ${outdir}/
-
-	if [[ "${gff}" == *".gz" ]]; then
-		gzip -dc ${gff} > mgexpose.gff
-	else
-		ln -sf ${gff} mgexpose.gff
-	fi
-
 
 	echo mgexpose denovo ${genome_id} \
 			--input_genes ${gff} \
@@ -93,7 +86,7 @@ process mgexpose_region {
 	path(mge_rules)
 	path(conjscan_rules)
 	path(phage_filter_terms)
-	val(simple_output)
+	val(bulk_output)
 
 	output:
 	tuple val(speci), val(genome_id), path("**/*.mge_islands.gff3"), emit: gff, optional: true
@@ -103,7 +96,7 @@ process mgexpose_region {
 	tuple val(speci), val(genome_id), path("**/*.gene_info.txt"), emit: gene_info, optional: true
 	
 	script:
-	def outdir = (simple_output) ? "${genome_id}" : "${speci}/${genome_id}"
+	def outdir = (bulk_output) ? "${speci}/${genome_id}" : "${genome_id}"
 
 	"""
 	mkdir -p ${outdir}

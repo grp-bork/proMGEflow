@@ -41,19 +41,19 @@ process publish_gene_annotations {
 
 	input:
 	tuple val(speci), val(genome_id), path(annotations)
-	val(simple_output)
+	val(bulk_output)
 
 	output:
 	path("**/*.{faa,ffn,gff}")
 
 	script:
 
-	def outdir = "${speci}/${genome_id}"
-	def lvlup = "../.."
+	def outdir = "${genome_id}"
+	def lvlup = ".."
 
-	if (simple_output) {
-		outdir = "${genome_id}"
-	 	lvlup = ".."
+	if (bulk_output) {
+		outdir = "${speci}/${genome_id}"
+		lvlup = "../.."
 	}
 
 	"""
@@ -75,18 +75,20 @@ process publish_recombinase_scan {
 	input:
 	// tuple val(speci), val(genome_id), path(mge_table), path(mge_gff)
 	tuple val(speci), val(genome_id), path(mge_gff)
-	val(simple_output)
+	val(bulk_output)
 
 	output:
 	// path("**/*.{tsv,gff3}")
 	path("**/*.gff3")
 
 	script:
-	def outdir = "${speci}/${genome_id}"
-	def lvlup = "../.."
-	if (simple_output) {
-		outdir = "${genome_id}"		
-		lvlup = ".."
+	
+	def outdir = "${genome_id}"		
+	def lvlup = ".."
+
+	if (bulk_output) {
+		outdir = "${speci}/${genome_id}"
+		lvlup = "../.."
 	}
 
 	"""

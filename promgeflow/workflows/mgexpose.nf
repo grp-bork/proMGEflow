@@ -18,7 +18,7 @@ workflow mgexpose_denovo {
 				"${projectDir}/assets/mge_rules_ms.txt",
 				"${projectDir}/assets/conjscan.json",
 				"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt",
-				params.simple_output
+				(params.output_structure != "simple")
 			)
 
 			mge_ch = mge_ch
@@ -38,7 +38,7 @@ workflow mgexpose_denovo {
 				"${projectDir}/assets/mge_rules_ms.txt",
 				"${projectDir}/assets/conjscan.json",
 				"${projectDir}/assets/phage_filter_terms_emapper_v2.3.txt",
-				params.simple_output
+				(params.output_structure != "simple")
 			)
 
 			mge_ch = mge_ch
@@ -61,12 +61,6 @@ workflow mgexpose_denovo {
 				return [ speci, genome_id, gdata, flags ]
 			}
 
-		// publish_gene_annotations(
-		// 	mge_ch
-		// 		.filter { it[2].mge_gff != null }
-		// 		.map { speci, genome_id, gdata, flags -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] },
-		// 	params.simple_output
-		// )
 	emit:
 		genomes = mge_ch
 }

@@ -146,10 +146,6 @@ Upon successful MGE detection in an input genome `proMGEflow` returns a gff with
 
 In case of an unsuccessful pangenome analysis (and subsequentially a failed island detection), `proMGEflow` may still return a set of predicted MGE recombinases (`<genome_id>.predicted_recombinase_mges.gff3`) in the input genome, given any are found. This allows the user to investigate the genomic neighbourhoods of the discovered recombinases and draw their own conclusions.
 
-##### Simple output
-
-By default, output is sorted in directory trees of the pattern `<specI>/<genome>/` in order to not flood the output directory with massive numbers of genome-specific directories. If this behaviour is not desired, it can be turned off by setting the `--simple_output` parameter.
-
 ##### Run summaries
 
 For each run, `proMGEflow` produces up to two run summaries.
