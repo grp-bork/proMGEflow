@@ -281,28 +281,24 @@ process mgexpose {
 	fi
 
 
-	echo mgexpose reannotate ${genome_id} mgexpose.gff \
+	echo mgexpose reannotate ${genome_id} \
+			--input_genes ${gff} \
 			--annotation_mode raw_islands \
-			--recombinase_hits ${recombinases} \
-			--mge_rules ${mge_rules} \
-			--txs_macsy_rules ${conjscan_rules} \
-			--txs_macsy_report ${conjscan} \
-			--phage_eggnog_data ${emapper} \
-			--phage_filter_terms ${phage_filter_terms} \
+			--recombinases ${recombinases} \
+			--conjugation_data ${conjscan} \
+			--phage_and_cargo_data ${emapper} \
 			--output_dir ${outdir} \
-			--extract_islands ${genome_fa} \
+			--genome_fasta ${genome_fa} \
 			--output_suffix mge_islands
-	mgexpose reannotate ${genome_id} mgexpose.gff \
+	mgexpose reannotate ${genome_id} \
+			--input_genes ${gff} \
 			--annotation_mode raw_islands \
-			--recombinase_hits ${recombinases} \
-			--mge_rules ${mge_rules} \
-			--txs_macsy_rules ${conjscan_rules} \
-			--txs_macsy_report ${conjscan} \
-			--phage_eggnog_data ${emapper} \
-			--phage_filter_terms ${phage_filter_terms} \
+			--recombinases ${recombinases} \
+			--conjugation_data ${conjscan} \
+			--phage_and_cargo_data ${emapper} \
 			--output_dir ${outdir} \
-			--extract_islands ${genome_fa} \
-			--output_suffix mge_islands 
+			--genome_fasta ${genome_fa} \
+			--output_suffix mge_islands
 
 	islands_gff=${outdir}/${genome_id}.mge_islands.gff3
 	(grep mobile_genetic_element \${islands_gff} | grep -v mge= > ${genome_id}.NO_MGE) || true
