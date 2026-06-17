@@ -6,7 +6,7 @@ params.recognise_marker_set = params.recognise.marker_set
 
 
 process recognise {
-	container "ghcr.io/grp-bork/recognise:v0.8.0"
+	container "ghcr.io/grp-bork/recognise:v0.8.1"
 	tag "${genome_id}"
 	label "recognise"
 	label "small"
@@ -54,7 +54,7 @@ process recognise {
 
 
 process recognise_genome {
-	container "ghcr.io/grp-bork/recognise:v0.8.0"
+	container "ghcr.io/grp-bork/recognise:v0.8.1"
 	tag "${genome_id}"
 	label "recognise"
 	label "small"
