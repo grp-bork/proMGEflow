@@ -57,6 +57,12 @@
           "description": "Output as tarball",
           "hidden": true,
           "default": false
+        },
+        "tarball_prefix": {
+          "type": "string",
+          "description": "How to name the tarball output",
+          "hidden": true,
+          "default": "promgeflow_output"
         }
       },
       "required": ["output_dir", "input_dir", "recognise_marker_db", "emapper_db", "recombinase_scan_db", "conjscan_models", "gene_cluster_seqdb", "simple_output", "tarball_output"]

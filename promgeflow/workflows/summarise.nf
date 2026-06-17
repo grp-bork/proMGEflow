@@ -1,5 +1,7 @@
 include { publish_tarball; publish_gene_annotations; publish_recombinase_scan } from "../modules/publish"
 
+params.tarball_prefix = "promgeflow_output"
+
 
 process pangenome_summary {
 	publishDir path: "${params.output_dir}", mode: "copy", enabled: !params.tarball_output
@@ -85,7 +87,7 @@ workflow summarise_and_publish {
 			
 			results_ch.dump(pretty: true, tag: "results_ch_sap")
 
-			publish_tarball(results_ch, params.tarball_output)
+			publish_tarball(results_ch, params.tarball_prefix)
 			
 		} else {
 
