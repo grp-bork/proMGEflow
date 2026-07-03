@@ -17,7 +17,6 @@ include { handle_input_genomes } from "./input"
 
 
 params.genome_buffer_size = 100
-print "PARAMS:\n" + params
 
 process pangenome_summary {
 	executor "local"
@@ -39,6 +38,8 @@ process pangenome_summary {
 
 
 workflow full_annotation {
+
+	print "PARAMS:\n${params}"
 
 	handle_input_genomes()
 
