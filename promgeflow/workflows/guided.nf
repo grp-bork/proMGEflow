@@ -16,7 +16,6 @@ include { handle_input_genomes } from "./input"
 
 
 params.genome_buffer_size = 100
-print "PARAMS:\n" + params
 
 
 process extract_recombinase_contigs {
@@ -314,6 +313,8 @@ process mgexpose {
 
 
 workflow guided_annotation {
+
+	print "PARAMS:\n${params}"
 
 	handle_input_genomes()
 

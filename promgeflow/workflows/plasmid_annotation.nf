@@ -16,10 +16,11 @@ include { handle_input_plasmids } from "./input"
 
 
 params.genome_buffer_size = 100
-print "PARAMS:\n" + params
 
 
 workflow plasmid_annotation {
+
+	print "PARAMS:\n${params}"
 
 	handle_input_plasmids()
 
