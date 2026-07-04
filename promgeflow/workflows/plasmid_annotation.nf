@@ -45,12 +45,10 @@ workflow plasmid_annotation {
 	/* STEP 2b: Filter by recombinase presence */
 	filtered_ch = annotations_ch
 		.join(recombinase_annotation.out.recombinases, by: [0, 1])
-		.map { speci, genome_id, annotations, recombinases -> [speci, genome_id, annotations] }
+		.map { speci, genome_id, annotations, _recombinases -> [speci, genome_id, annotations] }
 
 	filtered_proteins_ch = filtered_ch
 		.map { speci, genome_id, annotations -> [speci, genome_id, annotations[0]] }
-	filtered_genes_ch = filtered_ch
-		.map { speci, genome_id, annotations -> [speci, genome_id, annotations[1]] }
 	filtered_gff_ch = filtered_ch
 		.map { speci, genome_id, annotations -> [speci, genome_id, annotations[2]] }
 
@@ -80,7 +78,7 @@ workflow plasmid_annotation {
 
 	publish_ch = annotations_ch
 			.join(mgexpose_region.out.gff, by: [0, 1])
-			.map { speci, genome_id, annotations, mge_gff -> [ speci, genome_id, annotations ] }
+			.map { speci, genome_id, annotations, _mge_gff -> [ speci, genome_id, annotations ] }
 
 	publish_ch.dump(pretty: true, tag: "final_annotations_ch")
 

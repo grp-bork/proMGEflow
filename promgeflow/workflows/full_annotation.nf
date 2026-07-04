@@ -66,11 +66,11 @@ workflow full_annotation {
 
 	/* STEP 2b: Filter by recombinase presence */
 	with_speci_and_recombinase_ch = recombinase_annotation.out.genomes
-		.filter { it[0] != "unknown" }
+		.filter { speci, _genome_id, _gdata -> speci != "unknown" }
 
 	with_speci_and_recombinase_ch
 		.branch {
-			has_emapper: it[2].emapper != null
+			has_emapper: { _speci, _genome_id, gdata -> gdata.emapper != null }
 			to_emapper: true
 		}
 		.set { emapper_input_ch }
@@ -82,15 +82,15 @@ workflow full_annotation {
 
 	/* STEP 2c: Obtain speci reference gene sequences */
 	speci_seqs_ch = with_functional_annotation_ch
-		.map { speci, genome_id, gdata -> speci }
-		.filter { it != "unknown" }
+		.map { speci, _genome_id, _gdata -> speci }
+		.filter { speci -> speci != "unknown" }
 		.unique()
 	
 	// params.gene_cluster_seqdb = "/g/bork6/schudoma/experiments/mge_refseqindex/sp095_refdb/sp095_refdb.tar"
 	get_db_seqs(speci_seqs_ch, params.gene_cluster_seqdb)
 	speci_refseqs_ch = get_db_seqs.out.sequences
 		.join(get_db_seqs.out.done_sentinel, by: 0)
-		.map { speci, sequences, sentinel -> [ speci, sequences ] }
+		.map { speci, sequences, _sentinel -> [ speci, sequences ] }
 
 	/* STEP 3 Perform gene clustering */
 	pangenome_analysis(
@@ -138,7 +138,7 @@ workflow full_annotation {
 	/* STEP 6 Generate a pangenome report for the input genomes with identifed specI */
 
 	genome_summary_ch = mgexpose.out.pangenome_info
-		.map { speci, genome_id, file -> file }
+		.map { _speci, _genome_id, file -> file }
 		.collectFile(name: "pangenome_info.txt", skip: 1, keepHeader: true, sort: true)
 
 	pangenome_summary(genome_summary_ch, "${projectDir}/assets/speci_sizes_pg3.txt")
@@ -149,7 +149,7 @@ workflow full_annotation {
 		secretion_annotation.out.genomes
 			.join(mgexpose.out.gff, by: [0, 1])
 			.join(handle_input_genomes.out.to_genome_annotation, by: [0, 1])
-			.map { speci, genome_id, gdata, mge_gff, gdata_raw -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] },
+			.map { speci, genome_id, gdata, _mge_gff, _gdata_raw -> [ speci, genome_id, [ gdata.proteins, gdata.genes, gdata.gff ] ] },
 		params.simple_output
 	)
 

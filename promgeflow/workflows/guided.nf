@@ -340,10 +340,10 @@ workflow guided_annotation {
 
 	extract_recombinase_contigs(
 		with_recombinase_ch
-			.map { speci, genome_id, gdata -> [ genome_id, gdata.genome, gdata.recomb_gff ] }
+			.map { _speci, genome_id, gdata -> [ genome_id, gdata.genome, gdata.recomb_gff ] }
 	)
 
-	collate_recombinase_contig_stats(extract_recombinase_contigs.out.sentinel.map { genome_id, file -> file }.collect())
+	collate_recombinase_contig_stats(extract_recombinase_contigs.out.sentinel.map { _genome_id, file -> file }.collect())
 
 	map_mgedb(
 		extract_recombinase_contigs.out.contigs,
@@ -355,7 +355,7 @@ workflow guided_annotation {
 
 	ch = extract_matches.out.bed.join(
 		with_recombinase_ch
-			.map { speci, genome_id, gdata -> [ genome_id, gdata.recomb_gff ] },
+			.map { _speci, genome_id, gdata -> [ genome_id, gdata.recomb_gff ] },
 		by: 0
 	) 
 
@@ -363,13 +363,13 @@ workflow guided_annotation {
 
 	extract_mge_candidates(check_recombinase_hits.out.results)
 
-	collate_mge_hits(extract_mge_candidates.out.raw_table.map { genome_id, file -> file }.collect())
+	collate_mge_hits(extract_mge_candidates.out.raw_table.map { _genome_id, file -> file }.collect())
 
 
 	add_genes(
 		extract_mge_candidates.out.bed
 			.join(
-				with_recombinase_ch.map { speci, genome_id, gdata -> [ genome_id, gdata.gff ] },
+				with_recombinase_ch.map { _speci, genome_id, gdata -> [ genome_id, gdata.gff ] },
 				by: 0
 			)
 	)
@@ -377,7 +377,7 @@ workflow guided_annotation {
 	convert_to_gff_and_extract_proteins(
 		add_genes.out.table
 			.join(
-				with_recombinase_ch.map { speci, genome_id, gdata -> [ genome_id, gdata.proteins ] },
+				with_recombinase_ch.map { _speci, genome_id, gdata -> [ genome_id, gdata.proteins ] },
 				by: 0
 			)
 	)
@@ -405,17 +405,17 @@ workflow guided_annotation {
 	mgexpose_ch = convert_to_gff_and_extract_proteins.out.gff
 		.join(
 			recombinase_annotation.out.genomes
-				.map { speci, genome_id, gdata -> [ genome_id, gdata.recombinases, gdata.genome ] },
+				.map { _speci, genome_id, gdata -> [ genome_id, gdata.recombinases, gdata.genome ] },
 			by: 0
 		)
 		.join(
 			functional_annotation.out.genomes
-				.map { speci, genome_id, gdata -> [ genome_id, gdata.emapper ] },
+				.map { _speci, genome_id, gdata -> [ genome_id, gdata.emapper ] },
 			by: 0
 		)
 		.join(
 			secretion_annotation.out.genomes
-				.map { speci, genome_id, gdata -> [ genome_id, gdata.secretion_data, ] },
+				.map { _speci, genome_id, gdata -> [ genome_id, gdata.secretion_data, ] },
 				by: 0
 		)
 

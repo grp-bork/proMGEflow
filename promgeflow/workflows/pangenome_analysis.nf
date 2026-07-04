@@ -19,7 +19,7 @@ workflow pangenome_analysis {
 
 		linclust_clusters_ch = linclust.out.mmseq_cluster
 			.join(linclust.out.done_sentinel, by: [0, 1])
-			.map { speci, genome_id, clusters, sentinel ->
+			.map { speci, genome_id, clusters, _sentinel ->
 				[ speci, genome_id, clusters ]
 			}
 		linclust_clusters_ch = genomes_ch
@@ -33,6 +33,6 @@ workflow pangenome_analysis {
 		linclust_clusters_ch.dump(pretty: true, tag: "linclust_clusters_ch")
 	
 	emit:
-		genomes = linclust_clusters_ch
+		linclust_clusters_ch
 
 }

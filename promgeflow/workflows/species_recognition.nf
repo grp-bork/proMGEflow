@@ -19,7 +19,7 @@ workflow species_recognition {
 	main:
 		genomes_ch
 			.branch {
-				annotated: it[1].genes != null
+				annotated: { _genome_id, gdata -> gdata.genes != null }
 				unannotated: true
 			}
 			.set{ recognise_input_ch }
@@ -87,7 +87,7 @@ workflow species_recognition {
 		// 	.map { genome_id, speci, genome_fasta -> [speci, genome_id, genome_fasta] }
 
 	emit:
-		genomes = recognise_output_ch
+		recognise_output_ch
 		// annotations = annotations_ch
 		// genomes = pgenomes_ch
 

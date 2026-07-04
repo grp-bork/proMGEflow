@@ -31,7 +31,7 @@ workflow recombinase_annotation {
 			.join(recombinase_scan.out.recombinases, by: [0, 1])
 			.join(recombinase_scan.out.recomb_table, by: [0, 1])
 			.join(recombinase_scan.out.mge_pred_gff, by: [0, 1])
-			.map { speci, genome_id, sentinel, recombinases, recomb_table, recomb_gff -> 
+			.map { speci, genome_id, _sentinel, recombinases, recomb_table, recomb_gff -> 
 				return [ speci, genome_id, recombinases, recomb_table, recomb_gff ]
 			}
 		recombinase_output_ch = genomes_ch
@@ -45,7 +45,7 @@ workflow recombinase_annotation {
 			}
 		
 	emit:
-		genomes = recombinase_output_ch
+		recombinase_output_ch
 		// recombinases = annotated_recombinases_ch
 		// mge_predictions = mge_predictions_ch
 		// mge_predictions_gff = mge_predictions_gff_ch

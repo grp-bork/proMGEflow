@@ -16,16 +16,19 @@ workflow genome_annotation {
 
 	    if (params.prodigal_batch_size != null && params.prodigal_batch_size > 1) {
 
-			def batch_id = 0
+			def batch_id = -1
 			// prodigal_input_ch = genomes_ch
 			prodigal_input_ch = genome_data_ch
-				.map { speci, genome_id, genome_fasta -> genome_fasta }					
+				.map { _speci, _genome_id, genome_fasta -> genome_fasta }					
 				.buffer(size: params.prodigal_batch_size, remainder: true)
-				.map { files -> [ batch_id++, files ] }
+				.map { files -> 
+					batch_id += 1
+					return [ batch_id, files ]
+				}
 
 			// genome_map = genomes_ch
 			genome_map = genome_data_ch 
-				.map { speci, genome_id, genome_fasta ->
+				.map { _speci, genome_id, genome_fasta ->
 					// [ genome_fasta.replaceAll(/.+\//, ""), genome_id ]
 					[ genome_fasta.getName(), genome_id ]
 				}
@@ -45,13 +48,13 @@ workflow genome_annotation {
 				}
 				.groupTuple(by: 0, sort: true, size: 3)
 				.join(genome_map, by: 0)
-				.map { fn, files, genome_id -> [ genome_id, files ] }
+				.map { _fn, files, genome_id -> [ genome_id, files ] }
 
 			annotations_ch.dump(pretty: true, tag: "annotations_post_ch")
 			annotations_ch = annotations_ch
 				.join(
 			 		// genomes_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
-					genome_data_ch.map { speci, genome_id, genome_fasta -> [genome_id, speci] },
+					genome_data_ch.map { speci, genome_id, _genome_fasta -> [genome_id, speci] },
 			 		by: 0
 				)
 			 	.map { genome_id, files, speci -> [speci, genome_id, files] }			
@@ -78,8 +81,7 @@ workflow genome_annotation {
 			}
 
 	emit:
-		// annotations = annotations_ch
-		genomes = prodigal_output_ch
+		prodigal_output_ch
 
 
 }	
