@@ -87,7 +87,7 @@ workflow species_recognition {
 		// 	.map { genome_id, speci, genome_fasta -> [speci, genome_id, genome_fasta] }
 
 	emit:
-		recognise_output_ch
+		genomes = recognise_output_ch
 		// annotations = annotations_ch
 		// genomes = pgenomes_ch
 

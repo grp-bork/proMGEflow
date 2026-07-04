@@ -29,6 +29,6 @@ workflow functional_annotation {
 			}		
 
 	emit:
-		emapper_annotations_ch	
+		genomes = emapper_annotations_ch	
 
 }

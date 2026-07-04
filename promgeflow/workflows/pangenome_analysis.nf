@@ -33,6 +33,6 @@ workflow pangenome_analysis {
 		linclust_clusters_ch.dump(pretty: true, tag: "linclust_clusters_ch")
 	
 	emit:
-		linclust_clusters_ch
+		genomes = linclust_clusters_ch
 
 }

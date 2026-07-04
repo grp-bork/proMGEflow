@@ -45,7 +45,7 @@ workflow recombinase_annotation {
 			}
 		
 	emit:
-		recombinase_output_ch
+		genomes = recombinase_output_ch
 		// recombinases = annotated_recombinases_ch
 		// mge_predictions = mge_predictions_ch
 		// mge_predictions_gff = mge_predictions_gff_ch

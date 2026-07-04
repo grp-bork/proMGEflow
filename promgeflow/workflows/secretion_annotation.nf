@@ -25,6 +25,6 @@ workflow secretion_annotation {
 
 
 	emit:
-		macsy_reports_ch
+		genomes = macsy_reports_ch
 
 }
