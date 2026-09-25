@@ -51,7 +51,7 @@ process extract_recombinase_contigs {
 	fi
 	
 	# printf "%s\\t%s\\t%s\\t%s\\n" "\$n_contigs" "\$n_rec_contigs" "\$s_contigs" "\$s_rec_contigs" > ${genome_id}.RECOMBINASE_CONTIGS.DONE
-	printf "%s"\\t%s\\n" "\$contig_stats" "\$rec_contig_stats" > ${genome_id}.RECOMBINASE_CONTIGS.DONE
+	printf "%s\\t%s\\n" "\$contig_stats" "\$rec_contig_stats" > ${genome_id}.RECOMBINASE_CONTIGS.DONE
 	"""
 	// seqtk subseq ${sample.id}_1.fastq chimeras.txt >> chimeras.fastq
 
