@@ -35,7 +35,7 @@ process extract_recombinase_contigs {
 	"""
 	seqtk subseq ${fasta} <(grep -v "^#" ${gff} | cut -f 1 | uniq | sort -u) > ${genome_id}.recombinase_contigs.fa
 
-	contig_stats=$(seqtk size ${fasta})
+	contig_stats=\$(seqtk size ${fasta})
 	# n_contigs=\$(zgrep -c '^>' ${fasta})
 	# s_contigs=\$(zgrep -v '^>' ${fasta} | tr -d "\\n" | wc -c)
 
@@ -46,7 +46,7 @@ process extract_recombinase_contigs {
 	else
 		# n_rec_contigs=\$(grep -c '^>' ${genome_id}.recombinase_contigs.fa)
 		# s_rec_contigs=\$(grep -v '^>' ${genome_id}.recombinase_contigs.fa | tr -d "\\n" | wc -c)
-		rec_contig_stats=$(seqtk size ${genome_id}.recombinase_contigs.fa)
+		rec_contig_stats=\$(seqtk size ${genome_id}.recombinase_contigs.fa)
 		gzip -v ${genome_id}.recombinase_contigs.fa
 	fi
 	
