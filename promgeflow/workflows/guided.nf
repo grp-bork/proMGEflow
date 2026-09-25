@@ -35,20 +35,23 @@ process extract_recombinase_contigs {
 	"""
 	seqtk subseq ${fasta} <(grep -v "^#" ${gff} | cut -f 1 | uniq | sort -u) > ${genome_id}.recombinase_contigs.fa
 
-	n_contigs=\$(zgrep -c '^>' ${fasta})
-	s_contigs=\$(zgrep -v '^>' ${fasta} | tr -d "\\n" | wc -c)
+	contig_stats=$(seqtk size ${fasta})
+	# n_contigs=\$(zgrep -c '^>' ${fasta})
+	# s_contigs=\$(zgrep -v '^>' ${fasta} | tr -d "\\n" | wc -c)
 
 	if [[ ! -s ${genome_id}.recombinase_contigs.fa ]]; then 
-		n_rec_contigs=0
-		s_rec_contigs=0
+		# n_rec_contigs=0
+		# s_rec_contigs=0
 		rm -fv ${genome_id}.recombinase_contigs.fa
 	else
-		n_rec_contigs=\$(grep -c '^>' ${genome_id}.recombinase_contigs.fa)
-		s_rec_contigs=\$(grep -v '^>' ${genome_id}.recombinase_contigs.fa | tr -d "\\n" | wc -c)
+		# n_rec_contigs=\$(grep -c '^>' ${genome_id}.recombinase_contigs.fa)
+		# s_rec_contigs=\$(grep -v '^>' ${genome_id}.recombinase_contigs.fa | tr -d "\\n" | wc -c)
+		rec_contig_stats=$(seqtk size ${genome_id}.recombinase_contigs.fa)
 		gzip -v ${genome_id}.recombinase_contigs.fa
 	fi
 	
-	printf "%s\\t%s\\t%s\\t%s\\n" "\$n_contigs" "\$n_rec_contigs" "\$s_contigs" "\$s_rec_contigs" > ${genome_id}.RECOMBINASE_CONTIGS.DONE
+	# printf "%s\\t%s\\t%s\\t%s\\n" "\$n_contigs" "\$n_rec_contigs" "\$s_contigs" "\$s_rec_contigs" > ${genome_id}.RECOMBINASE_CONTIGS.DONE
+	printf "%s"\\t%s\\n" "\$contig_stats" "\$rec_contig_stats" > ${genome_id}.RECOMBINASE_CONTIGS.DONE
 	"""
 	// seqtk subseq ${sample.id}_1.fastq chimeras.txt >> chimeras.fastq
 
