@@ -1,8 +1,10 @@
-v3.16.6
+v3.16.7
+-------
 
 * pull recombinase_scan container from ghcr.io instead of embl container repo
 
 v3.16.5
+-------
 
 * update recognise container to v0.8.1 -- this fixes a potential gene id bug
 
