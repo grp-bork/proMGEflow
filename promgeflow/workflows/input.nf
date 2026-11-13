@@ -101,11 +101,11 @@ workflow handle_input_genomes {
 				GENOME_ANNOTATION: (gdata != null && gdata.genes != null && gdata.proteins != null && gdata.gff != null),
 				SPECIES_RECOGNITION: (speci != null && speci != "unknown"),
 				GENES_SHA256: false,
-				SPECI_CLUSTER_SEQS: (gdata != null && gdata.clusters != null),
+				SPECI_CLUSTER_SEQS: (gdata != null && gdata.gene_clusters != null),
 				RECOMBINASE_SCAN: false,
 				FUNCTIONAL_ANNOTATION: (gdata != null && gdata.emapper != null),
 				CONJUGATION_SYSTEM_ANNOTATION: false,
-				PANGENOME_CLUSTERING: (gdata != null && gdata.clusters != null),
+				PANGENOME_CLUSTERING: (gdata != null && gdata.gene_clusters != null),
 				MGE_ANNOTATION: false
 			]
 			return [ speci, genome_id, gdata, flags ]
