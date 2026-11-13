@@ -1,4 +1,4 @@
-include { hash_genes } from ../modules/hash_genes
+include { hash_genes } from "../modules/hash_genes"
 
 // If the specI classification is known beforehand, it can be passed via the `known_speci` parameter.
 // Otherwise, specI will be treated as unknown until it is detected by reCOGnise downstream.
