@@ -1,5 +1,5 @@
 process hash_genes {
-	tag "${speci}/${genome_id}"
+	tag "${genome_id}"
 	label "mgexpose"
 
 	input:
