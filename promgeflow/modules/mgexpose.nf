@@ -26,7 +26,7 @@ process mgexpose {
 	tuple val(speci), val(genome_id), path("${genome_id}.pangenome.txt"), emit: pangenome_info, optional: true
 	
 	script:
-	def y_cluster_option = (params.use_y_clusters) ? " --use_y_clusters --core_threshold -1" : ""
+	// def y_cluster_option = (params.use_y_clusters) ? " --use_y_clusters --core_threshold -1" : ""
 	def outdir = (bulk_output) ? "${speci}/${genome_id}" : "${genome_id}"
 
 	"""
@@ -41,7 +41,8 @@ process mgexpose {
 			--cluster_data ${gene_clusters} \
 			--output_dir ${outdir} \
 			--genome_fasta ${genome_fa} \
-			${y_cluster_option}
+			--cluster_type ${params.cluster_type} \
+			--core_threshold ${params.core_threshold}
 	mgexpose denovo ${genome_id} \
 			--input_genes ${gff} \
 			--recombinases ${recombinases} \
@@ -51,7 +52,8 @@ process mgexpose {
 			--cluster_data ${gene_clusters} \
 			--output_dir ${outdir} \
 			--genome_fasta ${genome_fa} \
-			${y_cluster_option}
+			--cluster_type ${params.cluster_type} \
+			--core_threshold ${params.core_threshold}
 
 	islands_gff=${outdir}/${genome_id}.mge_islands.gff3
 	(grep mobile_genetic_element \${islands_gff} | grep -v mge= > ${genome_id}.NO_MGE) || true

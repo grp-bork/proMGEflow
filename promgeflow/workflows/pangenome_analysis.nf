@@ -5,14 +5,22 @@ workflow pangenome_analysis {
 
 	take:
 		genomes_ch
-		cluster_reps_ch
+		// cluster_reps_ch
 
 	main:
 		genomes_ch.dump(pretty: true, tag: "pangenome_analysis_input")
 
 		genes_ch = genomes_ch
-			.filter { it[3].FUNCTIONAL_ANNOTATION }
 			.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.genes ] }
+
+		cluster_seqs_ch = genes_ch
+			.map { speci, genome_id, genes -> speci }
+			.unique()
+
+		get_db_seqs(cluster_seqs_ch, params.gene_cluster_seqdb)
+		cluster_reps_ch = get_db_seqs.out.sequences
+			.join(get_db_seqs.out.done_sentinel, by: 0)
+			.map { speci, sequences, sentinel -> [ speci, sequences ] }
 
 		linclust_input_ch = genes_ch
 			.combine(cluster_reps_ch, by: 0)
@@ -30,7 +38,8 @@ workflow pangenome_analysis {
 				def gdata = gdata_old.clone()
 				gdata.gene_clusters = clusters
 				def flags = flags_old.clone()
-				flags.PANGENOME_CLUSTERING = (clusters != null)
+				flags.SPECI_CLUSTER_SEQS = (clusters != null)
+				flags.PANGENOME_CLUSTERING = (clusters != null)				
 				return [ speci, genome_id, gdata, flags ]
 			}
 

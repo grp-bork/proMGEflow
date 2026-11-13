@@ -43,37 +43,51 @@ workflow full_annotation {
 
 	/* STEP 2c: Obtain speci reference gene sequences */
 	speci_seqs_ch = functional_annotation.out.genomes
+		.filter { it[0] != "unknown" && !it[3].SPECI_CLUSTER_SEQS }
 		.map { speci, genome_id, gdata, flags -> speci }
-		.filter { it != "unknown" }
 		.unique()
 	
 	// params.gene_cluster_seqdb = "/g/bork6/schudoma/experiments/mge_refseqindex/sp095_refdb/sp095_refdb.tar"
-	get_db_seqs(speci_seqs_ch, params.gene_cluster_seqdb)
-	speci_refseqs_ch = get_db_seqs.out.sequences
-		.join(get_db_seqs.out.done_sentinel, by: 0)
-		.map { speci, sequences, sentinel -> [ speci, sequences ] }
+	// get_db_seqs(speci_seqs_ch, params.gene_cluster_seqdb)
+	// speci_refseqs_ch = get_db_seqs.out.sequences
+	// 	.join(get_db_seqs.out.done_sentinel, by: 0)
+	// 	.map { speci, sequences, sentinel -> [ speci, sequences ] }
 
-	with_functional_annotation_ch = functional_annotation.out.genomes
-		.join(
-			functional_annotation.out.genomes
-				.map { speci, genome_id, gdata, flags -> [ speci, genome_id ] }
-				.combine(speci_refseqs_ch, by: 0),
-			by: [0, 1], remainder: true
-		)
-		.map { speci, genome_id, gdata, flags_old, sequences -> 
-			def flags = flags_old.clone()
-			flags.SPECI_CLUSTER_SEQS = (sequences != null)
-			return [ speci, genome_id, gdata, flags ]
+	// with_functional_annotation_ch = functional_annotation.out.genomes
+	// 	.join(
+	// 		functional_annotation.out.genomes
+	// 			.map { speci, genome_id, gdata, flags -> [ speci, genome_id ] }
+	// 			.combine(speci_refseqs_ch, by: 0),
+	// 		by: [0, 1], remainder: true
+	// 	)
+	// 	.map { speci, genome_id, gdata, flags_old, sequences -> 
+	// 		def flags = flags_old.clone()
+	// 		flags.SPECI_CLUSTER_SEQS |= (sequences != null)
+	// 		return [ speci, genome_id, gdata, flags ]
+	// 	}
+
+	// 	.filter { it[0] != "unknown" && it[3].FUNCTIONAL_ANNOTATION && !it[3].SPECI_CLUSTER_SEQS }
+	functional_annotation.out.genomes
+		.branch {
+			failed: !it[3].FUNCTIONAL_ANNOTATION || it[0] == "unknown"
+			required: !it[3].SPECI_CLUSTER_SEQS || !it[3].PANGENOME_CLUSTERING
+			not_required: true
 		}
-
+		.set { pangenome_analysis_ch }
+	
 	/* STEP 3 Perform gene clustering */
 	pangenome_analysis(
-		with_functional_annotation_ch,
-		speci_refseqs_ch
+		// with_functional_annotation_ch,
+		// functional_annotation.out.genomes,
+		pangenome_analysis_ch.required
+		// speci_refseqs_ch
 	)
 
+	conjugation_system_analysis_ch = pangenome_analysis_ch.not_required
+		.mix(pangenome_analysis.out.genomes)
+
 	/* STEP 4 Protein annotation - phage signals and conjugation systems */
-	conjugation_system_annotation(pangenome_analysis.out.genomes)
+	conjugation_system_annotation(conjugation_system_analysis_ch)
 	
 	/* STEP 5 Annotate the genomes with island data and assign mges */
 	mgexpose_denovo(conjugation_system_annotation.out.genomes)

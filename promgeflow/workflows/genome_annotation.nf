@@ -82,6 +82,7 @@ workflow genome_annotation {
 					gdata.gff = files[2]
 				}
 				flags.GENOME_ANNOTATION = (files != null)
+				flags.GENES_SHA256 = (files != null)
 				return [ speci, genome_id, gdata, flags ]
 			}
 

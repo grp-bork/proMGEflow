@@ -57,8 +57,20 @@ workflow handle_input_genomes {
 		if (params.input_sheet) {
 			genomes_ch = Channel
 				.fromPath(params.input_sheet)
-        		.splitCsv(sep: '\t', header: ["speci", "genome_id", "genome", "proteins", "genes", "gff", "emapper"])
-				.map { gdata -> [gdata.speci, gdata.genome_id, gdata] }
+        		.splitCsv(sep: '\t', header: [ "speci", "genome_id", "genome", "proteins", "genes", "gff", "emapper", "clusters" ])
+				.map { row -> 
+					def gdata = [:]
+					gdata.speci = row.speci
+					gdata.genome_id = row.genome_id
+					gdata.genome = row.genome					
+					gdata.genes_sha256 = file("${workDir}/dummy.genes.sha256.tsv")
+					gdata.proteins = row.proteins
+					gdata.genes = row.genes
+					gdata.gff = row.gff
+					gdata.emapper = row.emapper
+					gdata.clusters = row.clusters
+					return [ gdata.speci, gdata.genome_id, gdata ]
+				}
         
 			speci_ch = genomes_ch
 				.map { speci, genome_id, gdata -> speci }
@@ -74,6 +86,7 @@ workflow handle_input_genomes {
 					gdata.speci = speci_tag
 					gdata.genome_id = fasta.name.replaceAll(/\.(fna|fa(sta)?)(\.gz)?$/, "")
 					gdata.genome = fasta
+					gdata.genes_sha256 = file("${workDir}/dummy.genes.sha256.tsv")
 					return [ gdata.speci, gdata.genome_id, gdata ]
 				}
 
@@ -85,11 +98,12 @@ workflow handle_input_genomes {
 			def flags = [
 				GENOME_ANNOTATION: (gdata != null && gdata.genes != null && gdata.proteins != null && gdata.gff != null),
 				SPECIES_RECOGNITION: (speci != null && speci != "unknown"),
-				SPECI_CLUSTER_SEQS: false,
+				GENES_SHA256: false,
+				SPECI_CLUSTER_SEQS: (gdata != null && gdata.clusters != null),
 				RECOMBINASE_SCAN: false,
 				FUNCTIONAL_ANNOTATION: (gdata != null && gdata.emapper != null),
 				CONJUGATION_SYSTEM_ANNOTATION: false,
-				PANGENOME_CLUSTERING: false,
+				PANGENOME_CLUSTERING: (gdata != null && gdata.clusters != null),
 				MGE_ANNOTATION: false
 			]
 			return [ speci, genome_id, gdata, flags ]
@@ -103,11 +117,42 @@ workflow handle_input_genomes {
 			}
 			.set { genomes_speci_ch }
 
+		unhashed_ch = genomes_speci_ch.speci_annotated
+			.mix(genomes_speci_ch.speci_unannotated)
+			.map { speci, genome_id, gdata, flags -> [ genome_id, gdata.genes ] }
+
+		hash_genes(unhashed_ch)
+
+		speci_annotated_ch = genomes_speci_ch.speci_annotated
+			.map { speci, genome_id, gdata, flags -> [ genome_id, speci, gdata, flags ] }
+			.join(hash_genes.out.genes_sha256, by: 0)
+			.map { genome_id, speci, gdata_old, flags_old, genes_sha256 -> 
+				gdata = gdata_old.clone()
+				flags = flags_old.clone()
+				gdata.genes_sha256 = genes_sha256
+				flags.GENES_SHA256 = true
+				return [ speci, genome_id, gdata, flags ]
+			}
+
+		speci_unknown_ch = genomes_speci_ch.speci_unknown
+			.map { speci, genome_id, gdata, flags -> [ genome_id, speci, gdata, flags ] }
+			.join(hash_genes.out.genes_sha256, by: 0)
+			.map { genome_id, speci, gdata_old, flags_old, genes_sha256 -> 
+				gdata = gdata_old.clone()
+				flags = flags_old.clone()
+				gdata.genes_sha256 = genes_sha256
+				flags.GENES_SHA256 = true
+				return [ genome_id, gdata, flags ]
+			}
+		
+
 	emit:
-		to_recombinase_scan = genomes_speci_ch.speci_annotated
+		// to_recombinase_scan = genomes_speci_ch.speci_annotated
+		to_recombinase_scan = speci_annotated_ch
 		to_genome_annotation = genomes_speci_ch.speci_unannotated
-		to_species_recognition = genomes_speci_ch.speci_unknown
-			.map { speci, genome_id, gdata, flags -> [ genome_id, gdata, flags ] }
+		// to_species_recognition = genomes_speci_ch.speci_unknown
+			// .map { speci, genome_id, gdata, flags -> [ genome_id, gdata, flags ] }
+		to_species_recognition = speci_unknown_ch
 		speci = speci_ch
 		// status = status_ch
 
