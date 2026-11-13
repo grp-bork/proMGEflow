@@ -1,4 +1,5 @@
 include { linclust } from "../modules/linclust"
+include { get_db_seqs } from "../modules/get_db_seqs"
 
 
 workflow pangenome_analysis {
