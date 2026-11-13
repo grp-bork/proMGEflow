@@ -74,7 +74,7 @@ workflow full_annotation {
 			not_required: true
 		}
 		.set { pangenome_analysis_ch }
-	
+
 	/* STEP 3 Perform gene clustering */
 	pangenome_analysis(
 		// with_functional_annotation_ch,

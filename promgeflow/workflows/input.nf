@@ -70,7 +70,7 @@ workflow handle_input_genomes {
 					gdata.genes = row.genes
 					gdata.gff = row.gff
 					gdata.emapper = row.emapper
-					gdata.clusters = row.clusters
+					gdata.gene_clusters = row.clusters
 					return [ gdata.speci, gdata.genome_id, gdata ]
 				}
         
