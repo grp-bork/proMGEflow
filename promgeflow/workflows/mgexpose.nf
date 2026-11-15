@@ -29,7 +29,7 @@ workflow mgexpose_denovo {
 
 		} else {
 			annotation_data_ch = genomes_ch
-				.filter { it[3].PANGENOME_CLUSTERING }
+				.filter { it[3].PANGENOME_CLUSTERING && it[3].RECOMBINASE_SCAN }
 				.map { speci, genome_id, gdata, flags -> [ speci, genome_id, gdata.gff, gdata.conjugation_system_data, gdata.emapper, gdata.gene_clusters, gdata.recombinases, gdata.genome ] }
 			annotation_data_ch.dump(pretty: true, tag: "annotation_data_ch")
 
